@@ -9,14 +9,11 @@ Created on Sun Nov  4 13:40:49 2018
 import numpy as np
 from gurobipy import Model,GRB,LinExpr,QuadExpr
 
-from inclusion_encodings import subset_minkowski_right
-
-from pyinpolytope.polytope.polytope import translate,polytope
-from pyinpolytope.polytope.main import project
-from pyinpolytope.polytope.visualize_2D import visualize_2D as vis
-
-from pyinpolytope.utilities.utils import PI,valuation
-from pyinpolytope.utilities.inclusion_encodings import subset_zonotope_both
+from pypolycontain.lib.inclusion_encodings import subset_minkowski_right
+from pypolycontain.lib.polytope import translate,polytope
+from pypolycontain.lib.elimination import project
+from pypolycontain.visualization.visualize_2D import visualize_2D as vis
+from pypolycontain.utils.utils import PI,valuation
 
 model=Model("Zonotope")
 H=np.array([[1,1],[-1,1],[0,-1]])
@@ -24,7 +21,7 @@ h=np.array([[1,1,0]]).reshape(3,1)
 p_triangle=polytope(H,h)
 
 e=0.1
-scale=0.69
+scale=0.68
 H=np.array([[1,0],[-1,0],[0,-1],[1,1],[-1,1],[0,1]])
 h=np.array([[1+e,1+e,1,1+e,1+e,1]]).reshape(6,1)
 p_sum=polytope(H,h)
@@ -54,4 +51,3 @@ p_sub_line=translate(project(T_line,p_line.H,p_line.h*scale),t_line)
 vis([p_sum,p_sum,p_sum],0.5)
 
 vis([p_triangle,p_line,p_sub_triangle,p_sub_line],0.5)
-

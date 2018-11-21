@@ -7,12 +7,12 @@ Created on Wed Nov 14 09:05:36 2018
 import numpy as np
 from gurobipy import Model
 
-from pyinpolytope.polytope.polytope import polytope,translate
-from pyinpolytope.polytope.main import project
-from pyinpolytope.polytope.visualize_2D import visualize_2D as vis
+from pypolycontain.lib.polytope import polytope,translate
+from pypolycontain.lib.elimination import project
+from pypolycontain.visualization.visualize_2D import visualize_2D as vis
 
-from pyinpolytope.utilities.utils import PI,valuation
-from pyinpolytope.utilities.inclusion_encodings import subset_both_projection
+from pypolycontain.utils.utils import PI,valuation
+from pypolycontain.lib.inclusion_encodings import subset_both_projection
 
 model=Model("Projection")
 H=np.array([[1,1],[-1,1],[0,-1]])
@@ -24,7 +24,7 @@ h=np.array([[1,1,1,1,1]]).reshape(5,1)
 p_sum=polytope(H,h)
 vis([p_sum],0.5)
 
-e=0.01
+e=0.1
 H=np.array([[1,0],[-1,0],[0,1],[0,-1]])
 h=np.array([[e,e,0,1]]).reshape(4,1)
 p_line=polytope(H,h)

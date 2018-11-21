@@ -11,15 +11,14 @@ import scipy as sp
 from gurobipy import Model,GRB
 import matplotlib.pyplot as plt
 
-from pyinpolytope.polytope.polytope import translate
-from pyinpolytope.polytope.main import project
-from pyinpolytope.polytope.visualize_2D import visualize_2D as vis
-from pyinpolytope.polytope.visualize_2D import visualize_2D_zonotopes as visZ
-
-from pyinpolytope.utilities.utils import PI,valuation,null_space
-from pyinpolytope.utilities.inclusion_encodings import subset_zonotope_both,constraints_AB_eq_CD
-from pyinpolytope.utilities.zonotope import zonotope,zonotope_inside
-from pyinpolytope.utilities.utils import vertices_cube as vcube
+from pypolycontain.lib.polytope import translate
+from pypolycontain.lib.elimination import project
+from pypolycontain.lib.inclusion_encodings import subset_zonotope_both,constraints_AB_eq_CD
+from pypolycontain.lib.zonotope import zonotope,zonotope_inside
+from pypolycontain.visualization.visualize_2D import visualize_2D as vis
+from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes as visZ
+from pypolycontain.utils.utils import PI,valuation,null_space
+from pypolycontain.utils.utils import vertices_cube as vcube
 
 
 def zonotope_inside_scale(z,Y):
@@ -43,7 +42,7 @@ def zonotope_inside_scale(z,Y):
     model.optimize()
     return scale.X
 
-if False:    
+if True:    
     scale_table={}
     difference_table={}
     for n in range(3,11):

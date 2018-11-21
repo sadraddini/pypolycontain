@@ -10,23 +10,21 @@ import numpy as np
 import scipy as sp
 from gurobipy import Model
 
-from pyinpolytope.polytope.polytope import translate
-from pyinpolytope.polytope.main import project
-from pyinpolytope.polytope.visualize_2D import visualize_2D as vis
-from pyinpolytope.polytope.visualize_2D import visualize_2D_zonotopes as visZ
+from pypolycontain.lib.inclusion_encodings import subset_minkowski_right,subset_zonotope_both
+from pypolycontain.lib.zonotope import zonotope,zonotope_inside
+from pypolycontain.lib.elimination import project
+from pypolycontain.visualization.visualize_2D import visualize_2D as vis
+from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes as visZ
 
-
-from pyinpolytope.utilities.utils import PI,valuation,null_space
-from pyinpolytope.utilities.inclusion_encodings import subset_zonotope_both
-from pyinpolytope.utilities.zonotope import zonotope,zonotope_inside
-from pyinpolytope.utilities.utils import vertices_cube as vcube
+from pypolycontain.utils.utils import PI,valuation,null_space
+from pypolycontain.utils.utils import vertices_cube as vcube
 
 model=Model("Zonotope")
 #G_l=np.array([[1,1,0,-1,0.5,-1],[0,1,0.5,-0.5,-1,2]])*1
 #G_l=np.array([[1,0],[0,1]])*3.2
 G_l=np.array([[1,0,0,1,1],[0,1,0,-1,-3]])*1
 #G_r=np.array([[2,1,0,1,1,-1,-2,-1],[-1,3,0,1,-1,1,0,5],[0,0,1,1,-1,-1,2,1]])*1
-G_r=np.array([[1,0,1,1,1],[0,1,1,-1,3]])*1
+G_r=np.array([[1,0,1,1,1,-2],[0,1,1,-1,3,2]])*1
 x_l=np.array([0,1]).reshape(2,1)
 x_r=np.array([1,0]).reshape(2,1)
 (alpha,beta)=subset_zonotope_both(model,x_l,G_l,x_r,G_r)

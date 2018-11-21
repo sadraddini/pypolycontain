@@ -7,12 +7,12 @@ Created on Thu Nov  8 19:51:06 2018
 
 import numpy as np
 
-from pyinpolytope.polytope.polytope import translate
-from pyinpolytope.polytope.main import project
-from pyinpolytope.polytope.visualize_2D import visualize_2D as vis
+from pypolycontain.lib.polytope import translate
+from pypolycontain.lib.elimination import project
+from pypolycontain.visualization.visualize_2D import visualize_2D as vis
 
-from pyinpolytope.utilities.utils import PI,valuation
-from pyinpolytope.utilities.zonotope import zonotope,zonotope_distance
+from pypolycontain.utils.utils import PI,valuation
+from pypolycontain.lib.zonotope import zonotope,zonotope_distance
 
 
 G_l=np.array([[1,1,0,-1,0.5,-1,1],[0,1,0.5,-0.5,-1,-5,4]])*1

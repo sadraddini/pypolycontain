@@ -9,7 +9,7 @@ Created on Mon Sep 10 12:14:51 2018
 import numpy as np
 from scipy.linalg import block_diag
 
-from redundancy_reduction import canonical_polytope
+from pypolycontain.utils.redundancy_reduction import canonical_polytope
 from polytope import polytope
 
       
