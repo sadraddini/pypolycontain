@@ -20,7 +20,7 @@ class zonotope():
         self.G=G
         self.name=name
         try:
-            assert len(color)==3
+            assert color!=None
             self.color=color
         except:
             self.color=(np.random.random(),np.random.random(),np.random.random())
@@ -59,7 +59,6 @@ def zonotope_directed_distance(z1,z2):
             model.addConstr(G1[row,column]-eta[row,column]==lin)
     model.setParam('OutputFlag', False)
     model.optimize()
-    print("epsilon",epsilon)
     return epsilon.X    
             
             
@@ -110,7 +109,6 @@ def zonotope_distance_cocenter(z1,z2):
                 lin.add(z2.G[row,k]*alpha[k,column])
             model.addConstr(z1.G[row,column]-eta[row,column]==lin)
     model.optimize()
-    print("epsilon",epsilon)
 #    print valuation(alpha)
     return epsilon.X
 
