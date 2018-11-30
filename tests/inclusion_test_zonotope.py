@@ -10,32 +10,22 @@ import numpy as np
 import scipy as sp
 from gurobipy import Model
 
-from pypolycontain.lib.inclusion_encodings import subset_minkowski_right,subset_zonotope_both
+from pypolycontain.lib.inclusion_encodings import subset_zonotope_both
 from pypolycontain.lib.zonotope import zonotope,zonotope_inside
-from pypolycontain.lib.elimination import project
-from pypolycontain.visualization.visualize_2D import visualize_2D as vis
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes as visZ
 
 from pypolycontain.utils.utils import PI,valuation,null_space
 from pypolycontain.utils.utils import vertices_cube as vcube
 
 model=Model("Zonotope")
-#G_l=np.array([[1,1,0,-1,0.5,-1],[0,1,0.5,-0.5,-1,2]])*1
-#G_l=np.array([[1,0],[0,1]])*3.2
 G_l=np.array([[1,0,0,1,1],[0,1,0,-1,-3]])*1
-#G_r=np.array([[2,1,0,1,1,-1,-2,-1],[-1,3,0,1,-1,1,0,5],[0,0,1,1,-1,-1,2,1]])*1
 G_r=np.array([[1,0,1,1,1,-2],[0,1,1,-1,3,2]])*1
 x_l=np.array([0,1]).reshape(2,1)
 x_r=np.array([1,0]).reshape(2,1)
 (alpha,beta)=subset_zonotope_both(model,x_l,G_l,x_r,G_r)
 
-#p_l=translate(project(G_l,PI(G_l.shape[1]),np.ones((2*G_l.shape[1],1))),x_l)
-#p_r=translate(project(G_r,PI(G_r.shape[1]),np.ones((2*G_r.shape[1],1))),x_r)
-#vis([p_r,p_l])
-visZ([zonotope(x_r,G_r),zonotope(x_l,G_l)],list_of_dimensions=[0,1])
-#visZ([zonotope(x_l,G_l),zonotope(x_r,G_r)],list_of_dimensions=[1,3])
-#visZ([zonotope(x_l,G_l),zonotope(x_r,G_r)],list_of_dimensions=[2,3])
-#visZ([zonotope(x_l,G_l),zonotope(x_r,G_r)],list_of_dimensions=[0,3])
+
+visZ([zonotope(x_r,G_r),zonotope(x_l,G_l)],list_of_dimensions=[0,1],title="")
 
 
 # Let's look at vertices

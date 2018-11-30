@@ -68,10 +68,11 @@ def visualize_2D(list_of_polytopes,a=1.5):
     ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
     ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
     
-def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None):
+def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=None):
     """
     Given a polytope in its H-representation, plot it
     """ 
+    ana_color=[(1,0,0),(0,1,0),(0,0,1),(1,1,0),(1,0,1),(0,0,1),(0,0,1)]
     if type(list_of_dimensions)==type(None):
         list_of_dimensions=[0,1]
     p_list=[]
@@ -83,15 +84,20 @@ def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None):
         x_all=np.vstack((x_all,x))
         p=Polygon(x)
         p_list.append(p)
-    p_patch = PatchCollection(p_list, color=[(np.random.random(),np.random.random(),np.tanh(np.random.random())) \
-        for zono in list_of_zonotopes],alpha=0.75)
+    p_patch = PatchCollection(p_list, color=ana_color[0:len(list_of_zonotopes)],alpha=0.75)
 #    p_patch = PatchCollection(p_list, color=[(1-zono.x[0,0]>=1,0,zono.x[0,0]>=1) \
 #        for zono in list_of_zonotopes],alpha=0.75)
     fig, ax = plt.subplots()
     ax.add_collection(p_patch)
-    ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
-    ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
+    if axis_limit==None:
+        ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
+        ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
+    else:
+        ax.set_xlim([-axis_limit,axis_limit])
+        ax.set_ylim([-axis_limit,axis_limit])
     ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
+    ax.set_title(title)
+    return fig
 
 def visualize_3D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None):
     """

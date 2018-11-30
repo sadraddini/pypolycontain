@@ -364,13 +364,15 @@ def constraints_AB_eq_CD(model,A,B,C,D):
                 rhs.add(C[row,k]*D[k,column])
             model.addConstr(rhs==lhs)
             
-def add_Var_matrix(model,A,pos=0):
+def add_Var_matrix(model,A,pos=0,delta=None):
     for row in range(A.shape[0]):
         for column in range(A.shape[1]):
             if pos==0:
                 A[row,column]=model.addVar(lb=-GRB.INFINITY,ub=GRB.INFINITY)
             elif pos==1:
                 A[row,column]=model.addVar(lb=0,ub=GRB.INFINITY)
+            if delta!=None:
+                A[row,column]=model.addVar(lb=-delta,ub=delta)
     model.update()
     return A
 
