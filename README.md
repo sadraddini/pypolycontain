@@ -52,8 +52,8 @@ We get D12=0, D21=11. The underlying norms are infinity-norm.
 
 
 ### Zonotope Containment: Sufficient Conditions (Empirically shown to be very close to necessary)
-![](https://imgur.com/bG5ykUa.png "Zonotope Containment"){:height="50%" width="50%"}
-![](https://imgur.com/bIHKoUI.png "Zonotope Containment"){:height="50%" width="50%"}
+![image|20%](https://imgur.com/bG5ykUa.png "Zonotope Containment")
+![image | 20%](https://imgur.com/bIHKoUI.png "Zonotope Containment")
 
 ### Zonotope Order Reduction: An Optimization-based Approach
 ![](tests/figures/zonotope_reduction_outer.gif "Order Reduction - Outer-Approximation")
