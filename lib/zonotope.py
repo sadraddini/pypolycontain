@@ -18,7 +18,41 @@ class zonotope():
     def __init__(self,x,G):
         self.x=x
         self.G=G
-        
+
+
+def zonotope_directed_distance(z1,z2):
+    """
+    A linear program for finding the minimal D such that z1 inside z2+ D*infinity_norm_ball
+    """
+    model=Model("Zonotope Directed")
+    G1=np.hstack((z1.G,z2.x-z1.x))
+    (n,N1)=G1.shape
+    (n,N2)=z2.G.shape
+    alpha=np.empty((N2,N1),dtype='object')
+    alpha_abs=np.empty(alpha.shape,dtype='object')
+    alpha=add_Var_matrix(model,alpha)
+    alpha_abs=add_Var_matrix(model,alpha_abs)
+    eta=np.empty((n,N1),dtype='object')
+    eta_abs=np.empty(eta.shape,dtype='object')
+    eta=add_Var_matrix(model,eta)
+    eta_abs=add_Var_matrix(model,eta_abs)
+    epsilon=model.addVar(lb=0,obj=1)
+    model.update()
+    absolute_value(model,alpha,alpha_abs)
+    absolute_value(model,eta,eta_abs)
+    infinity_norm(model,alpha_abs,1)
+    infinity_norm(model,eta_abs,epsilon)
+    for row in range(n):
+        for column in range(N1):
+            lin=LinExpr()
+            for k in range(N2):
+                lin.add(z2.G[row,k]*alpha[k,column])
+            model.addConstr(G1[row,column]-eta[row,column]==lin)
+    model.optimize()
+    print("epsilon",epsilon)
+    return epsilon.X    
+            
+            
 def zonotope_distance(z1,z2,eps_min=0,eps_max=10,eps=0.05):
     """
     Using binary search for finding Hausdorff distance between polytopes

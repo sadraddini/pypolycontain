@@ -8,7 +8,7 @@ The polytope containment problem is deciding whether a polytope is a contained w
 
 
 
-## Description: Under Construction
+## Polytopic Containment Encodings
 Our package provides linear encodings for the following problems.
 * A-Polytope inside H-Polytope (necessary and sufficient conditions)
 * A-Polytope inside A-Polytope (sufficient conditions)
@@ -18,7 +18,16 @@ Our package provides linear encodings for the following problems.
 * A-Polytope inside Convex Hull of A-Polytopes (sufficient conditions)
 * Disjunctive A-Polytope inside H-Polytope (necessary and sufficient conditions)
 
+## Polytopic Distance Functions:
+Available Functions:
+* Hausdorff Distance Between Polytopes
+* Hausdorff Distance Between Zonotopes
 
+## Zonotope Order Reduction:
+Available Functions:
+* Optimal Zonotope Order Reduction: Outer Approximation
+* Optimal Zonotope Order Reduction: Inner Approximation
 
-### Zonotope Order Reduction: An Optimization Approach
+## Examples:
+### Zonotope Order Reduction: An Optimization-based Approach
 ![](tests/figures/zonotope_reduction_outer.gif "Order Reduction") [tests/figures/zonotope_reduction_outer.gif]
