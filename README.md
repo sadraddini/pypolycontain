@@ -48,12 +48,12 @@ D12=zonotope_directed_distance(z1,z2)
 D21=zonotope_directed_distance(z2,z1) 
 ```
 We get D12=0, D21=11. The underlying norms are infinity-norm. 
-![](https://imgur.com/jSO5DaM.png "Zonotope red is contained within zonotope Green")
+![](https://imgur.com/jSO5DaM.png "Zonotope red is contained within zonotope Green") {:height="50%" width="50%"}
 
 
 ### Zonotope Containment: Sufficient Conditions (Empirically shown to be very close to necessary)
-![](https://imgur.com/bG5ykUa.png "Zonotope Containment") 
-![](https://imgur.com/bIHKoUI.png "Zonotope Containment")
+![](https://imgur.com/bG5ykUa.png "Zonotope Containment") {:height="50%" width="50%"}
+![](https://imgur.com/bIHKoUI.png "Zonotope Containment") {:height="50%" width="50%"}
 
 ### Zonotope Order Reduction: An Optimization-based Approach
 ![](tests/figures/zonotope_reduction_outer.gif "Order Reduction - Outer-Approximation")
