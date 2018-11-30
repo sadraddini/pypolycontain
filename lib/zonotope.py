@@ -15,9 +15,18 @@ class zonotope():
     """
     Definition of a Zonotope
     """
-    def __init__(self,x,G):
+    def __init__(self,x,G,name="zonotope",color=None):
         self.x=x
         self.G=G
+        self.name=name
+        try:
+            assert len(color)==3
+            self.color=color
+        except:
+            self.color=(np.random.random(),np.random.random(),np.random.random())
+    
+    def __repr__(self):
+        return self.name
 
 
 def zonotope_directed_distance(z1,z2):
@@ -48,6 +57,7 @@ def zonotope_directed_distance(z1,z2):
             for k in range(N2):
                 lin.add(z2.G[row,k]*alpha[k,column])
             model.addConstr(G1[row,column]-eta[row,column]==lin)
+    model.setParam('OutputFlag', False)
     model.optimize()
     print("epsilon",epsilon)
     return epsilon.X    
@@ -64,6 +74,7 @@ def zonotope_distance(z1,z2,eps_min=0,eps_max=10,eps=0.05):
         print("searching between",eps_min,"and",eps_max)
         model=Model("Zonotope Distance")
         subset_zonotope_both(model,z1.x,z1.G,z2.x,np.hstack((z2.G,d*np.eye(z2.G.shape[0]))))
+        model.setParam("outputflag",False)
         model.optimize()
         if model.Status==3:
             return zonotope_distance(z1,z2,d,eps_max,eps)
@@ -87,6 +98,7 @@ def zonotope_distance_cocenter(z1,z2):
     eta_abs=add_Var_matrix(model,eta_abs)
     epsilon=model.addVar(lb=0,obj=1)
     model.update()
+    model.setParam('OutputFlag', False)
     absolute_value(model,alpha,alpha_abs)
     absolute_value(model,eta,eta_abs)
     infinity_norm(model,alpha_abs,1)
@@ -125,23 +137,17 @@ def zonotope_order_reduction_outer(Z,G_r,i_max=100,delta=0.05,scale=1.05):
     eps=np.empty(i_max)
     Z_r_list=[Z]*i_max
     Gamma,gamma_diag=zonotope_order_reduction_initial_Gamma0(Z,G_r)
-    print "Gamma is",Gamma,"Gamma_diag is",gamma_diag
     G_r=np.dot(G_r,np.diag(gamma_diag[:,0]))*scale
     i=0
     while i<i_max:
-        print ("***** iteration",i,"\n")
+        print ("***** iteration",i)
         try:
             Z_r_list[i]=zonotope(Z.x,G_r)
             Gamma=zonotope_order_reduction_Gamma(Z,G_r)
-            print "check here",np.dot(G_r,Gamma)-Z.G
             eps[i]=zonotope_distance_cocenter(Z_r_list[i],Z)
-            print "new Gamma",Gamma,"new eps",eps[i]
-            print "zonotope generated"
             G_r=zonotope_order_reduction_gradient(Z,G_r,Gamma,eps[i])
-            print("new G_r is",G_r)
             i+=1
         except:
-            print ( "Stopped at iteration",i)
             return Z_r_list[i],Z_r_list[:i],eps[:i]
     return Z_r_list[-1],Z_r_list,eps
 
@@ -202,6 +208,7 @@ def zonotope_order_reduction_gradient(z,G_r,Gamma,eps,delta=0.1):
     sum_matrix_equality(model,Gamma_plus,Gamma,delta_gamma)
 #    constraints_AB_eq_CD(model,np.eye(n),G,G_r,Gamma)
     constraints_AB_eq_CD(model,delta_r,Gamma,-G_r,delta_gamma)
+    model.setParam('OutputFlag', False)
     model.optimize()
     if model.Status!=2:
         print "model status is", model.Status
@@ -237,6 +244,7 @@ def zonotope_order_reduction_initial_Gamma0(z,G_r):
         J.add(gamma_diag[row,0]*gamma_diag[row,0])
     constraints_AB_eq_CD(model,np.eye(n),G,G_r,Gamma)
     model.setObjective(J)
+    model.setParam('OutputFlag', False)
     model.optimize()
     return (valuation(Gamma),valuation(gamma_diag))
 
@@ -263,6 +271,7 @@ def zonotope_order_reduction_Gamma(z,G_r):
         J.add(gamma_diag[row,0]*gamma_diag[row,0])
     constraints_AB_eq_CD(model,np.eye(n),G,G_r,Gamma)
     model.setObjective(J)
+    model.setParam('OutputFlag', False)
     model.optimize()
     return valuation(Gamma)
     
@@ -287,6 +296,7 @@ def zonotope_order_reduction_initial_Gamma0_inner(z,G_r):
     epsilon=model.addVar(lb=0,obj=1)
     # The changes:
     model.update()
+    model.setParam('OutputFlag', False)
     for row in range(n):
         for column in range(n_G):
             lin=LinExpr()
@@ -334,6 +344,7 @@ def zonotope_order_reduction_inner_alternation(z,G_r,Gamma,eps=1000):
     infinity_norm(model,eta_abs,epsilon)
     # sums
     constraints_AB_eq_CD(model,np.eye(n),G_r,G,alpha)
+    model.setParam('OutputFlag', False)
     model.optimize()
     if model.Status!=2:
         print "model status is", model.Status
