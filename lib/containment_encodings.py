@@ -90,7 +90,45 @@ def subset_both_projection(model,x_l,G_l,P_l,x_r,G_r,P_r):
         for k in range(beta.shape[0]):
             s_right.add(P_r.H[row,k]*beta[k,0])
         model.addConstr(s_left<=P_r.h[row,0]+s_right)
-        
+
+def subset_LP_disjunctive(model,x,G,P,list_of_polytopes):
+    """
+    Description: Add disjucntive x+GP subset list_of_polytopes
+    Inputs: 
+        model: Gurobi optimization model
+        G: n * n_g generator matrix
+        P:  primitive polytope
+        x: shift vector for GP
+    Output:
+        no direct output. Adds constraints to the model. 
+    """
+    Lambda={}
+    beta={}
+    Delta={}
+    X={}
+    for poly in list_of_polytopes:
+        Lambda[poly]=add_Var_matrix(model,(poly.H.shape[0],P.H.shape[1]),pos=1)
+        beta[poly]=add_Var_matrix(model,(poly.H.shape[0],1))
+        Delta[poly]=model.addVar(vtype=GRB.BINARY)
+        X[poly]=add_Var_matrix(model,G.shape)
+    model.update()
+    for poly in list_of_polytopes:
+        constraints_AB_eq_CD(model,Lambda[poly],P.H,poly.H,X[poly])
+        for row in range(Lambda.shape[0]):
+            s_left=LinExpr()
+            s_right=LinExpr()
+            for k in range(Lambda.shape[1]):
+                s_left.add(Lambda[row,k]*P.h[k,0])
+            for k in range(beta.shape[0]):
+                s_right.add(-poly.H[row,k]*beta[poly][k,0])
+            model.addConstr(s_left<=Delta[poly]*poly.h[row,0]+s_right)
+    R=LinExpr()
+    for poly in list_of_polytopes:
+        R.add(Delta[poly])
+    model.addConstr(R==1)
+    constraints_sum(model,G,[X[poly] for poly in list_of_polytopes])
+    constraints_sum(model,x,[beta[poly] for poly in list_of_polytopes])
+
 
 def subset_zonotopes(model,z_l,z_r):
     """

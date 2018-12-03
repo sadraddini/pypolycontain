@@ -70,8 +70,7 @@ The Hausdorff distance is max(11,0)=11.
 ![image | 20%](https://imgur.com/bIHKoUI.png "Zonotope Containment")
 
 ### Zonotope Containment: Sufficient Conditions for Zonotope in Convex Hull of Zonotopes
-![](https://imgur.com/GHQo7nf.ong "Zonotope Containment")
-
+![](https://imgur.com/GHQo7nf.png "Zonotope Containment")
 
 ### Zonotope Order Reduction: An Optimization-based Approach
 ![](tests/figures/zonotope_reduction_outer.gif "Order Reduction - Outer-Approximation")
