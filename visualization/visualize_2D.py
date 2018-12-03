@@ -96,7 +96,32 @@ def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title
         ax.set_ylim([-axis_limit,axis_limit])
     ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
     ax.set_title(title)
-    return fig
+    return fig,ax
+    
+def visualize_2D_zonotopes_convexhull(fig,ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=None):
+    if type(list_of_dimensions)==type(None):
+        list_of_dimensions=[0,1]
+    p_list=[]
+    x_all=np.empty((0,2))
+    for zono in list_of_zonotopes:
+        y=zono.x.T+np.dot(zono.G,vcube(zono.G.shape[1]).T).T
+        x=y[:,list_of_dimensions]#/y[:,2].reshape(y.shape[0],1)
+        x_all=np.vstack((x_all,x))
+    x_all=x_all[ConvexHull(x_all).vertices,:]
+    p=Polygon(x_all)
+    p_list.append(p)
+    p_patch = PatchCollection(p_list, color=(0.5,0.5,0.5),alpha=0.75)
+#    p_patch = PatchCollection(p_list, color=[(1-zono.x[0,0]>=1,0,zono.x[0,0]>=1) \
+#        for zono in list_of_zonotopes],alpha=0.75)
+    ax.add_collection(p_patch)
+    if axis_limit==None:
+        ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
+        ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
+    else:
+        ax.set_xlim([-axis_limit,axis_limit])
+        ax.set_ylim([-axis_limit,axis_limit])
+    ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
+    ax.set_title(title)
 
 def visualize_3D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None):
     """

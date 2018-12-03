@@ -257,6 +257,7 @@ def subset_zonotope_convexhullOFzonotopes(model,x,G,list_of_zonotopes):
 def Q_inside_conv_P_s(s,model,x,G,Q,list_of_polytopes):
     # WARNING: INCOMPLETE CODE
     """
+    WARNING: INCOMPLETE CODE
     Given:
         s: PWA system that is considered
         Numbers:

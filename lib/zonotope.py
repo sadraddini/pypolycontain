@@ -6,6 +6,7 @@ Created on Tue Nov  6 10:24:55 2018
 """
 import numpy as np
 from gurobipy import Model,LinExpr,QuadExpr
+from random import randint
 
 from pypolycontain.lib.inclusion_encodings import subset_zonotope_both,constraints_AB_eq_CD,add_Var_matrix
 from pypolycontain.utils.utils import valuation
@@ -15,10 +16,13 @@ class zonotope():
     """
     Definition of a Zonotope
     """
-    def __init__(self,x,G,name="zonotope",color=None):
+    def __init__(self,x,G,name=None,color=None):
         self.x=x
         self.G=G
-        self.name=name
+        if name==None:
+            self.name="zonotope"+str(randint(0,1000))
+        else:
+            self.name=name
         try:
             assert color!=None
             self.color=color
