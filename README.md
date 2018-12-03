@@ -57,14 +57,12 @@ visZ([z2,z1],title="Zonotopes")
 D12=zonotope_directed_distance(z1,z2)
 D21=zonotope_directed_distance(z2,z1) 
 ```
-<<<<<<< HEAD
+
 We get D12=0, D21=11. The underlying norms are infinity-norm. D12=0 implies the red zonotope is contained within green zonotope. 
 The Hausdorff distance is max(11,0)=11.
 ![](https://imgur.com/jSO5DaM.png "Zonotope red is contained within zonotope Green") {:height="50%" width="50%"}
-=======
-We get D12=0, D21=11. The underlying norms are infinity-norm. 
-![](https://imgur.com/jSO5DaM.png "Zonotope red is contained within zonotope Green")
->>>>>>> master
+
+
 
 
 ### Zonotope Containment: Sufficient Conditions (Empirically shown to be very close to necessary)
