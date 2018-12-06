@@ -12,10 +12,16 @@ Affine transformations of H-polytopes are able to capture a broad range of polyt
  which may be added to a given set of (mixed-integer) linear constraints. 
 We present examples on applications to Zonotope algebra and formal controller verification for a hybrid system.
 
+## Setup
+```
+git clone https://github.com/sadraddini/pypolycontain.git
+export PYTHONPATH=clone-dir:${PYTHONPATH}
+```
+where clone-dir is the path to the folder `pytpolycontain`
+
 ## Dependencies:
 * Gurobi 7.0 or later [Gurobi](https://gurobi.com) (Free Academic License)
 * (For visualization purposes) [pycdd](https://pycddlib.readthedocs.io/en/latest/index.html)
-
 
 
 ## Polytopic Containment Encodings
@@ -58,8 +64,8 @@ D12=zonotope_directed_distance(z1,z2)
 D21=zonotope_directed_distance(z2,z1) 
 ```
 
-We get D12=0, D21=11. The underlying norms are infinity-norm. D12=0 implies the red zonotope is contained within green zonotope. 
-The Hausdorff distance is max(11,0)=11.
+We get D12=0, D21=11. The underlying norms are infinity-norm. D12=0 implies the red zonotope is contained within the green zonotope. The Hausdorff distance is max(11,0)=11.
+
 ![](https://imgur.com/jSO5DaM.png "Zonotope red is contained within zonotope Green") {:height="50%" width="50%"}
 
 
@@ -69,7 +75,7 @@ The Hausdorff distance is max(11,0)=11.
 ![image|20%](https://imgur.com/bG5ykUa.png "Zonotope Containment")
 ![image | 20%](https://imgur.com/bIHKoUI.png "Zonotope Containment")
 
-### Zonotope Containment: Sufficient Conditions for Zonotope in Convex Hull of Zonotopes
+### Zonotope Containment: Sufficient Conditions for Zonotope in the Convex Hull of Zonotopes
 ![](https://imgur.com/GHQo7nf.png "Zonotope Containment")
 
 ### Zonotope Order Reduction: An Optimization-based Approach
