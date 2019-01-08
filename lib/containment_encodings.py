@@ -266,7 +266,6 @@ def constraints_AB_eq_CD(model,A,B,C,D):
     """
     Add constraint A*B=C*D to gurobi model
     """
-    print "BIZ!"
     if B.shape[1]!=C.shape[0] or A.shape[1]!=B.shape[0] or C.shape[1]!=D.shape[0] or A.shape[0]!=C.shape[0]:
         ValueError("Dimensions mistmatch")
     for row in range(A.shape[0]):
@@ -291,7 +290,6 @@ def add_Var_matrix(model,size,pos=0,delta=None):
                 A[row,column]=model.addVar(lb=-delta,ub=delta)
     model.update()
     return A
-
     
 def constraints_sum(model,A,list_of_A):
     """

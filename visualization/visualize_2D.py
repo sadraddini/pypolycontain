@@ -42,7 +42,7 @@ def visualize_2D_old(list_of_polytopes,a=1.5):
     ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
 
 
-def visualize_2D(list_of_polytopes,a=1.5):
+def visualize_2D(list_of_polytopes,a=1.5,title="polytopes"):
     """
     Given a polytope in its H-representation, plot it
     """ 
@@ -61,12 +61,14 @@ def visualize_2D(list_of_polytopes,a=1.5):
         p_list.append(p)
 #    p_patch = PatchCollection(p_list, color=[(np.random.random(),np.random.random(),np.tanh(np.random.random())) \
 #        for polytope in list_of_polytopes],alpha=0.7)
-    p_patch = PatchCollection(p_list,color=ana_color[0:len(list_of_polytopes)], alpha=0.7)
+    p_patch = PatchCollection(p_list,color=ana_color[0:len(list_of_polytopes)], alpha=0.5)
     fig, ax = plt.subplots()
     ax.add_collection(p_patch)
     ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
     ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
     ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
+    ax.set_title(title)
+    return fig
     
 def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=None):
     """
