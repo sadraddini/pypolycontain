@@ -21,7 +21,7 @@ where clone-dir is the path to the folder `pytpolycontain`
 
 ## Dependencies:
 * Gurobi 7.0 or later [Gurobi](https://gurobi.com) (Free Academic License)
-* (For visualization purposes) [pycdd](https://pycddlib.readthedocs.io/en/latest/index.html)
+* (For polytope visualization) [pycdd](https://pycddlib.readthedocs.io/en/latest/index.html)
 
 
 ## Polytopic Containment Encodings
@@ -43,6 +43,10 @@ Available Functions:
 Available Functions:
 * Optimal Zonotope Order Reduction: Outer Approximation
 * Optimal Zonotope Order Reduction: Inner Approximation
+
+## Orthogonal Projection:
+Available Function:
+* Orthogonal Projection of Polytopes
 
 ## Examples:
 
@@ -66,7 +70,7 @@ D21=zonotope_directed_distance(z2,z1)
 
 We get D12=0, D21=11. The underlying norms are infinity-norm. D12=0 implies the red zonotope is contained within the green zonotope. The Hausdorff distance is max(11,0)=11.
 
-![](https://imgur.com/jSO5DaM.png "Zonotope red is contained within zonotope Green") {:height="50%" width="50%"}
+![](https://imgur.com/jSO5DaM.png "Zonotope red is contained within zonotope Green")
 
 
 
@@ -81,3 +85,6 @@ We get D12=0, D21=11. The underlying norms are infinity-norm. D12=0 implies the 
 ### Zonotope Order Reduction: An Optimization-based Approach
 ![](tests/figures/zonotope_reduction_outer.gif "Order Reduction - Outer-Approximation")
 ![](tests/figures/zonotope_reduction_inner.gif "Order Reduction - Inner-Approximation")
+
+### Orthogonal Projections for Feasible Sets of Model Predictive Controllers
+![](figures/projection.gif "Orthogonal Projection")

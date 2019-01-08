@@ -15,13 +15,13 @@ from pypolycontain.lib.polytope import polytope
 from pyfomo.src.main import fourier_motzkin_eliminate_single
 
 
-A=np.array([[1,0.2],[0,1]])
-B=np.array([0,1]).reshape(2,1)
-N=10
+A=np.array([[1,0.1],[-0.1,1]])
+B=np.array([0,0.1]).reshape(2,1)
+N=20
 C_x=np.array([[1,0],[0,1],[-1,0],[0,-1]])
 c_x=np.array([[1,1,1,1]]).T
 C_goal=np.array([[1,0],[0,1],[-1,0],[0,-1]])
-c_goal=np.array([[1,1,1,1]]).T*0.1
+c_goal=np.array([[1,1,1,1]]).T*0.0
 C_u=np.array([1,-1]).reshape(2,1)
 c_u=np.array([1,1]).reshape(2,1)
 
@@ -47,16 +47,14 @@ F=np.vstack ( ( F, np.kron(np.eye(N),C_u)) )
 g=np.vstack((c_goal,np.vstack([c_x for i in range(N+1)]),np.vstack([c_u for i in range(N)])))
 
 if False:
-    A=np.hstack((H,F))
-    b=g
+    A_P=np.hstack((H,F))
+    b_P=g
     
-    for i in range(10):
-        var_index=A.shape[1]-1
-        print "i"
-        (A,b)=fourier_motzkin_eliminate_single(var_index,A,b,atol=10**-8)
-    #    print("A_new=",A_new)
-    #    print("b_new=",b_new)
-    p_real=polytope(A,b)
+    for i in range(N):
+        var_index=A_P.shape[1]-1
+        print "remvoing",i
+        (A_P,b_P)=fourier_motzkin_eliminate_single(var_index,A_P,b_P,atol=10**-8)
+    p_real=polytope(A_P,b_P)
 
 #H=np.array([[1,0],[0,1],[-1,0],[0,-1],[0,0],[0,0]])
 #F=np.array([[1],[0],[-1],[0],[1],[-1]])
@@ -64,12 +62,13 @@ if False:
 #
 Hx_correct=np.array([[1,0],[0,1],[-1,0],[0,-1]])
 #Hx=np.array([[0.5,0],[0,1],[-0.5,0],[0,-1]])*3
-Hx=np.array([[1,0],[-1,0],[0,-1],[0,1]])*2
+Hx=np.array([[1,0],[-1,0],[0,-1],[0,1],[1,1],[-1,-1]])*1.2
+#Hx=np.array([[1,0],[-1,0],[0,-1],[0,1]])*2
 xbar=np.zeros((2,1))
 #xbar=-np.array([1.8,0.8]).reshape(2,1)
 
 delta=0.05
-output=gradient_decent(Hx,H,F,g,xbar,delta,N=50)
+output=gradient_decent(Hx,H,F,g,xbar,delta,N=100)
 import matplotlib.pyplot as plt
 plt.plot([x[1] for x in output])
 Hx=output[-1][0]
@@ -78,5 +77,5 @@ p_out=polytope(Hx_correct,np.ones((Hx_correct.shape[0],1)))
 for i in range(len(output)):
     Hx=output[i][0]
     p_in=polytope(Hx,np.ones((Hx.shape[0],1)))
-    fig=vis2([p_out,p_real,p_in],title=r"Orthogonal Projection Iteration %d - $d_H=%f$"%(i,output[i][1]))
+    fig=vis2([p_out,p_real,p_in],title=r"Iteration %d - Orthogonal Projection $d_H(\mathbb{X},\mathbb{F}_{{proj}}) = %f$"%(i,output[i][1]),a=0.5)
     fig.savefig('figures/orthogonal_projection_MPC %d'%i,dpi=100)

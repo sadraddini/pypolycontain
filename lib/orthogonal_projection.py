@@ -54,15 +54,15 @@ def orthogonal_projection_fixed_Hx(Hx,H,F,g,xbar):
     model.optimize()
     if model.Status!=2:
         return False,False,False,False
-    print "epsilon=",epsilon[0,0].X
-    print "Lambda_0",valuation(Lambda_0)
-    print "Lambda_1",valuation(Lambda_1)
-    print "Lambda_2",valuation(Lambda_2)
-    print "Gamma",valuation(Gamma)
-    print "beta_x",valuation(beta_x)
-    print "beta_u",valuation(beta_u)   
-    print "X_1",valuation(X_1)
-    print "X_2",valuation(X_2)  
+#    print "epsilon=",epsilon[0,0].X
+#    print "Lambda_0",valuation(Lambda_0)
+#    print "Lambda_1",valuation(Lambda_1)
+#    print "Lambda_2",valuation(Lambda_2)
+#    print "Gamma",valuation(Gamma)
+#    print "beta_x",valuation(beta_x)
+#    print "beta_u",valuation(beta_u)   
+#    print "X_1",valuation(X_1)
+#    print "X_2",valuation(X_2)  
     return valuation(Lambda_0),valuation(X_1),valuation(X_2),valuation(beta_x)
 
 
@@ -102,13 +102,14 @@ def orthogonal_projection_gradient_decent(Hx,Lambda_0,X_1,X_2,beta_x,H,F,g,xbar,
     constraints_list_of_tuples(model,[(-np.eye(Lambda_0.shape[0]),Lambda_0),(-np.eye(Lambda_0.shape[0]),delta_Lambda_0)],sign="<") 
     # Solve
     model.setObjective(epsilon[0,0])
+    model.setParam("OutputFlag",False)
     model.optimize()
     if model.Status!=2:
         return False,False,False,False,False,False
-    print "epsilon=",epsilon[0,0].X
-    print "delta_Lambda_0",valuation(delta_Lambda_0)
-    print "delta_X_1",valuation(delta_X_1)
-    print "delta_X_2",valuation(delta_X_2)  
+#    print "epsilon=",epsilon[0,0].X
+#    print "delta_Lambda_0",valuation(delta_Lambda_0)
+#    print "delta_X_1",valuation(delta_X_1)
+#    print "delta_X_2",valuation(delta_X_2)  
     return valuation(delta_Lambda_0),valuation(delta_X_1),valuation(delta_X_2),valuation(delta_beta_x),valuation(delta_Hx),epsilon[0,0].X
 
 def gradient_decent(Hx,H,F,g,xbar,delta,N=10):
@@ -119,6 +120,7 @@ def gradient_decent(Hx,H,F,g,xbar,delta,N=10):
         if type(Lambda_0)==type(False):
             break
         delta_Lambda_0,delta_X_1,delta_X_2,delta_beta_X,delta_Hx,epsilon=orthogonal_projection_gradient_decent(Hx,Lambda_0,X_1,X_2,beta_x,H,F,g,xbar,delta)
+        history.append((Hx,epsilon))
         print "epsilon","+"*30,"+"*30,epsilon
         if epsilon==False:
             break
@@ -127,7 +129,6 @@ def gradient_decent(Hx,H,F,g,xbar,delta,N=10):
         X_2=X_2+delta_X_2
         beta_x=beta_x+delta_beta_X
         Hx=Hx+delta_Hx
-        history.append((Hx,epsilon))
     return history
     
     
@@ -146,16 +147,16 @@ used for convenience
 """
 
 def constraints_list_of_tuples(model,mylist,sign="="):
-    print "*********+++++++ adding constraints"
+#    print "*********+++++++ adding constraints"
     term_0=mylist[0]
     ROWS=term_0[0].shape[0]
     COLUMNS=term_0[1].shape[1]
-    for i in range(len(mylist)):
-        print "term number ",i+1
-        term=mylist[i]
-        print "size",term[0].shape,"*",term[1].shape
-        print term[0].shape[0]==ROWS
-        print term[1].shape[1]==COLUMNS
+#    for i in range(len(mylist)):
+#        print "term number ",i+1
+#        term=mylist[i]
+#        print "size",term[0].shape,"*",term[1].shape
+#        print term[0].shape[0]==ROWS
+#        print term[1].shape[1]==COLUMNS
     for row in range(ROWS):
         for column in range(COLUMNS):
             expr=LinExpr()
