@@ -5,7 +5,7 @@ Created on Tue Nov  6 10:24:55 2018
 @author: sadra
 """
 import numpy as np
-from gurobipy import Model,LinExpr,QuadExpr
+from gurobipy import Model,LinExpr,QuadExpr,GRB
 from random import randint
 
 from pypolycontain.lib.inclusion_encodings import subset_zonotope_both,constraints_AB_eq_CD,add_Var_matrix
@@ -130,6 +130,25 @@ def zonotope_inside(z,x):
         return False
     else:
         return True  
+    
+def zonotope_distance_point(z,x):
+    model=Model("inside")
+    n=z.x.shape[0]
+    p=np.empty((z.G.shape[1],1),dtype='object')
+    e=np.empty((z.G.shape[1],1),dtype='object')
+    for row in range(p.shape[0]):
+        p[row,0]=model.addVar(lb=-GRB.INFINITY,ub=GRB.INFINITY)
+        e[row,0]=model.addVar(lb=0,ub=GRB.INFINITY,obj=1)
+    model.update()
+    constraints_AB_eq_CD(model,np.eye(n),x-z.x,z.G,p)
+    for row in range(p.shape[0]):
+        model.addConstr(p[row,0]+e[row,0]>=-1)
+        model.addConstr(p[row,0]-e[row,0]<=1)
+    model.setParam('OutputFlag', 0)
+    model.optimize()
+    d=np.dot(z.G,np.array([e[row,0].X for row in range(p.shape[0])]).reshape(p.shape[0],1))
+    return np.linalg.norm(d)
+    
 
 
 def zonotope_order_reduction_outer(Z,G_r,i_max=100,delta=0.05,scale=1.05):
@@ -213,11 +232,11 @@ def zonotope_order_reduction_gradient(z,G_r,Gamma,eps,delta=0.1):
     model.setParam('OutputFlag', False)
     model.optimize()
     if model.Status!=2:
-        print "model status is", model.Status
+        print("model status is", model.Status)
         return 
     print("epsilon",epsilon)
     print("gamma_norm",gamma_norm)
-    print valuation(delta_r),valuation(delta_gamma)
+    print(valuation(delta_r),valuation(delta_gamma))
     return valuation(G_r_plus)
 
 def zonotope_order_reduction_initial_Gamma0(z,G_r):
@@ -311,7 +330,7 @@ def zonotope_order_reduction_initial_Gamma0_inner(z,G_r):
     infinity_norm(model,Gamma_abs,1)
     model.optimize()
     if model.Status!=2:
-        print "model status is", model.Status
+        print("model status is", model.Status)
         return 
     print("epsilon",epsilon)
     return valuation(Gamma)
@@ -349,9 +368,9 @@ def zonotope_order_reduction_inner_alternation(z,G_r,Gamma,eps=1000):
     model.setParam('OutputFlag', False)
     model.optimize()
     if model.Status!=2:
-        print "model status is", model.Status
+        print("model status is", model.Status)
         return 
-    print("epsilon",epsilon)
+    print(("epsilon",epsilon))
     return valuation(G_r)
  
       

@@ -24,9 +24,23 @@ class polytope():
         print(self)
         print("H=",self.H)
         print("h=",self.h)
+        
+    def if_inside(self,x):
+        if x.shape[0]!=self.H.shape[1]:
+            return ValueError("H and x dimensions mismatch")
+        return all(np.dot(self.H,x)<=self.h)
 
 def translate(p,d):
     """
     Given a polytope p, translate it by d 
     """
     return polytope(p.H,p.h+np.dot(p.H,d))
+
+def Box(N,d=1):
+    """
+    returns N-dimensional Box
+    """
+    H=np.vstack((np.eye(N),-np.eye(N)))
+    h=d*np.ones((2*N,1))
+    return polytope(H,h)
+

@@ -8,6 +8,26 @@ Created on Mon Sep 10 13:52:06 2018
 import numpy as np
 from gurobipy import Model, GRB, LinExpr
 
+def check_empty_polytope(p):
+    model=Model("Row Redundancy Check")
+    n=p.H.shape[1]
+    x=np.empty((n,1),dtype='object')
+    for row in range(n):
+        x[row,0]=model.addVar(lb=-GRB.INFINITY,ub=GRB.INFINITY)
+    model.update()
+    for row in range(p.H.shape[0]):
+        Hx=LinExpr()
+        for column in range(n):
+            Hx.add(p.H[row,column]*x[column,0])
+        model.addConstr(Hx<=p.h[row,0])
+#    model.setParam('OutputFlag',False)
+    model.optimize()
+    if model.Status==2:
+            return True # It is not empty
+    else:
+        # It is empty
+        return False
+
 def canonical_polytope(H,h,flag=None,atol=10**-8):
     """
     Given a polytope in form {H x <= h}, provide canonical polytope by finding and removing redundant rows
