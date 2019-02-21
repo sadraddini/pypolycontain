@@ -9,6 +9,9 @@ import numpy as np
 
 class polytope():
     def __init__(self,H,h):
+        """
+        Class Polytope. A Polytope is defined as (x \in R^n | Hx <= h)
+        """
         self.H=H
         self.h=h
         self.n=H.shape[1]
@@ -16,6 +19,7 @@ class polytope():
             ValueError("Error: not appropriate h size, it is",h.shape)
         if H.shape[0]!=h.shape[0]:
             ValueError("Error: not consistent dimension of H: %d and h: %d"%(H.shape[0],h.shape[0]))
+        self.type="polytope"
     
     def __repr__(self):
         return ("polytope in R^%d"%self.n)
@@ -30,6 +34,7 @@ class polytope():
             return ValueError("H and x dimensions mismatch")
         return all(np.dot(self.H,x)<=self.h)
 
+    
 def translate(p,d):
     """
     Given a polytope p, translate it by d 
@@ -43,4 +48,3 @@ def Box(N,d=1):
     H=np.vstack((np.eye(N),-np.eye(N)))
     h=d*np.ones((2*N,1))
     return polytope(H,h)
-

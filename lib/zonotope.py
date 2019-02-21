@@ -20,7 +20,7 @@ class zonotope():
         self.x=x
         self.G=G
         if name==None:
-            self.name="zonotope"+str(randint(0,1000))
+            self.name="zonotope "+str(randint(0,1000))
         else:
             self.name=name
         try:
@@ -28,6 +28,7 @@ class zonotope():
             self.color=color
         except:
             self.color=(np.random.random(),np.random.random(),np.random.random())
+        self.type="zonotope"
     
     def __repr__(self):
         return self.name
@@ -117,6 +118,13 @@ def zonotope_distance_cocenter(z1,z2):
     return epsilon.X
 
 def zonotope_inside(z,x):
+    """
+    Arguments:
+        z: a zonotope
+        x: a test point
+    Returns:
+        Boolean: if z is inside x
+    """
     model=Model("inside")
     n=z.x.shape[0]
     p=np.empty((z.G.shape[1],1),dtype='object')
@@ -150,6 +158,9 @@ def zonotope_distance_point(z,x):
     return np.linalg.norm(d)
     
 
+"""
+Zonotope Order Reduction Methods
+"""
 
 def zonotope_order_reduction_outer(Z,G_r,i_max=100,delta=0.05,scale=1.05):
     """

@@ -147,16 +147,9 @@ used for convenience
 """
 
 def constraints_list_of_tuples(model,mylist,sign="="):
-#    print "*********+++++++ adding constraints"
     term_0=mylist[0]
     ROWS=term_0[0].shape[0]
     COLUMNS=term_0[1].shape[1]
-#    for i in range(len(mylist)):
-#        print "term number ",i+1
-#        term=mylist[i]
-#        print "size",term[0].shape,"*",term[1].shape
-#        print term[0].shape[0]==ROWS
-#        print term[1].shape[1]==COLUMNS
     for row in range(ROWS):
         for column in range(COLUMNS):
             expr=LinExpr()
@@ -164,22 +157,19 @@ def constraints_list_of_tuples(model,mylist,sign="="):
             for term in mylist:
                 i+=1
                 q,qp=term[0].shape[1],term[1].shape[0]
-#                print i,"q,qp=",q,qp,"row,column=",row,column
                 assert q==qp
-#                print "we have this:",term[1][0,column],term[0][row,0]
                 if type(term[1][0,column])==type(model.addVar()):
                     expr.add(LinExpr([(term[0][row,k],term[1][k,column]) for k in range(q)]))
-#                    print "term 1 was variable",term[0][row,k],term[1][k,column]
                 elif type(term[0][row,0])==type(model.addVar()):
                     expr.add(LinExpr([(term[1][k,column],term[0][row,k]) for k in range(q)]))
-#                    print "term 0 was variable",term[1][k,column],term[0][row,k]
                 else:
                     expr.addConstant(sum([term[1][k,column]*term[0][row,k] for k in range(q)]))
-#                    print "added Constants",term[1][k,column],term[0][row,k]
             if sign=="<":
                 model.addConstr(expr<=0)
             elif sign=="=":
                 model.addConstr(expr==0)
+            elif sign==">=":
+                model.addConstr(expr>=0)
     
 
 def constraints_AB_eq_CD(model,A,B,C,D):
