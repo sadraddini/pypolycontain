@@ -2,6 +2,11 @@
 
 The polytope containment problem is deciding whether a polytope is a contained within another polytope. This problem is rooted in computational convexity, and arises in applications such as verification and control of dynamical systems. The complexity heavily depends on how the polytopes are represented. Describing polytopes by their hyperplanes (H-polytopes) is a popular representation but not efficient for affine transformations of H-polytopes, which we refer to as AH-polytopes. Zonotopes, orthogonal projections of H-polytopes, and convex hulls/Minkowski sums of multiple H-polytopes can be efficiently represented as AH-polytopes. While there exists efficient necessary and sufficient conditions for AH-polytope in H-polytope containment, the case of AH-polytope in AH-polytope is known to be NP-complete. In this paper, we provide a sufficient condition for this problem that is cast as a linear program, which its size grows quadratically with problem size. Special cases on zonotopes, Minkowski sums, convex hulls, and disjunctions of H-polytopes are studied. These efficient encodings enable us to designate certain components of polytopes as decision variables, and incorporate them into a (mixed-integer) convex optimization problem. We present examples on zonotope containment problem, polytopic Hausdorff distances, zonotope order reduction, inner approximations of orthogonal projections, and demonstrate the usefulness of our results on formal controller verification and synthesis for hybrid systems. 
 
+
+## Paper
+
+A preprint of the paper on the theoretical background of this package is available [here](https://github.com/sadraddini/pypolycontain/blob/master/polytopic_containment.pdf)
+
 ## Setup
 ```
 git clone https://github.com/sadraddini/pypolycontain.git
