@@ -17,7 +17,7 @@ n_p=40
 n=30
 P=Box(n_p)
 T=(np.random.random((n,n_p))-0.5)*50
-t=(np.random.random((n,1))-0.5)*0.01
+t=(np.random.random((n,1))-0.5)
 X=AH_polytope(T,t,P)
 x=np.zeros((n,1))
 

@@ -160,7 +160,7 @@ The following functions involve the ax object, or the plot, as one of the argume
 
 """
 
-def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[None]):
+def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[True]):
     """
     Given a plot, add zonotopes
     """ 
@@ -182,7 +182,7 @@ def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None
 #        for zono in list_of_zonotopes],alpha=0.75)
     ax.add_collection(p_patch)
     print(axis_limit)
-    if any(axis_limit)==None:
+    if any(axis_limit):
         ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
         ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
     else:

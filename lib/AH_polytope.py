@@ -11,7 +11,7 @@ import numpy as np
 from scipy.optimize import linprog as lp
 from gurobipy import Model,LinExpr,QuadExpr,GRB
 
-
+from pypolycontain.lib.polytope import Box
 
 class AH_polytope():
     """
@@ -39,7 +39,7 @@ class AH_polytope():
         """
         if self.method=="Gurobi":
             model=Model("check_if_inside")
-            p=tupledict_to_array(model.addVars(range(self.P.n),[0],name="p"))
+            p=tupledict_to_array(model.addVars(range(self.P.n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p"))
             model.update()
             constraints_list_of_tuples(model,[(self.T,p),(np.eye(self.n),self.t-x)],sign="=")
             constraints_list_of_tuples(model,[(self.P.H,p),(-np.eye(self.P.h.shape[0]),self.P.h)],sign="<")
@@ -50,14 +50,23 @@ class AH_polytope():
             else:
                 return True  
         elif self.method=="scipy":
+            raise NotImplementedError # fix the -infty bounds first! 
             sol=lp(np.ones((self.P.n,1)), A_ub=self.P.H, b_ub=self.P.h, A_eq=self.T, b_eq=x-self.t)
     #        print sol.message
             return sol.status==0
         else:
-            raise ValueError("method %s not recognized"%method)
+            raise ValueError("Method %s not recognized"%self.method)
             
             
-
+def to_AH_polytope(P):
+    if P.type=="polytope":
+        n=P.H.shape[1]
+        return AH_polytope(np.eye(n),np.zeros((n,1)),P)
+    elif P.type=="zonotope":
+        q=P.G.shape[1]
+        return AH_polytope(P.G,P.x,Box(q))
+    else:
+        raise ValueError("P type not understood:",P)
 
 """
 Auxilary Gurobi Shortcut Functions
