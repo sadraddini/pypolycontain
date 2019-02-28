@@ -12,6 +12,7 @@ from scipy.optimize import linprog as lp
 from gurobipy import Model,LinExpr,QuadExpr,GRB
 
 from pypolycontain.lib.polytope import Box
+from pypolycontain.utils.utils import valuation
 
 class AH_polytope():
     """
@@ -59,7 +60,9 @@ class AH_polytope():
             
             
 def to_AH_polytope(P):
-    if P.type=="polytope":
+    if P.type=="AH_polytope":
+        return P
+    elif P.type=="polytope":
         n=P.H.shape[1]
         return AH_polytope(np.eye(n),np.zeros((n,1)),P)
     elif P.type=="zonotope":
@@ -67,6 +70,42 @@ def to_AH_polytope(P):
         return AH_polytope(P.G,P.x,Box(q))
     else:
         raise ValueError("P type not understood:",P)
+        
+        
+def minimum_distance(poly_1,poly_2,norm="infinity"):
+    """
+    find the closets points in poly_1 and poly_2
+    """
+    poly_1,poly_2=to_AH_polytope(poly_1),to_AH_polytope(poly_2)
+    n=poly_1.T.shape[0]
+    assert n==poly_2.T.shape[0]
+    model=Model("minimum_distance")
+    delta=tupledict_to_array(model.addVars(range(n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="delta"))
+    x=tupledict_to_array(model.addVars(range(n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="x"))
+    p_1=tupledict_to_array(model.addVars(range(poly_1.P.H.shape[1]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p_1"))
+    p_2=tupledict_to_array(model.addVars(range(poly_2.P.H.shape[1]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p_2"))
+    model.update()
+    constraints_list_of_tuples(model,[(np.eye(n),x),(-np.eye(n),delta),(-np.eye(n),poly_1.t),(-poly_1.T,p_1)],sign="=")
+    constraints_list_of_tuples(model,[(np.eye(n),x),(-np.eye(n),poly_2.t),(-poly_2.T,p_2)],sign="=")
+    constraints_list_of_tuples(model,[(poly_1.P.H,p_1),(-np.eye(poly_1.P.h.shape[0]),poly_1.P.h)],sign="<")
+    constraints_list_of_tuples(model,[(poly_2.P.H,p_2),(-np.eye(poly_2.P.h.shape[0]),poly_2.P.h)],sign="<")
+    if norm=="infinity":
+        delta_max=model.addVar(lb=0,obj=1)
+        model.update()
+        for i in range(n):
+            model.addConstr(delta_max>=delta[i,0])
+            model.addConstr(delta_max>=-delta[i,0])
+        model.optimize()
+        print valuation(x).T,valuation(delta).T
+        return delta_max.X
+    else:
+        raise NotImplementedError
+        
+def check_collision(poly_1,poly_2,tol=10**-6):
+    return minimum_distance(poly_1,poly_2,norm="infinity")<tol
+    
+    
+    
 
 """
 Auxilary Gurobi Shortcut Functions
@@ -92,7 +131,8 @@ def constraints_list_of_tuples(model,mylist,sign="="):
             expr=LinExpr()
             for term in mylist:
                 q,qp=term[0].shape[1],term[1].shape[0]
-                assert q==qp
+                if q!=qp:
+                    raise ValueError(term,"q=%d qp=%d"%(q,qp))
                 if type(term[1][0,column])==type(model.addVar()):
                     expr.add(LinExpr([(term[0][row,k],term[1][k,column]) for k in range(q)]))
                 elif type(term[0][row,0])==type(model.addVar()):
@@ -105,3 +145,5 @@ def constraints_list_of_tuples(model,mylist,sign="="):
                 model.addConstr(expr==0)
             elif sign==">=":
                 model.addConstr(expr>=0)
+            else:
+                raise "sign indefinite"

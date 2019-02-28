@@ -12,7 +12,7 @@ import numpy as np
 
 from gurobipy import Model,LinExpr,QuadExpr,GRB
 
-from pypolycontain.lib.AH_polytope import AH_polytope
+from pypolycontain.lib.AH_polytope import AH_polytope,to_AH_polytope
 
 
 
@@ -21,6 +21,7 @@ def Hausdorff_directed(Q1,Q2,ball="infinty_norm"):
     Minimum epsilon such that Q1 \subset Q2+epsilon(Ball)
     zero if and only if Q1 subset Q2
     """
+    Q1,Q2=to_AH_polytope(Q1),to_AH_polytope(Q2)
     model=Model("Hausdorff Distance")
     D=model.addVar(lb=0,obj=1)
     n=Q1.t.shape[0]
