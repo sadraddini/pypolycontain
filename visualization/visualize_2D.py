@@ -18,30 +18,6 @@ import numpy as np
 from cdd import Polyhedron,Matrix,RepType
 from pyinpolytope.utilities.utils import vertices_cube as vcube
 
-def visualize_2D_old(list_of_polytopes,a=1.5):
-    """
-    Given a polytope in its H-representation, plot it
-    """ 
-    p_list=[]
-    x_all=np.empty((0,2))
-    for polytope in list_of_polytopes:
-        p_mat=Matrix(np.hstack((polytope.H,polytope.h)))
-        poly=Polyhedron(p_mat)
-        y=np.array(poly.get_generators())
-        x=y[:,0:2]#/y[:,2].reshape(y.shape[0],1)
-        x=x[ConvexHull(x).vertices,:]
-        x_all=np.vstack((x_all,x))
-        p=Polygon(x)
-        p_list.append(p)
-    p_patch = PatchCollection(p_list, color=[(np.random.random(),np.random.random(),np.tanh(np.random.random())) \
-        for polytope in list_of_polytopes],alpha=0.6)
-    fig, ax = plt.subplots()
-    ax.add_collection(p_patch)
-    ax.set_xlim([np.min(x_all[:,0])*a,a*np.max(x_all[:,0])])
-    ax.set_ylim([np.min(x_all[:,1])*a,a*np.max(x_all[:,1])])
-    ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
-
-
 def visualize_2D(list_of_polytopes,a=1.5,title="polytopes"):
     """
     Given a polytope in its H-representation, plot it
@@ -69,6 +45,8 @@ def visualize_2D(list_of_polytopes,a=1.5,title="polytopes"):
     ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
     ax.set_title(title)
     return fig
+
+
     
 def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[True]):
     """
@@ -159,6 +137,34 @@ def visualize_3D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None):
 The following functions involve the ax object, or the plot, as one of the arguments
 
 """
+
+def visualize_2D_ax(ax,list_of_polytopes,a=1.5,title="polytopes",color=[True]):
+    """
+    Given a polytope in its H-representation, plot it
+    """ 
+    if any(color)==True:
+        ana_color=[(0,1,0),(0,0,1),(1,1,0),(1,0,1),(0,0,1),(0,0,1),(1,0,0),(0.5,0.5,0),(0,0.5,0.5),(0.5,0,0.5)]*len(list_of_polytopes)
+    else:
+        ana_color=[color]*len(list_of_polytopes)
+    p_list=[]
+    x_all=np.empty((0,2))
+    for polytope in list_of_polytopes:
+        p_mat=Matrix(np.hstack((polytope.h,-polytope.H)))
+        p_mat.rep_type = RepType.INEQUALITY
+        poly=Polyhedron(p_mat)
+        y=np.array(poly.get_generators())
+        x=y[:,1:3]#/y[:,2].reshape(y.shape[0],1)
+        x=x[ConvexHull(x).vertices,:]
+        x_all=np.vstack((x_all,x))
+        p=Polygon(x)
+        p_list.append(p)
+    p_patch = PatchCollection(p_list,color=ana_color[0:len(list_of_polytopes)], alpha=0.25)
+    ax.add_collection(p_patch)
+    ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
+    ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
+    ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
+    ax.set_title(title)
+
 
 def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[True]):
     """

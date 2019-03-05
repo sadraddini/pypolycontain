@@ -89,6 +89,7 @@ def minimum_distance(poly_1,poly_2,norm="infinity"):
     constraints_list_of_tuples(model,[(np.eye(n),x),(-np.eye(n),poly_2.t),(-poly_2.T,p_2)],sign="=")
     constraints_list_of_tuples(model,[(poly_1.P.H,p_1),(-np.eye(poly_1.P.h.shape[0]),poly_1.P.h)],sign="<")
     constraints_list_of_tuples(model,[(poly_2.P.H,p_2),(-np.eye(poly_2.P.h.shape[0]),poly_2.P.h)],sign="<")
+    model.setParam('OutputFlag', False)
     if norm=="infinity":
         delta_max=model.addVar(lb=0,obj=1)
         model.update()
@@ -96,7 +97,7 @@ def minimum_distance(poly_1,poly_2,norm="infinity"):
             model.addConstr(delta_max>=delta[i,0])
             model.addConstr(delta_max>=-delta[i,0])
         model.optimize()
-        print valuation(x).T,valuation(delta).T
+#        print valuation(x).T,valuation(delta).T
         return delta_max.X
     else:
         raise NotImplementedError

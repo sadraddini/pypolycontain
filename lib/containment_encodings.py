@@ -9,6 +9,33 @@ Created on Mon Dec  3 09:47:34 2018
 import numpy as np
 from gurobipy import Model,GRB,LinExpr,QuadExpr
 
+from pypolycontain.lib.AH_polytope import to_AH_polytope
+
+def subset_generic(model,Q1,Q2):
+    """
+    Adds containment property Q1 subset Q2
+    Inputs:
+        Q1,Q2: either polytope, zonotope, or AH_polytope
+    Output:
+        No direct output, adds Q1 \subset Q2 to the model
+    """
+    Q1=to_AH_polytope(Q1)
+    Q2=to_AH_polytope(Q2)
+    Gamma=tupledict_to_array(model.addVars(range(Q2.T.shape[1]),range(Q1.T.shape[1]),lb=-GRB.INFINITY,ub=GRB.INFINITY,name="Gamma"))
+    Lambda=tupledict_to_array(model.addVars(range(Q2.P.H.shape[0]),range(Q1.P.H.shape[0]),lb=0,ub=GRB.INFINITY,name="Lambda"))
+    beta=tupledict_to_array(model.addVars(range(Q2.T.shape[1]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="beta"))
+    model.update()
+    n=Q1.T.shape[0]
+    assert n==Q2.T.shape[0]
+    constraints_list_of_tuples(model,[(np.eye(Q1.T.shape[1]),Q1.T),(-Q2.T,Gamma)],sign="=")
+    constraints_list_of_tuples(model,[(np.eye(n),Q2.t),(-np.eye(n),Q1.t),(-Q2.T,beta)],sign="=")
+    constraints_list_of_tuples(model,[(Lambda,Q1.P.H),(-Q2.P.H,Gamma)],sign="=")
+    constraints_list_of_tuples(model,[(Lambda,Q1.P.h),(-np.eye(Q2.P.h.shape[0]),Q2.P.h),(-Q2.P.H,beta)],sign="=")
+    
+    
+    
+    
+
 def subset_LP(model,x,G,P,S):
     """
     Description: Add Farkas lemma constraints for subset inclusion of x+GP subset S
@@ -135,16 +162,15 @@ def subset_zonotopes(model,z_l,z_r):
     Description: Add inclusion constraints for subset inclusion of <x,G> subset <y,Z>
     Inputs: 
         model: Gurobi optimization model
-        variable: x: n * 1 shift vector
-        variable: G: n * n_g zonotope generator matrix
-        variable: y: n * 1 shift vector 
-        constant: Z: n * n_Z generator matrix of zonotope
+        z_l zonotope on the left
+        z_r zonotope on the left
     Output:
         no direct output. Adds constraints to the model.  
     Method:
         find matrix alpha and beta such that
-            G = Z * alpha
-            x-y = Z * beta            
+            G_x = G_y * alpha
+            x-y = g_y * beta  
+            ||(alpha,beta)||_infty<=1
     """
     (n,n_l)=z_l.G.shape
     (n,n_r)=z_r.G.shape
@@ -347,3 +373,39 @@ def sum_matrix_equality(model,A,B,C):
     for row in range(A.shape[0]):
         for column in range(A.shape[1]):
             model.addConstr(A[row,column]==B[row,column]+C[row,column])
+            
+def tupledict_to_array(mytupledict):
+    # It should be 2D
+    n,m=max(mytupledict.keys())
+    n+=1
+    m+=1
+    array=np.empty((n,m),dtype="object")
+    for i in range(n):
+        for j in range(m):
+            array[i,j]=mytupledict[i,j]
+    return array
+
+def constraints_list_of_tuples(model,mylist,sign="="):
+    term_0=mylist[0]
+    ROWS,COLUMNS=term_0[0].shape[0],term_0[1].shape[1]
+    for row in range(ROWS):
+        for column in range(COLUMNS):
+            expr=LinExpr()
+            for term in mylist:
+                q,qp=term[0].shape[1],term[1].shape[0]
+                if q!=qp:
+                    raise ValueError(term,"q=%d qp=%d"%(q,qp))
+                if type(term[1][0,column])==type(model.addVar()):
+                    expr.add(LinExpr([(term[0][row,k],term[1][k,column]) for k in range(q)]))
+                elif type(term[0][row,0])==type(model.addVar()):
+                    expr.add(LinExpr([(term[1][k,column],term[0][row,k]) for k in range(q)]))
+                else:
+                    expr.addConstant(sum([term[1][k,column]*term[0][row,k] for k in range(q)]))
+            if sign=="<":
+                model.addConstr(expr<=0)
+            elif sign=="=":
+                model.addConstr(expr==0)
+            elif sign==">=":
+                model.addConstr(expr>=0)
+            else:
+                raise "sign indefinite"
