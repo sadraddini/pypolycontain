@@ -53,7 +53,7 @@ def visualize_2D(list_of_polytopes,a=1.5,title="polytopes"):
 def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[True]):
     """
     Given a list of zonotopes, draw them. The zonotopes already have colors.
-    """ 
+    """       
     if type(list_of_dimensions)==type(None):
         list_of_dimensions=[0,1]
     p_list=[]
@@ -211,4 +211,4 @@ def vcube(T):
     """
     from itertools import product 
     v=list(product(*zip([-1]*T,[1]*T)))
-    return array(v)
+    return np.array(v)
