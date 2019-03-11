@@ -15,8 +15,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 import numpy as np
-from cdd import Polyhedron,Matrix,RepType
-from pyinpolytope.utilities.utils import vertices_cube as vcube
+try:
+    from cdd import Polyhedron,Matrix,RepType
+except:
+    print "WARNING: You don't have CDD package installed. Unable to visualize polytopes. You may still visualize zonotopes."
 
 def visualize_2D(list_of_polytopes,a=1.5,title="polytopes"):
     """
@@ -196,3 +198,17 @@ def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None
         ax.set_ylim([axis_limit[2],axis_limit[3]])
     ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
     ax.set_title(title)
+
+
+"""
+Auxilary functions
+"""
+
+    
+def vcube(T):
+    """
+    Description: 2**n * n array of vectors of vertices in unit cube in R^n
+    """
+    from itertools import product 
+    v=list(product(*zip([-1]*T,[1]*T)))
+    return array(v)
