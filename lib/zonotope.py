@@ -10,6 +10,7 @@ from random import randint
 
 from pypolycontain.lib.inclusion_encodings import subset_zonotope_both,constraints_AB_eq_CD,add_Var_matrix
 from pypolycontain.utils.utils import valuation
+from pypolycontain.lib.AH_polytope import to_AH_polytope,distance_point
 
 
 class zonotope():
@@ -139,7 +140,10 @@ def zonotope_inside(z,x):
     else:
         return True  
     
-def zonotope_distance_point(z,x):
+def zonotope_distance_point(z,x,norm="L2"):
+    return distance_point(to_AH_polytope(z),x,norm)
+
+def zonotope_distance_point_old(z,x):
     model=Model("inside")
     n=z.x.shape[0]
     p=np.empty((z.G.shape[1],1),dtype='object')
@@ -156,7 +160,7 @@ def zonotope_distance_point(z,x):
     model.optimize()
     d=np.dot(z.G,np.array([e[row,0].X for row in range(p.shape[0])]).reshape(p.shape[0],1))
     return np.linalg.norm(d)
-    
+
 
 """
 Zonotope Order Reduction Methods

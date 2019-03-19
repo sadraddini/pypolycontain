@@ -73,7 +73,7 @@ def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title
         fig, ax = plt.subplots()
     ax.add_collection(p_patch)
 #    print(axis_limit)
-    if axis_limit is None:
+    if any(axis_limit)==True:
         ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
         ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
     else:
@@ -100,7 +100,7 @@ def visualize_2D_zonotopes_convexhull(fig,ax,list_of_zonotopes,a=1.5,list_of_dim
 #    p_patch = PatchCollection(p_list, color=[(1-zono.x[0,0]>=1,0,zono.x[0,0]>=1) \
 #        for zono in list_of_zonotopes],alpha=0.75)
     ax.add_collection(p_patch)
-    if axis_limit.any():
+    if any(axis_limit)==True:
         ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
         ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
     else:

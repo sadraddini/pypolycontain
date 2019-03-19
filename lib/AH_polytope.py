@@ -20,7 +20,7 @@ class AH_polytope():
     """
     def __init__(self,T,t,P):
         """
-        Initilization: T,t,P
+        Initilization: T,t,P. X=TP+t
         """
         self.T=T # Matrix n*n_p
         self.t=t # vector n*1
@@ -71,6 +71,53 @@ def to_AH_polytope(P):
     else:
         raise ValueError("P type not understood:",P)
         
+        
+def distance_point(P,x,norm="L2"):
+    """
+    Distance from a point x to the closet point in AH_polytope 
+    Arguments:
+        poly: polytope, zonotope, or AH_polytope
+        x= numpy array
+        norm: choice of L1, L2, or infinity norm
+    Returns:
+        float
+    """
+    poly=to_AH_polytope(P)
+    n=poly.T.shape[0]
+    x=x.reshape(n,1)
+    model=Model("distance to point")
+    p=tupledict_to_array(model.addVars(range(poly.T.shape[1]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p")) # The point in H-polytope
+    delta=tupledict_to_array(model.addVars(range(n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="delta")) # The distance
+    model.update()
+    constraints_list_of_tuples(model,[(np.eye(n),x),(-np.eye(n),delta),(-np.eye(n),poly.t),(-poly.T,p)],sign="=")
+    constraints_list_of_tuples(model,[(poly.P.H,p),(-np.eye(poly.P.h.shape[0]),poly.P.h)],sign="<")
+    model.setParam('OutputFlag', False)
+    if norm in ["infinity","Linfinity","Inf","Linf"]:
+        delta_max=model.addVar(lb=0,obj=1)
+        model.update()
+        for i in range(n):
+            model.addConstr(delta_max>=delta[i,0])
+            model.addConstr(delta_max>=-delta[i,0])
+        model.optimize()
+        return delta_max.X
+    elif norm in [2,"L2","Euclidean"]:
+        J=QuadExpr()
+        for i in range(n):
+            J.add(delta[i,0]*delta[i,0])
+        model.setObjective(J)
+        model.optimize()
+        return model.getObjective().getValue()**0.5  
+    elif norm in [1,"L1","l1"]:
+        delta_max=tupledict_to_array(model.addVars(range(n),[0],lb=0,ub=GRB.INFINITY,name="delta_max",obj=1))
+        for i in range(n):
+            model.addConstr(delta_max[i,0]>=delta[i,0])
+            model.addConstr(delta_max[i,0]>=-delta[i,0])
+        model.optimize()
+        return sum([delta_max[i,0].X for i in range(n)])
+    else:
+        raise ValueError("The following norm: %s is not identifed"%str(norm))      
+    
+            
         
 def minimum_distance(poly_1,poly_2,norm="infinity"):
     """

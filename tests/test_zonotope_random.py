@@ -45,11 +45,11 @@ def zonotope_inside_scale(z,Y):
 if True:    
     scale_table={}
     difference_table={}
-    for n in range(3,11):
-        for N_r in range(n,13):
-            for k in range(2):
+    for n in range(3,16):
+        for N_r in range(n,21):
+            for k in range(1):
                 N_l=n+k
-                max_iterations=100
+                max_iterations=5
                 scale_table[n,N_r,k]=np.empty((max_iterations,2))
                 difference_table[n,N_r,k]=np.empty(max_iterations)
                 for i in range(max_iterations):
@@ -85,11 +85,11 @@ if True:
                     difference_table[n,N_r,k][i]=(scale_vertices-scale_theorem)/(scale_vertices+10**-12)
     #        plt.hist(difference_table[n,N_r])
     x_all=np.hstack([difference_table[key] for key in difference_table.keys()])
-#plt.hist(x_all)
-#plt.hist(x_all,30)
-#plt.yscale('log')
-#plt.xlabel(r'Loss')
-#plt.ylabel(r'Number of Zonotopes')
+plt.hist(x_all)
+plt.hist(x_all,30)
+plt.yscale('log')
+plt.xlabel(r'Loss')
+plt.ylabel(r'Number of Zonotopes')
 
 from matplotlib import pyplot
 
