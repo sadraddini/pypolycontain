@@ -9,14 +9,19 @@ Created on Wed Feb 20 15:16:48 2019
 import numpy as np
 
 from scipy.optimize import linprog as lp
+from scipy.linalg import block_diag as blk
 from gurobipy import Model,LinExpr,QuadExpr,GRB
 
-from pypolycontain.lib.polytope import Box
+from pypolycontain.lib.polytope import polytope,Box
 from pypolycontain.utils.utils import valuation
 
 class AH_polytope():
     """
     Affine Transformation of an H-polytope
+    Attributes:
+        P: The underlying H-polytope P:{x in R^q | Hx \le h}
+        T: R^(n*q) matrix: linear transformation
+        t: R^{n*1) vector: translation
     """
     def __init__(self,T,t,P):
         """
@@ -58,6 +63,24 @@ class AH_polytope():
         else:
             raise ValueError("Method %s not recognized"%self.method)
             
+    def is_nonempty(self):
+        model=Model("check_if_inside")
+        p=tupledict_to_array(model.addVars(range(self.P.n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p"))
+        x=tupledict_to_array(model.addVars(range(self.T.shape[0]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="x"))
+        model.update()
+        constraints_list_of_tuples(model,[(self.T,p),(np.eye(self.n),self.t),(-np.eye(self.n),x)],sign="=")
+        constraints_list_of_tuples(model,[(self.P.H,p),(-np.eye(self.P.h.shape[0]),self.P.h)],sign="<")
+        model.setParam('OutputFlag', False)
+        model.optimize()
+        if model.Status==3:
+            print("AH-polytope is empty")
+            return False
+        elif model.Status==2:
+            print("AH-polytope is not empty and a point is",np.array([x[i,0].X for i in range(x.shape[0])]))
+            return True
+        else:
+            return "Model status is %d"%model.Status
+        
             
 def to_AH_polytope(P):
     if P.type=="AH_polytope":
@@ -152,7 +175,16 @@ def minimum_distance(poly_1,poly_2,norm="infinity"):
 def check_collision(poly_1,poly_2,tol=10**-6):
     return minimum_distance(poly_1,poly_2,norm="infinity")<tol
     
-    
+
+def Minkowski_sum(poly_1,poly_2):
+    if poly_1.T.shape[0]!=poly_2.T.shape[0]:
+        ValueError("The sizes of two sums do not match",poly_1.T.shape[0],poly_2.T.shape[0])    
+    H=blk(poly_1.P.H,poly_2.P.H)
+    h=np.vstack((poly_1.P.h,poly_2.P.h))
+    P=polytope(H,h)
+    T=np.hstack((poly_1.T,poly_2.T))
+    t=(poly_1.t+poly_2.t)
+    return AH_polytope(T,t,P)
     
 
 """
