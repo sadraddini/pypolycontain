@@ -50,7 +50,7 @@ def visualize_2D(list_of_polytopes,a=1.5,title="polytopes"):
 
 
     
-def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[True],\
+def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[0],\
                            alpha = 0.975,fig=None, ax = None):
     """
     Given a list of zonotopes, draw them. The zonotopes already have colors.
@@ -73,7 +73,7 @@ def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title
         fig, ax = plt.subplots()
     ax.add_collection(p_patch)
 #    print(axis_limit)
-    if any(axis_limit)==True:
+    if len(axis_limit)==1:
         ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
         ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
     else:
@@ -84,7 +84,7 @@ def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title
     return fig,ax
 
     
-def visualize_2D_zonotopes_convexhull(fig,ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[True]):
+def visualize_2D_zonotopes_convexhull(fig,ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[0]):
     if type(list_of_dimensions)==type(None):
         list_of_dimensions=[0,1]
     p_list=[]
@@ -100,7 +100,7 @@ def visualize_2D_zonotopes_convexhull(fig,ax,list_of_zonotopes,a=1.5,list_of_dim
 #    p_patch = PatchCollection(p_list, color=[(1-zono.x[0,0]>=1,0,zono.x[0,0]>=1) \
 #        for zono in list_of_zonotopes],alpha=0.75)
     ax.add_collection(p_patch)
-    if any(axis_limit)==True:
+    if len(axis_limit)==1:
         ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
         ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
     else:
@@ -170,7 +170,7 @@ def visualize_2D_ax(ax,list_of_polytopes,a=1.5,title="polytopes",color=[True]):
     ax.set_title(title)
 
 
-def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[True]):
+def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[0]):
     """
     Given a plot, add zonotopes
     """ 
@@ -191,8 +191,7 @@ def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None
 #    p_patch = PatchCollection(p_list, color=[(1-zono.x[0,0]>=1,0,zono.x[0,0]>=1) \
 #        for zono in list_of_zonotopes],alpha=0.75)
     ax.add_collection(p_patch)
-    print(axis_limit)
-    if any(axis_limit):
+    if len(axis_limit)==1:
         ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
         ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
     else:
