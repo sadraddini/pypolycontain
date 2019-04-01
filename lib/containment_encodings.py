@@ -6,6 +6,7 @@ Created on Mon Dec  3 09:47:34 2018
 """
 
 # External imports:
+import warnings
 import numpy as np
 from gurobipy import Model,GRB,LinExpr,QuadExpr
 
@@ -30,13 +31,32 @@ def subset_generic(model,Q1,Q2):
     constraints_list_of_tuples(model,[(np.eye(Q1.T.shape[1]),Q1.T),(-Q2.T,Gamma)],sign="=")
     constraints_list_of_tuples(model,[(np.eye(n),Q2.t),(-np.eye(n),Q1.t),(-Q2.T,beta)],sign="=")
     constraints_list_of_tuples(model,[(Lambda,Q1.P.H),(-Q2.P.H,Gamma)],sign="=")
-    constraints_list_of_tuples(model,[(Lambda,Q1.P.h),(-np.eye(Q2.P.h.shape[0]),Q2.P.h),(-Q2.P.H,beta)],sign="=")
+    constraints_list_of_tuples(model,[(Lambda,Q1.P.h),(-np.eye(Q2.P.h.shape[0]),Q2.P.h),(-Q2.P.H,beta)],sign="<=")
     
     
-    
+def point_in_AH_polytope(model,Q,x):
+    """
+    Add the Constraint that x is in Q
+    Inputs:
+        x as a n*1 vector, Q an n-dimensioanl polytope (AH_polytope, zonotope, or H-polytope)
+    Output:
+        No direct output, adds Q1 \subset Q2 to the model
+    """
+    Q=to_AH_polytope(Q)
+    p=tupledict_to_array(model.addVars(range(Q.T.shape[1]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p"))
+    model.update()
+    n=x.shape[0]
+    constraints_list_of_tuples(model,[(Q.T,p),(-np.eye(n),Q.t),(-np.eye(n),x)],sign="=")
+    constraints_list_of_tuples(model,[(Q.P.H,p),(-np.eye(Q.P.h.shape[0]),Q.P.h)],sign="<")
     
 
+"""
+    The rest are not really needed? Just Special Cases
+    WARNING: THE FOLLOWING FUNCTIONS ARE GOING TO BE DISCARDED
+"""    
+
 def subset_LP(model,x,G,P,S):
+    warnings.warn("This function is no longer maintained. Use 'subset_generic' Function instead")
     """
     Description: Add Farkas lemma constraints for subset inclusion of x+GP subset S
     Inputs: 
@@ -79,6 +99,7 @@ def subset_LP(model,x,G,P,S):
         model.addConstr(s_left<=S.h[row,0]-s_right) 
 
 def subset_both_projection(model,x_l,G_l,P_l,x_r,G_r,P_r):
+    warnings.warn("This function is no longer maintained. Use 'subset_generic' Function instead")
     """
     Description: Add polytope containment constraints for subset inclusion of x_l+G_l P_l subset x_r+G_r P_r
     Inputs: 
@@ -158,6 +179,7 @@ def subset_LP_disjunctive(model,x,G,P,list_of_polytopes):
 
 
 def subset_zonotopes(model,z_l,z_r):
+    warnings.warn("This function is no longer maintained. Use 'subset_generic' Function instead")
     """
     Description: Add inclusion constraints for subset inclusion of <x,G> subset <y,Z>
     Inputs: 
@@ -187,6 +209,7 @@ def subset_zonotopes(model,z_l,z_r):
 
 
 def subset_zonotopes_convexhull(model,x,G,list_of_zonotopes):
+    warnings.warn("This function is no longer maintained. Use 'subset_generic' Function instead")
     """
     Description: Add inclusion constraints for subset inclusion of <x,G> subset convexhull of a list of zonotopes
     Inputs: 
@@ -401,11 +424,11 @@ def constraints_list_of_tuples(model,mylist,sign="="):
                     expr.add(LinExpr([(term[1][k,column],term[0][row,k]) for k in range(q)]))
                 else:
                     expr.addConstant(sum([term[1][k,column]*term[0][row,k] for k in range(q)]))
-            if sign=="<":
+            if sign=="<" or sign=="<=":
                 model.addConstr(expr<=0)
             elif sign=="=":
                 model.addConstr(expr==0)
-            elif sign==">=":
+            elif sign==">=" or sign==">":
                 model.addConstr(expr>=0)
             else:
                 raise "sign indefinite"
