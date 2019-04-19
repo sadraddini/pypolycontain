@@ -10,7 +10,7 @@ import numpy as np
 from scipy.linalg import block_diag
 
 from pypolycontain.utils.redundancy_reduction import canonical_polytope
-from polytope import polytope
+from pypolycontain.lib.polytope import polytope
 
       
 def fourier_motzkin_eliminate_single(var_index,A,b,C=None,d=None,atol=10**-8):

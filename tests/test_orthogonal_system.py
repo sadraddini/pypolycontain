@@ -8,9 +8,10 @@ Created on Mon Jan  7 15:55:37 2019
 
 import numpy as np
 
-from pypolycontain.lib.orthogonal_projection import orthogonal_projection_fixed_Hx,orthogonal_projection_gradient_decent,gradient_decent
 from pypolycontain.visualization.visualize_2D import visualize_2D as vis2
 from pypolycontain.lib.polytope import polytope
+from pypolycontain.lib.special.orthogonal_projection import orthogonal_projection_fixed_Hx,orthogonal_projection_gradient_decent,gradient_decent
+
 
 from pyfomo.src.main import fourier_motzkin_eliminate_single
 

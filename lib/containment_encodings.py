@@ -49,7 +49,7 @@ def point_in_AH_polytope(model,Q,x):
     constraints_list_of_tuples(model,[(Q.T,p),(-np.eye(n),Q.t),(-np.eye(n),x)],sign="=")
     constraints_list_of_tuples(model,[(Q.P.H,p),(-np.eye(Q.P.h.shape[0]),Q.P.h)],sign="<")
     
-
+    
 """
     The rest are not really needed? Just Special Cases
     WARNING: THE FOLLOWING FUNCTIONS ARE GOING TO BE DISCARDED

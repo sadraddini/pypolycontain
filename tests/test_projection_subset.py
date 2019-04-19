@@ -8,11 +8,11 @@ import numpy as np
 from gurobipy import Model
 
 from pypolycontain.lib.polytope import polytope,translate
-from pypolycontain.lib.elimination import project
+from pypolycontain.lib.special.elimination import project
 from pypolycontain.visualization.visualize_2D import visualize_2D as vis
 
 from pypolycontain.utils.utils import PI,valuation
-from pypolycontain.lib.inclusion_encodings import subset_both_projection
+from pypolycontain.lib.special.inclusion_encodings import subset_both_projection
 
 model=Model("Projection")
 H=np.array([[1,1],[-1,1],[0,-1]])

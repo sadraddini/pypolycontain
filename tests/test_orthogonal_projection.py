@@ -7,7 +7,7 @@ Created on Sat Jan  5 17:38:14 2019
 
 import numpy as np
 
-from pypolycontain.lib.orthogonal_projection import orthogonal_projection_fixed_Hx,orthogonal_projection_gradient_decent,gradient_decent
+from pypolycontain.lib.special.orthogonal_projection import orthogonal_projection_fixed_Hx,orthogonal_projection_gradient_decent,gradient_decent
 from pypolycontain.visualization.visualize_2D import visualize_2D as vis2
 from pypolycontain.lib.polytope import polytope
 
