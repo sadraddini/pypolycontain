@@ -8,7 +8,7 @@ import numpy as np
 from gurobipy import Model,LinExpr,QuadExpr,GRB
 from random import randint
 
-from pypolycontain.lib.inclusion_encodings import subset_zonotope_both,constraints_AB_eq_CD,add_Var_matrix
+from pypolycontain.lib.containment_encodings import subset_generic,constraints_AB_eq_CD,add_Var_matrix
 from pypolycontain.utils.utils import valuation
 from pypolycontain.lib.AH_polytope import to_AH_polytope,distance_point
 
@@ -78,7 +78,9 @@ def zonotope_distance(z1,z2,eps_min=0,eps_max=10,eps=0.05):
     else:
         print("searching between",eps_min,"and",eps_max)
         model=Model("Zonotope Distance")
-        subset_zonotope_both(model,z1.x,z1.G,z2.x,np.hstack((z2.G,d*np.eye(z2.G.shape[0]))))
+        Q1=z1
+        Q2=zonotope(z2.x,np.hstack((z2.G,d*np.eye(z2.G.shape[0]))))
+        subset_generic(model,Q1,Q2)
         model.setParam("outputflag",False)
         model.optimize()
         if model.Status==3:
