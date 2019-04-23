@@ -19,7 +19,7 @@ class polytope():
             ValueError("Error: not appropriate h size, it is",h.shape)
         if H.shape[0]!=h.shape[0]:
             ValueError("Error: not consistent dimension of H: %d and h: %d"%(H.shape[0],h.shape[0]))
-        self.type="polytope"
+        self.type="H-polytope"
     
     def __repr__(self):
         return ("polytope in R^%d"%self.n)

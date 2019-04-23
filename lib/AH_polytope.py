@@ -85,14 +85,14 @@ class AH_polytope():
 def to_AH_polytope(P):
     if P.type=="AH_polytope":
         return P
-    elif P.type=="polytope":
+    elif P.type=="H-polytope":
         n=P.H.shape[1]
         return AH_polytope(np.eye(n),np.zeros((n,1)),P)
     elif P.type=="zonotope":
         q=P.G.shape[1]
         return AH_polytope(P.G,P.x,Box(q))
     else:
-        raise ValueError("P type not understood:",P)
+        raise ValueError("P type not understood:",P.type)
         
         
 def distance_point(P,x,norm="L2"):
@@ -140,7 +140,15 @@ def distance_point(P,x,norm="L2"):
     else:
         raise ValueError("The following norm: %s is not identifed"%str(norm))      
     
-            
+def is_inside(poly,x,tol=10**-6):
+    """
+    Boolean answer to whether x is in poly
+    """
+    if poly.type=="H-polytope":
+        return all(np.dot(poly.H,x)<=poly.h)
+    else:
+        Q=to_AH_polytope(poly)
+        return distance_point(Q,x)<=tol          
         
 def minimum_distance(poly_1,poly_2,norm="infinity"):
     """
