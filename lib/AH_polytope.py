@@ -185,6 +185,7 @@ def check_collision(poly_1,poly_2,tol=10**-6):
     
 
 def Minkowski_sum(poly_1,poly_2):
+    poly_1,poly_2=to_AH_polytope(poly_1),to_AH_polytope(poly_2)
     if poly_1.T.shape[0]!=poly_2.T.shape[0]:
         ValueError("The sizes of two sums do not match",poly_1.T.shape[0],poly_2.T.shape[0])    
     H=blk(poly_1.P.H,poly_2.P.H)
@@ -193,7 +194,17 @@ def Minkowski_sum(poly_1,poly_2):
     T=np.hstack((poly_1.T,poly_2.T))
     t=(poly_1.t+poly_2.t)
     return AH_polytope(T,t,P)
-    
+
+def cartesian_product(poly_1,poly_2):
+    poly_1,poly_2=to_AH_polytope(poly_1),to_AH_polytope(poly_2)
+    if poly_1.T.shape[0]!=poly_2.T.shape[0]:
+        ValueError("The sizes of two sums do not match",poly_1.T.shape[0],poly_2.T.shape[0])    
+    H=blk(poly_1.P.H,poly_2.P.H)
+    h=np.vstack((poly_1.P.h,poly_2.P.h))
+    P=polytope(H,h)
+    T=blk(poly_1.T,poly_2.T)
+    t=np.vstack((poly_1.t,poly_2.t))
+    return AH_polytope(T,t,P)    
 
 """
 Auxilary Gurobi Shortcut Functions
