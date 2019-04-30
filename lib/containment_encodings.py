@@ -28,7 +28,7 @@ def subset_generic(model,Q1,Q2):
     model.update()
     n=Q1.T.shape[0]
     assert n==Q2.T.shape[0]
-    constraints_list_of_tuples(model,[(np.eye(Q1.T.shape[1]),Q1.T),(-Q2.T,Gamma)],sign="=")
+    constraints_list_of_tuples(model,[(np.eye(n),Q1.T),(-Q2.T,Gamma)],sign="=")
     constraints_list_of_tuples(model,[(np.eye(n),Q2.t),(-np.eye(n),Q1.t),(-Q2.T,beta)],sign="=")
     constraints_list_of_tuples(model,[(Lambda,Q1.P.H),(-Q2.P.H,Gamma)],sign="=")
     constraints_list_of_tuples(model,[(Lambda,Q1.P.h),(-np.eye(Q2.P.h.shape[0]),Q2.P.h),(-Q2.P.H,beta)],sign="<=")
