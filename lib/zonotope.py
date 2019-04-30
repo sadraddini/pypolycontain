@@ -30,9 +30,13 @@ class zonotope():
         except:
             self.color=(np.random.random(),np.random.random(),np.random.random())
         self.type="zonotope"
-    
+        self.hash_value = hash(str(np.hstack([self.G, x])))
+
     def __repr__(self):
         return self.name
+
+    def __hash__(self):
+        return self.hash_value
 
 
 def zonotope_directed_distance(z1,z2):

@@ -20,10 +20,14 @@ class polytope():
         if H.shape[0]!=h.shape[0]:
             ValueError("Error: not consistent dimension of H: %d and h: %d"%(H.shape[0],h.shape[0]))
         self.type="H-polytope"
-    
+        self.hash_value = hash(str(np.hstack([self.H, self.h])))
+
     def __repr__(self):
         return ("polytope in R^%d"%self.n)
-    
+
+    def __hash__(self):
+        return self.hash_value
+
     def show(self):
         print(self)
         print("H=",self.H)
