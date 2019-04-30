@@ -2,8 +2,11 @@ import numpy as np
 from pypolycontain.lib.zonotope import zonotope
 from pypolycontain.lib.polytope import polytope
 from pypolycontain.lib.AH_polytope import AH_polytope, to_AH_polytope
+from time import time
 
-def get_uniform_random_zonotopes(zonotope_count, dim, centroid_range=None, generator_range = 10, return_type = 'AH_polytope'):
+def get_uniform_random_zonotopes(zonotope_count, dim, centroid_range=None, generator_range = 10, return_type = 'AH_polytope', seed = None, color=None):
+    if seed is not None:
+        np.random.seed(seed)
     polytopes = []
     if centroid_range is None:
         centroid_range = zonotope_count*5
@@ -14,7 +17,7 @@ def get_uniform_random_zonotopes(zonotope_count, dim, centroid_range=None, gener
         if return_type == 'AH_polytope':
             polytopes.append(to_AH_polytope(zonotope(x, G)))
         elif return_type == 'zonotope':
-            polytopes.append(zonotope(x, G))
+            polytopes.append(zonotope(x, G, color=color))
         else:
             raise NotImplementedError
     return polytopes

@@ -51,7 +51,7 @@ def visualize_2D(list_of_polytopes,a=1.5,title="polytopes"):
 
     
 def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[0],\
-                           alpha = 0.975,fig=None, ax = None):
+                           alpha = 0.975,fig=None, ax = None, color = None):
     """
     Given a list of zonotopes, draw them. The zonotopes already have colors.
     """       
@@ -66,7 +66,10 @@ def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title
         x_all=np.vstack((x_all,x))
         p=Polygon(x)
         p_list.append(p)
-    p_patch = PatchCollection(p_list, color=[Z.color for Z in list_of_zonotopes],alpha=alpha)
+    if color is None:
+        p_patch = PatchCollection(p_list, color=[Z.color for Z in list_of_zonotopes],alpha=alpha)
+    else:
+        p_patch = PatchCollection(p_list, color=color,alpha=alpha)
 #    p_patch = PatchCollection(p_list, color=[(1-zono.x[0,0]>=1,0,zono.x[0,0]>=1) \
 #        for zono in list_of_zonotopes],alpha=0.75)
     if fig is None or ax is None:
