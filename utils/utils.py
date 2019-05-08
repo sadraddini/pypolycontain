@@ -93,3 +93,16 @@ def null_space(A, rcond=None):
     num = np.sum(s > tol, dtype=int)
     Q = vh[num:,:].T.conj()
     return Q
+
+def unique_rows(E,e):
+    """
+    Given E and e, check for multiplicities of E and e 
+    """
+    q,n=E.shape
+    H=np.hstack((E,e))
+    norm_v=np.linalg.norm(H,ord=np.inf,axis=1)
+    H_1=(1/norm_v*H.T).T
+    H_2=np.unique(H_1,axis=0)
+    return H_2[:,:n],H_2[:,n].reshape(H_2.shape[0],1)
+    
+        
