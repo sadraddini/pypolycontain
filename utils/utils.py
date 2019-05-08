@@ -99,6 +99,8 @@ def unique_rows(E,e):
     Given E and e, check for multiplicities of E and e 
     """
     q,n=E.shape
+    if e.shape!=(q,1):
+        raise ValueError("e:",e.shape,"does not match the shape of E:",E.shape)
     H=np.hstack((E,e))
     norm_v=np.linalg.norm(H,ord=np.inf,axis=1)
     H_1=(1/norm_v*H.T).T
