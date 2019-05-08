@@ -6,21 +6,22 @@ Created on Wed Oct 24 13:56:09 2018
 """
 
 import numpy as np
+from pypolycontain.utils.utils import unique_rows
+
 
 class polytope():
     def __init__(self,H,h):
         """
         Class Polytope. A Polytope is defined as (x \in R^n | Hx <= h)
         """
-        self.H=H
-        self.h=h
-        self.n=H.shape[1]
         if h.shape[1]!=1:
             ValueError("Error: not appropriate h size, it is",h.shape)
         if H.shape[0]!=h.shape[0]:
             ValueError("Error: not consistent dimension of H: %d and h: %d"%(H.shape[0],h.shape[0]))
         self.type="H-polytope"
-        self.hash_value = hash(str(np.hstack([self.H, self.h])))
+        self.H,self.h=unique_rows(H,h)
+        self.n=H.shape[1]
+#        self.hash_value = hash(str(np.hstack([self.H, self.h])))
 
     def __repr__(self):
         return ("polytope in R^%d"%self.n)

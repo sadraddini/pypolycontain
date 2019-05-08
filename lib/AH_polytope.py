@@ -35,7 +35,7 @@ class AH_polytope():
             ValueError("Error: not appropriate T size, it is",T.shape[1],P.n)
         self.type="AH_polytope"
         self.method="Gurobi"
-        self.hash_value = hash(P)+hash(str(np.hstack([T,t])))   #FIXME: better hashing implementation
+#        self.hash_value = hash(P)+hash(str(np.hstack([T,t])))   #FIXME: better hashing implementation
 
     def __repr__(self):
         return "AH_polytope from R^%d to R^%d"%(self.P.n,self.n)
