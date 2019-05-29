@@ -102,8 +102,10 @@ def unique_rows(E,e):
     if e.shape!=(q,1):
         raise ValueError("e:",e.shape,"does not match the shape of E:",E.shape)
     H=np.hstack((E,e))
-    norm_v=np.linalg.norm(H,ord=np.inf,axis=1)
-    H_1=(1/norm_v*H.T).T
+    H_0=H[~np.all( H==0, axis=1)]
+    norm_v=np.linalg.norm(H_0,ord=np.inf,axis=1)
+    assert any(norm_v==0)==False
+    H_1=(1/norm_v*H_0.T).T
     H_2=np.unique(H_1,axis=0)
     return H_2[:,:n],H_2[:,n].reshape(H_2.shape[0],1)
     

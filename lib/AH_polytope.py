@@ -69,20 +69,20 @@ class AH_polytope():
         else:
             raise ValueError("Method %s not recognized"%self.method)
             
-    def is_nonempty(self):
+    def is_nonempty(self,tol=10**-6):
         model=Model("check_if_inside")
         p=tupledict_to_array(model.addVars(range(self.P.n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p"))
         x=tupledict_to_array(model.addVars(range(self.T.shape[0]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="x"))
         model.update()
         constraints_list_of_tuples(model,[(self.T,p),(np.eye(self.n),self.t),(-np.eye(self.n),x)],sign="=")
-        constraints_list_of_tuples(model,[(self.P.H,p),(-np.eye(self.P.h.shape[0]),self.P.h)],sign="<")
+        constraints_list_of_tuples(model,[(self.P.H,p),(-np.eye(self.P.h.shape[0]),(self.P.h+tol))],sign="<")
         model.setParam('OutputFlag', False)
         model.optimize()
         if model.Status==3:
-            print("AH-polytope is empty")
+#            print("AH-polytope is empty")
             return False
         elif model.Status==2:
-            print("AH-polytope is not empty and a point is",np.array([x[i,0].X for i in range(x.shape[0])]))
+#            print("AH-polytope is not empty and a point is",np.array([x[i,0].X for i in range(x.shape[0])]))
             return True
         else:
             return "Model status is %d"%model.Status
@@ -210,7 +210,14 @@ def cartesian_product(poly_1,poly_2):
     P=polytope(H,h)
     T=blk(poly_1.T,poly_2.T)
     t=np.vstack((poly_1.t,poly_2.t))
-    return AH_polytope(T,t,P)    
+    return AH_polytope(T,t,P)  
+
+def is_nonempty(poly):
+    """
+    Return if poly (AH-polytope, Zonotope, or Polytope) is non-empty
+    """
+    Q=to_AH_polytope(poly)
+    return Q.is_nonempty()
 
 """
 Auxilary Gurobi Shortcut Functions

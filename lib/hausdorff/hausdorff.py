@@ -50,7 +50,6 @@ def Hausdorff_directed(Q1,Q2,ball="infinty_norm"):
     model.optimize()
     return D.X
     
-   
     
 
 
