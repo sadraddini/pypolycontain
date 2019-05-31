@@ -48,10 +48,17 @@ def translate(p,d):
     """
     return polytope(p.H,p.h+np.dot(p.H,d))
 
-def Box(N,d=1):
+def Box(N,d=1,corners=None):
     """
-    returns N-dimensional Box
+    returns N-dimensional Box 
+    corners=typle of 2 numpy arrays: lower_corner and upper_corner
     """
     H=np.vstack((np.eye(N),-np.eye(N)))
-    h=d*np.ones((2*N,1))
+    if corners==None:
+        h=d*np.ones((2*N,1))
+    else:
+        l,u=corners[0:2]
+        if not all(u>=l):
+            raise ValueError("Upper-right corner not totally ordering lower-left corner")
+        h=np.vstack((u,-l))
     return polytope(H,h)
