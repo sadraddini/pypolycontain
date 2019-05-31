@@ -142,15 +142,17 @@ def visualize_3D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None):
     
 """
 The following functions involve the ax object, or the plot, as one of the arguments
-
 """
 
-def visualize_2D_ax(ax,list_of_polytopes,a=1.5,title="polytopes",color=[True]):
+def visualize_2D_ax(ax,list_of_polytopes,a=1.5,title="polytopes",color=[True],alpha=0.5):
     """
     Given a polytope in its H-representation, plot it
     """ 
     if any(color)==True:
-        ana_color=[(0,1,0),(0,0,1),(1,1,0),(1,0,1),(0,0,1),(0,0,1),(1,0,0),(0.5,0.5,0),(0,0.5,0.5),(0.5,0,0.5)]*len(list_of_polytopes)
+        ana_color=[(0,1,0),(0,0,1),(1,1,0),(1,0,1),(0,0,1),(0,0,1),(1,0,0),
+                   (0.5,0.5,0),(0,0.5,0.5),(0.5,0,0.5),(0.5,0.5,0.5),
+                   (1,1,0.5),(1,0.5,1),(0.5,1,1),
+                   (0.5,0.5,1),(0.5,1,0.5),(1,0.5,0.5)]*len(list_of_polytopes)
     else:
         ana_color=[color]*len(list_of_polytopes)
     p_list=[]
@@ -165,7 +167,7 @@ def visualize_2D_ax(ax,list_of_polytopes,a=1.5,title="polytopes",color=[True]):
         x_all=np.vstack((x_all,x))
         p=Polygon(x)
         p_list.append(p)
-    p_patch = PatchCollection(p_list,color=ana_color[0:len(list_of_polytopes)], alpha=0.25)
+    p_patch = PatchCollection(p_list,color=ana_color[0:len(list_of_polytopes)], alpha=alpha)
     ax.add_collection(p_patch)
     ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
     ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])

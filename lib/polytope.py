@@ -36,10 +36,10 @@ class polytope():
         print("H=",self.H)
         print("h=",self.h)
         
-    def if_inside(self,x):
+    def if_inside(self,x,tol=10**-5):
         if x.shape[0]!=self.H.shape[1]:
             return ValueError("H and x dimensions mismatch")
-        return all(np.dot(self.H,x)<=self.h)
+        return all(np.dot(self.H,x)<=self.h+tol)
 
     
 def translate(p,d):
