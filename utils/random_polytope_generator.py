@@ -74,7 +74,8 @@ def get_k_random_edge_points_in_zonotope(zonotope, k, metric='l2'):
         norms = np.linalg.norm(zonotope.G, axis=0)
         indices = np.flip(np.argsort(norms))[0:k]
         base_array = np.vstack([np.full(k,1), np.full(k,-1)]).T
-        directions = np.array(np.meshgrid(*base_array)).reshape(-1,k)
+        directions = np.array(np.meshgrid(*base_array)).T.reshape(-1,k)
+        # print(directions)
         s = np.zeros([zonotope.G.shape[1],2**k])
         s[indices,:] = directions.T
         # print(s)
