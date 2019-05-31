@@ -66,8 +66,10 @@ def get_line_random_zonotopes(zonotope_count, dim, centroid_range=None, line_wid
         return np.asarray(polytopes)
     return polytopes
 
-def get_k_random_vertices_in_zonotope(zonotope, k, metric='l2'):
-    assert(k<=zonotope.G.shape[1])
+def get_k_random_edge_points_in_zonotope(zonotope, k, metric='l2'):
+    if k==0:
+        return
+    k=min(k,zonotope.G.shape[1])
     if metric == 'l2':
         norms = np.linalg.norm(zonotope.G, axis=0)
         indices = np.flip(np.argsort(norms))[0:k]
@@ -75,7 +77,7 @@ def get_k_random_vertices_in_zonotope(zonotope, k, metric='l2'):
         directions = np.array(np.meshgrid(*base_array)).reshape(-1,k)
         s = np.zeros([zonotope.G.shape[1],2**k])
         s[indices,:] = directions.T
-        print(s)
+        # print(s)
         return (np.matmul(zonotope.G, s)+zonotope.x).T
 
 
