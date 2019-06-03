@@ -35,9 +35,9 @@ def test_memebership():
     print point_membership(P,x,solver="gurobi")
     
 def test_hausdorff():
-    n=2
-    q1=12
-    q2=12
+    n=15
+    q1=16
+    q2=28
     z1=zonotope(np.random.random((n,1)),np.random.random((n,q1))-0.5,color='red')
     z2=zonotope(np.random.random((n,1)),np.random.random((n,q2))-0.5,color='blue')
     start=time()
@@ -45,12 +45,12 @@ def test_hausdorff():
     print "Mathematical Program:",D,"\t",time()-start
     start=time()
     print "Gurobipy:",Hausdorff_directed(z1,z2),"\t",time()-start
-    z3=zonotope(z2.x,np.hstack((z2.G,D*np.eye(n))),color='green')
-    visZ([z3,z1,z2],a=0.5,alpha=0.2)
+#    z3=zonotope(z2.x,np.hstack((z2.G,D*np.eye(n))),color='green')
+#    visZ([z3,z1,z2],a=0.5,alpha=0.2)
     return D
     
 def __main__():
-    test_memebership()
+#    test_memebership()
     test_hausdorff()
 
 __main__()
