@@ -175,7 +175,7 @@ def visualize_2D_ax(ax,list_of_polytopes,a=1.5,title="polytopes",color=[True],al
     ax.set_title(title)
 
 
-def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[0]):
+def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[0],alpha=0.5):
     """
     Given a plot, add zonotopes
     """ 
@@ -192,7 +192,7 @@ def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None
         x_all=np.vstack((x_all,x))
         p=Polygon(x)
         p_list.append(p)
-    p_patch = PatchCollection(p_list, color=[Z.color for Z in list_of_zonotopes],alpha=0.75)
+    p_patch = PatchCollection(p_list, color=[Z.color for Z in list_of_zonotopes],alpha=alpha)
 #    p_patch = PatchCollection(p_list, color=[(1-zono.x[0,0]>=1,0,zono.x[0,0]>=1) \
 #        for zono in list_of_zonotopes],alpha=0.75)
     ax.add_collection(p_patch)

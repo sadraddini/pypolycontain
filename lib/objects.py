@@ -99,16 +99,45 @@ class AH_polytope():
             self.hash_value = hash(self.P) + hash(str(np.hstack([self.T, self.t])))  # FIXME: better hashing implementation
         return self.hash_value
     
-def Box(N,d=1,corners=None):
+class hyperbox(H_polytope):
+    def __init__(self,N=None,corners=[],d=1):
+        """
+        returns N-dimensional Box 
+        corners=typle of 2 numpy arrays: lower_corner and upper_corner
+        """
+        if len(corners)==0:
+            H=np.vstack((np.eye(N),-np.eye(N)))
+            h=d*np.ones((2*N,1))
+            self.l=-np.ones((N,1))*d
+            self.u=-self.l
+        else:
+            l,u=corners[0:2]
+            assert all(u>=l)
+            N=l.shape[0]
+            assert N==u.shape[0]
+            H=np.vstack((np.eye(N),-np.eye(N)))
+            if not all(u>=l):
+                raise ValueError("Upper-right corner not totally ordering lower-left corner")
+            h=np.vstack((u,-l))
+            self.l=l
+            self.u=u
+        self.H_polytope=H_polytope(H,h)
+        self.zonotope=zonotope((l+u)/2,np.diagflat((u-l)/2))
+        self.n=N
+    
+def Box(N=None,d=1,corners=[]):
     """
     returns N-dimensional Box 
     corners=typle of 2 numpy arrays: lower_corner and upper_corner
     """
-    H=np.vstack((np.eye(N),-np.eye(N)))
-    if corners==None:
+    if len(corners)==0:
+        H=np.vstack((np.eye(N),-np.eye(N)))
         h=d*np.ones((2*N,1))
     else:
         l,u=corners[0:2]
+        N=l.shape[0]
+        assert N==u.shape[0]
+        H=np.vstack((np.eye(N),-np.eye(N)))
         if not all(u>=l):
             raise ValueError("Upper-right corner not totally ordering lower-left corner")
         h=np.vstack((u,-l))
