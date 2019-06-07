@@ -13,7 +13,7 @@ import pydrake.solvers.gurobi as Gurobi_drake
 import pydrake.solvers.osqp as OSQP_drake
 
 # Pypolycontain
-from pypolycontain.lib.objects import AH_polytope,Box
+from pypolycontain.lib.objects import AH_polytope,Box,hyperbox
 # use Gurobi solver
 global gurobi_solver,OSQP_solver
 gurobi_solver=Gurobi_drake.GurobiSolver()
@@ -22,7 +22,7 @@ OSQP_solver=OSQP_drake.OsqpSolver()
 def to_AH_polytope(P):
     if P.type=="AH_polytope":
         return P
-    elif P.type=="H_polytope":
+    elif P.type=="H_polytope" or P.type=="H-polytope":
         n=P.H.shape[1]
         return AH_polytope(np.eye(n),np.zeros((n,1)),P)
     elif P.type=="zonotope":
@@ -92,6 +92,8 @@ def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
     if ball=="infinty_norm":
         HB=np.vstack((np.eye(n),-np.eye(n)))
         hB=np.vstack((np.ones((n,1)),np.ones((n,1))))
+    elif ball=="l1":
+        HB,hb=make_ball(ball)
     prog=MP.MathematicalProgram()
     # Variables
     D=prog.NewContinuousVariables(1,1,"D")
@@ -148,22 +150,32 @@ def distance_polytopes(Q1,Q2,ball="infinity",solver="Gurobi"):
     prog.AddLinearConstraint(A=Q2.P.H,ub=Q2.P.h,lb=-np.inf*np.ones((Q2.P.h.shape[0],1)),vars=zeta2)
     prog.AddLinearEqualityConstraint( np.hstack((Q1.T,-Q2.T,np.eye(n))),Q2.t-Q1.t,np.vstack((zeta1,zeta2,delta)) )
     if ball=="infinity":
-        delta_abs=prog.NewContinuousVariables(1,1,"delta")
+        delta_abs=prog.NewContinuousVariables(1,1,"delta_abs")
         prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
         prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),delta,dtype='object' ))
         prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),-delta,dtype='object' ))
+        cost=delta_abs
+    elif ball=="l1":
+        delta_abs=prog.NewContinuousVariables(n,1,"delta_abs")
+        prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
+        prog.AddLinearConstraint(np.greater_equal( delta_abs,delta,dtype='object' ))
+        prog.AddLinearConstraint(np.greater_equal( delta_abs,-delta,dtype='object' ))
+        cost=np.dot(np.ones((1,n)),delta_abs)
     else:
         raise NotImplementedError
     if solver=="gurobi":
-        prog.AddLinearCost(delta_abs[0,0])
+        prog.AddLinearCost(cost[0,0])
         result=gurobi_solver.Solve(prog,None,None)
     elif solver=="osqp":
-        prog.AddQuadraticCost(delta_abs[0,0]*delta_abs[0,0])
+        prog.AddQuadraticCost(cost[0,0]*cost[0,0])
         result=OSQP_solver.Solve(prog,None,None)
     else:
+        prog.AddLinearCost(cost[0,0])
         result=MP.Solve(prog)
     if result.is_success():
-        return np.asscalar(result.GetSolution(delta_abs))
+        return np.sum(result.GetSolution(delta_abs)),\
+            np.dot(Q1.T,result.GetSolution(zeta1).reshape(zeta1.shape[0],1))+Q1.t,\
+            np.dot(Q2.T,result.GetSolution(zeta2).reshape(zeta2.shape[0],1))+Q2.t
     
 def bounding_box(Q,solver="Gurobi"):
     Q=to_AH_polytope(Q)
@@ -198,7 +210,7 @@ def bounding_box(Q,solver="Gurobi"):
         assert result.is_success()
         upper_corner[i,0]=result.GetSolution(x)[i]
         a[i,0]=0
-    return lower_corner,upper_corner
+    return hyperbox(corners=(lower_corner,upper_corner))
         
         
 def directed_Hausdorff_hyperbox(b1,b2):
@@ -214,6 +226,15 @@ def distance_hyperbox(b1,b2):
     """
     return max(0,np.max(np.hstack((b1.l-b2.u,b2.l-b1.u))))      
     
+
+def make_ball(n,norm):
+    if norm=="l1":
+        pass
+    elif norm=="infinity":
+        pass
+    return 
+
+
 """
 Pydrake Mathematical Program Helper: Matrix based Constraints
 """

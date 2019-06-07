@@ -59,7 +59,7 @@ class zonotope():
         except:
             self.color=(np.random.random(),np.random.random(),np.random.random())
         self.type="zonotope"
-        self.hash_value = hash(str(np.hstack([self.G, x])))
+        self.hash_value = None
 
     def __repr__(self):
         return self.name

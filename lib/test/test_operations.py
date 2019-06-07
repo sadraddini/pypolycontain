@@ -15,6 +15,7 @@ from pypolycontain.lib.operations import Box,point_membership,directed_Hausdorff
         distance_hyperbox,directed_Hausdorff_hyperbox
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes as visZ
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes_ax as visZ_ax
+from pypolycontain.visualization.visualize_2D import visualize_2D_ax as vis_ax
 
 
 from pypolycontain.lib.hausdorff.hausdorff import Hausdorff_directed
@@ -63,19 +64,40 @@ def test_hausdorff():
     return D
 
 def test_distance():
-    n=10
-    q1=40
-    q2=40
-    z1=zonotope(np.random.random((n,1))*50,np.random.random((n,q1))-0.5,color='red')
-    z2=zonotope(np.random.random((n,1))*70,np.random.random((n,q2))-0.5,color='blue')
+    n=2
+    q1=9
+    q2=11
+    z1=zonotope(np.random.random((n,1))*20,np.random.random((n,q1))-0.5,color='red')
+    z2=zonotope(np.random.random((n,1))*20,np.random.random((n,q2))-0.5,color='blue')
+    z2=H_polytope(np.random.random((18,n))-0.5,np.random.random((18,1)))
     start=time()
-    D=distance_polytopes(z1,z2,solver="gurobi")
+    D,x1,x2=distance_polytopes(z1,z2,solver="gurobi",ball="l1")
     print "Mathematical Program:",D,"\t",time()-start
     start=time()
     print "Gurobipy:",minimum_distance(z1,z2),"\t",time()-start
-#    import matplotlib.pyplot as plt
-#    fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
-#    visZ_ax(ax,[z1,z2],a=0.5,alpha=0.2)
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
+    visZ_ax(ax,[z1,z2],a=0.5,alpha=0.2)
+    ax.plot([x1[0,0],x2[0,0]],[x1[1,0],x2[1,0]])
+    print x1,x2
+    
+def test_distance_H():
+    n=2
+    q1=7
+    q2=11
+    Z=zonotope(np.random.random((n,1))*6,np.random.random((n,q1))-0.5,color='red')
+    H=H_polytope(np.random.random((q2,n))-0.5,np.random.random((q2,1)))
+    start=time()
+    D,x1,x2=distance_polytopes(Z,H,solver="gurobi")
+    print "Mathematical Program:",D,"\t",time()-start
+    start=time()
+    print "Gurobipy:",minimum_distance(Z,H),"\t",time()-start
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
+    visZ_ax(ax,[Z],a=2.5,alpha=0.7)
+    vis_ax(ax,[H],a=2.5,alpha=0.7)
+    ax.plot([x1[0,0],x2[0,0]],[x1[1,0],x2[1,0]])
+    print x1,x2
     
 def test_bounding_box():
     n,q=2,4
@@ -102,8 +124,9 @@ def __main__():
 #    test_emptyness()
 #    test_hausdorff()
 #    test_distance()
-#    test_bounding_box()
-    test_box_distances()
+#    test_distance_H()
+    test_bounding_box()
+#    test_box_distances()
     
 
 if __name__=="__main__":

@@ -91,7 +91,7 @@ class AH_polytope():
 def to_AH_polytope(P):
     if P.type=="AH_polytope":
         return P
-    elif P.type=="H_polytope":
+    elif P.type=="H_polytope" or P.type=="H-polytope":
         n=P.H.shape[1]
         return AH_polytope(np.eye(n),np.zeros((n,1)),P)
     elif P.type=="zonotope":
