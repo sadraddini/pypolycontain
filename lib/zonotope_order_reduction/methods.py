@@ -38,7 +38,7 @@ def G_cut(myzonotope,number_of_columns_wanted,solver="gurobi"):
         prog.AddLinearCost(np.sum(D))
         result=gurobi_solver.Solve(prog,None,None)
     elif solver=="osqp":
-        prog.AddQuadraticCost(np.eye(q_f),-1*np.ones(D.shape),D)
+        prog.AddQuadraticCost(np.eye(q_f),-0*np.ones(D.shape),D)
         result=OSQP_solver.Solve(prog,None,None)
     else:
         result=MP.Solve(prog)

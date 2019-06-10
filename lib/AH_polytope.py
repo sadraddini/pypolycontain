@@ -109,7 +109,9 @@ def distance_point(P,x,norm="L2"):
         x= numpy array
         norm: choice of L1, L2, or infinity norm
     Returns:
-        float
+        Updated (June 10)
+        float --> distance
+        array --> closest point in poly
     """
     poly=to_AH_polytope(P)
     n=poly.T.shape[0]
@@ -142,7 +144,8 @@ def distance_point(P,x,norm="L2"):
             model.addConstr(delta_max[i,0]>=delta[i,0])
             model.addConstr(delta_max[i,0]>=-delta[i,0])
         model.optimize()
-        return sum([delta_max[i,0].X for i in range(n)])
+        p_num=np.array([p[i,0] for i in range(p.shape[0])]).reshape(p.shape)
+        return sum([delta_max[i,0].X for i in range(n)]),np.dot(poly.T,p)+poly.t
     else:
         raise ValueError("The following norm: %s is not identifed"%str(norm))      
     
