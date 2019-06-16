@@ -130,14 +130,20 @@ def distance_point(P,x,norm="L2"):
             model.addConstr(delta_max>=delta[i,0])
             model.addConstr(delta_max>=-delta[i,0])
         model.optimize()
-        return delta_max.X
+        raise NotImplementedError
+        return delta_max.X #TODO: implement projection point
     elif norm in [2,"L2","Euclidean"]:
         J=QuadExpr()
         for i in range(n):
             J.add(delta[i,0]*delta[i,0])
         model.setObjective(J)
         model.optimize()
-        return model.getObjective().getValue()**0.5  
+        #convert from Gurobi variable to float
+        p_float = np.zeros(p.shape)
+        for i, p_i in enumerate(np.ndarray.flatten(p)):
+            p_float[i] = p_i.X
+        # print(np.dot(poly.T,p)+poly.t)
+        return model.getObjective().getValue()**0.5,np.dot(poly.T,p_float)+poly.t
     elif norm in [1,"L1","l1"]:
         delta_max=tupledict_to_array(model.addVars(range(n),[0],lb=0,ub=GRB.INFINITY,name="delta_max",obj=1))
         for i in range(n):
