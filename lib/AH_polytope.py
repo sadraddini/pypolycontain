@@ -140,7 +140,7 @@ def distance_point(P,x,norm="L2"):
         model.optimize()
         #convert from Gurobi variable to float
         p_float = np.zeros(p.shape)
-        for i, p_i in enumerate(np.ndarray.flatten(p)):
+       for i, p_i in enumerate(np.ndarray.flatten(p)):
             p_float[i] = p_i.X
         # print(np.dot(poly.T,p)+poly.t)
         return model.getObjective().getValue()**0.5,np.dot(poly.T,p_float)+poly.t
