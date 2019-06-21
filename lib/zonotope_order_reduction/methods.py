@@ -58,7 +58,7 @@ def Girard_hull(myzonotope,number_of_columns_wanted):
     q_i,q_f,n=myzonotope.G.shape[1],number_of_columns_wanted,myzonotope.G.shape[0]
     gamma=np.linalg.norm(myzonotope.G,1, axis=0)-np.linalg.norm(myzonotope.G,np.inf, axis=0)
     G_sorted=myzonotope.G[:,np.argsort(gamma)]
-    assert q_f>n
+    assert q_f>=n
     L=G_sorted[:,:q_i-q_f+n]
     K=G_sorted[:,q_i-q_f+n:]
     L_R=intervall_hull(L)
