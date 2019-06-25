@@ -28,6 +28,7 @@ class H_polytope():
         self.H,self.h=unique_rows(H,h)
         self.n=H.shape[1]
         self.hash_value = None
+        self.distance_program=None
 
     def __repr__(self):
         return ("polytope in R^%d"%self.n)
@@ -60,6 +61,7 @@ class zonotope():
             self.color=(np.random.random(),np.random.random(),np.random.random())
         self.type="zonotope"
         self.hash_value = None
+        self.distance_program=None
 
     def __repr__(self):
         return self.name
@@ -90,6 +92,7 @@ class AH_polytope():
         self.type="AH_polytope"
         self.method="Gurobi"
         self.hash_value = None
+        self.distance_program=None
 
     def __repr__(self):
         return "AH_polytope from R^%d to R^%d"%(self.P.n,self.n)

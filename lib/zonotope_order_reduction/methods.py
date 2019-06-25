@@ -63,9 +63,21 @@ def Girard_hull(myzonotope,number_of_columns_wanted):
     K=G_sorted[:,q_i-q_f+n:]
     L_R=intervall_hull(L)
     return np.hstack((L_R,K))
+
+def Girard(G,number_of_columns_wanted):
+    """
+    The idea is based on Girard, HSCC 2006
+    """
+    q_i,q_f,n=G.shape[1],number_of_columns_wanted,G.shape[0]
+    gamma=np.linalg.norm(G,1, axis=0)-np.linalg.norm(G,np.inf, axis=0)
+    G_sorted=G[:,np.argsort(gamma)]
+    assert q_f>=n
+    L=G_sorted[:,:q_i-q_f+n]
+    K=G_sorted[:,q_i-q_f+n:]
+    L_R=intervall_hull(L)
+    return np.hstack((L_R,K))
     
 def intervall_hull(G):
-    print G.shape
     D=np.linalg.norm(G,1, axis=1)
     return np.diag(D)
         

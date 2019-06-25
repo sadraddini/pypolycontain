@@ -12,7 +12,8 @@ import pydrake.solvers.mathematicalprogram as MP
 from pypolycontain.lib.objects import H_polytope,zonotope,AH_polytope,hyperbox
 from pypolycontain.lib.operations import Box,point_membership,directed_Hausdorff_distance,\
         check_non_empty,distance_polytopes,bounding_box,\
-        distance_hyperbox,directed_Hausdorff_hyperbox
+        distance_hyperbox,directed_Hausdorff_hyperbox,\
+        distance_point_polytope
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes as visZ
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes_ax as visZ_ax
 from pypolycontain.visualization.visualize_2D import visualize_2D_ax as vis_ax
@@ -20,6 +21,8 @@ from pypolycontain.visualization.visualize_2D import visualize_2D_ax as vis_ax
 
 from pypolycontain.lib.hausdorff.hausdorff import Hausdorff_directed
 from pypolycontain.lib.AH_polytope import minimum_distance
+
+import matplotlib.pyplot as plt
 
 from time import time
 #np.random.seed(0)
@@ -69,7 +72,6 @@ def test_distance():
     q2=11
     z1=zonotope(np.random.random((n,1))*20,np.random.random((n,q1))-0.5,color='red')
     z2=zonotope(np.random.random((n,1))*20,np.random.random((n,q2))-0.5,color='blue')
-    z2=H_polytope(np.random.random((18,n))-0.5,np.random.random((18,1)))
     start=time()
     D,x1,x2=distance_polytopes(z1,z2,solver="gurobi",ball="l1")
     print "Mathematical Program:",D,"\t",time()-start
@@ -102,8 +104,7 @@ def test_distance_H():
 def test_bounding_box():
     n,q=2,4
     z=zonotope(np.random.random((n,1))*1,np.random.random((n,q))-0.5,color='red')
-    l,u=bounding_box(z)
-    b=hyperbox(corners=(l,u))
+    b=bounding_box(z)
     visZ([z,b.zonotope],a=0.5,alpha=0.2)
     
 def test_box_distances():
@@ -118,15 +119,37 @@ def test_box_distances():
     B2.zonotope.color="blue"
     visZ([B1.zonotope,B2.zonotope],a=0.5,alpha=0.8)
     
+def test_distance_point():
+    n=2
+    q=7
+    Z=zonotope(np.random.random((n,1))*6,np.random.random((n,q))-0.5,color='red')
+    x=np.random.random((2,1))
+    start=time()
+    d,x_nearest=distance_point_polytope(Z,x,ball="l1")  
+    print "initial",time()-start
+    x=np.random.random((2,1))
+    start=time()
+    d,x_nearest=distance_point_polytope(Z,x,ball="l1")  
+    print "second",time()-start    
+    x=np.random.random((2,1))
+    start=time()
+    d,x_nearest=distance_point_polytope(Z,x,ball="l1")  
+    print "Third",time()-start 
+    fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
+    visZ_ax(ax,[Z],a=3,alpha=0.7)
+    ax.plot([x[0,0],x_nearest[0,0]],[x[1,0],x_nearest[1,0]])
+    ax.plot([x[0,0],x_nearest[0,0]],[x[1,0],x_nearest[1,0]],'o')
+    print x,x_nearest,d   
     
 def __main__():
-#    test_memebership()
-#    test_emptyness()
-#    test_hausdorff()
-#    test_distance()
-#    test_distance_H()
+    test_memebership()
+    test_emptyness()
+    test_hausdorff()
+    test_distance()
+    test_distance_H()
     test_bounding_box()
-#    test_box_distances()
+    test_box_distances()
+    test_distance_point()
     
 
 if __name__=="__main__":

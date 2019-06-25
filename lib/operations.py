@@ -30,7 +30,11 @@ def to_AH_polytope(P):
         return AH_polytope(P.G,P.x,Box(N=q))
     else:
         raise ValueError("P type not understood:",P.type)
-        
+
+"""
+Optimization-based Operations:
+"""  
+      
 def point_membership(Q,x,tol=10**-5,solver="gurobi"):
     if Q.type=="H_polytope":
         return Q.if_inside(x,tol)
@@ -176,6 +180,74 @@ def distance_polytopes(Q1,Q2,ball="infinity",solver="Gurobi"):
         return np.sum(result.GetSolution(delta_abs)),\
             np.dot(Q1.T,result.GetSolution(zeta1).reshape(zeta1.shape[0],1))+Q1.t,\
             np.dot(Q2.T,result.GetSolution(zeta2).reshape(zeta2.shape[0],1))+Q2.t
+
+def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
+    """
+    Initilize the mathematial program
+    Choice of balls:
+        infinity: L-infinity norm
+        l1: l1 norm (Manhattan Distance)
+        l2: l2 norm (Euclidean Distance)
+    """
+    if P.distance_program==None:
+        prog=MP.MathematicalProgram()
+        Q=to_AH_polytope(P)
+        n=Q.n
+        x=np.zeros((n,1))
+        P.zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
+        delta=prog.NewContinuousVariables(n,1,"delta")
+        prog.AddLinearConstraint(A=Q.P.H,ub=Q.P.h,lb=-np.inf*np.ones((Q.P.h.shape[0],1)),vars=P.zeta)
+        P.distance_constraint=prog.AddLinearEqualityConstraint( np.hstack((Q.T,-np.eye(n))),x-Q.t,np.vstack((P.zeta,delta)) )
+        if ball=="infinity":
+            delta_abs=prog.NewContinuousVariables(1,1,"delta_abs")
+            prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
+            prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),delta,dtype='object' ))
+            prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),-delta,dtype='object' ))
+            prog.AddLinearCost(delta_abs[0,0])
+        elif ball=="l1":
+            delta_abs=prog.NewContinuousVariables(n,1,"delta_abs")
+            prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
+            prog.AddLinearConstraint(np.greater_equal( delta_abs,delta,dtype='object' ))
+            prog.AddLinearConstraint(np.greater_equal( delta_abs,-delta,dtype='object' ))
+            cost=np.dot(np.ones((1,n)),delta_abs)
+            prog.AddLinearCost(cost[0,0])
+        elif ball=="l2":
+            prog.AddQuadraticCost(np.eye(n),np.zeros(n),delta)
+        else:
+            print "Not a valid choice of norm",str(ball)
+            raise NotImplementedError
+        P.distance_program=prog
+        return 
+    else:
+        return
+            
+        
+def distance_point_polytope(P,x,ball="infinity",solver="Gurobi"):
+    """
+    Computes the distance of point x from AH-polytope Q 
+    """
+    _setup_program_distance_point(P,ball,solver)
+    prog=P.distance_program
+    Q=to_AH_polytope(P)
+    a=P.distance_constraint.evaluator()
+    a.UpdateCoefficients(np.hstack((Q.T,-np.eye(Q.n))),x-Q.t)
+    if solver=="gurobi":
+        result=gurobi_solver.Solve(prog,None,None)
+    elif solver=="osqp":
+        result=OSQP_solver.Solve(prog,None,None)
+    else:
+        result=MP.Solve(prog)
+    if result.is_success():
+        zeta_num=result.GetSolution(P.zeta).reshape(P.zeta.shape[0],1)
+        x_nearest=np.dot(Q.T,zeta_num)+Q.t
+        delta=(x-x_nearest).reshape(Q.n)
+        if ball=="infinity":
+            d=np.linalg.norm(delta,ord=np.inf)
+        elif ball=="l1":
+            d=np.linalg.norm(delta,ord=1)
+        elif ball=="l2":
+            d=np.linalg.norm(delta,ord=2)  
+        return d,x_nearest
     
 def bounding_box(Q,solver="Gurobi"):
     Q=to_AH_polytope(Q)
@@ -210,6 +282,7 @@ def bounding_box(Q,solver="Gurobi"):
         assert result.is_success()
         upper_corner[i,0]=result.GetSolution(x)[i]
         a[i,0]=0
+    print lower_corner,upper_corner
     return hyperbox(corners=(lower_corner,upper_corner))
         
         
