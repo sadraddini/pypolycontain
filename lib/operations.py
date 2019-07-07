@@ -222,15 +222,17 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
         return
             
         
-def distance_point_polytope(P,x,ball="infinity",solver="Gurobi"):
+def distance_point_polytope(P, x, ball="infinity", solver="Gurobi"):
     """
     Computes the distance of point x from AH-polytope Q 
     """
+    x_vector = np.atleast_2d(x).T #in case x is not n*1 vector
+    P = to_AH_polytope(P)
     _setup_program_distance_point(P,ball,solver)
     prog=P.distance_program
     Q=to_AH_polytope(P)
     a=P.distance_constraint.evaluator()
-    a.UpdateCoefficients(np.hstack((Q.T,-np.eye(Q.n))),x-Q.t)
+    a.UpdateCoefficients(np.hstack((Q.T,-np.eye(Q.n))), x_vector - Q.t)
     if solver=="gurobi":
         result=gurobi_solver.Solve(prog,None,None)
     elif solver=="osqp":
@@ -240,7 +242,7 @@ def distance_point_polytope(P,x,ball="infinity",solver="Gurobi"):
     if result.is_success():
         zeta_num=result.GetSolution(P.zeta).reshape(P.zeta.shape[0],1)
         x_nearest=np.dot(Q.T,zeta_num)+Q.t
-        delta=(x-x_nearest).reshape(Q.n)
+        delta=(x_vector - x_nearest).reshape(Q.n)
         if ball=="infinity":
             d=np.linalg.norm(delta,ord=np.inf)
         elif ball=="l1":
