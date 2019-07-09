@@ -68,7 +68,7 @@ def get_line_random_zonotopes(zonotope_count, dim, centroid_range=None, line_wid
 
 def get_k_random_edge_points_in_zonotope(zonotope, k, metric='l2'):
     if k==0:
-        return
+        return None
     k=min(k,zonotope.G.shape[1])
     if metric == 'l2':
         norms = np.linalg.norm(zonotope.G, axis=0)
