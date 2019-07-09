@@ -14,6 +14,7 @@ from gurobipy import Model,LinExpr,QuadExpr,GRB
 
 from pypolycontain.lib.polytope import polytope,Box
 from pypolycontain.utils.utils import valuation
+from pypolycontain.lib.operations import distance_point_polytope
 
 class AH_polytope():
     """
@@ -36,7 +37,7 @@ class AH_polytope():
         self.type="AH_polytope"
         self.method="Gurobi"
         self.hash_value = None
-
+        self.distance_program = None
     def __repr__(self):
         return "AH_polytope from R^%d to R^%d"%(self.P.n,self.n)
 
@@ -163,7 +164,7 @@ def is_inside(poly,x,tol=10**-6):
         return all(np.dot(poly.H,x)<=poly.h)
     else:
         Q=to_AH_polytope(poly)
-        return distance_point(Q,x)<=tol          
+        return distance_point_polytope(Q,x)<=tol
         
 def minimum_distance(poly_1,poly_2,norm="infinity"):
     """

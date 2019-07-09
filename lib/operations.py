@@ -189,7 +189,7 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
         l1: l1 norm (Manhattan Distance)
         l2: l2 norm (Euclidean Distance)
     """
-    if P.distance_program==None:
+    if P.distance_program is None:
         prog=MP.MathematicalProgram()
         Q=to_AH_polytope(P)
         n=Q.n
