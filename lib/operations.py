@@ -307,6 +307,38 @@ def make_ball(n,norm):
         pass
     return 
 
+def AH_polytope_vertices(P,N=10,solver="Gurobi"):
+    """
+    Returns N*2 matrix of vertices
+    """
+    if P.vertices_2D==None:
+        Q=to_AH_polytope(P)
+        v=np.empty((N,2))
+        prog=MP.MathematicalProgram()
+        zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
+        prog.AddLinearConstraint(A=Q.P.H,ub=Q.P.h,lb=-np.inf*np.ones((Q.P.h.shape[0],1)),vars=zeta)
+        theta=0
+        c=np.array([np.cos(theta),np.sin(theta)]).reshape(2,1)
+        c_T=np.dot(c.T,Q.T)
+        a=prog.AddLinearCost(np.dot(c_T,zeta)[0,0])
+        if solver=="Gurobi":
+            solver=gurobi_solver
+        else:
+            raise NotImplementedError
+        for i in range(N):
+            theta=i*N/2/np.pi
+            c=np.array([np.cos(theta),np.sin(theta)]).reshape(2,1)
+            c_T=np.dot(c.T,Q.T)
+            e=a.evaluator()
+            e.UpdateCoefficients(c_T.reshape(Q.P.H.shape[1]))
+            result=solver.Solve(prog,None,None)
+            assert result.is_success()
+            zeta_n=result.GetSolution(zeta).reshape(zeta.shape)
+            v[i,:]=(np.dot(Q.T,zeta_n)+Q.t).reshape(2)
+        P.vertices_2D=v
+        return v
+    else:
+        return P.vertices_2D
 
 """
 Pydrake Mathematical Program Helper: Matrix based Constraints

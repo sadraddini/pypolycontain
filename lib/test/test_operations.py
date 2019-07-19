@@ -13,10 +13,12 @@ from pypolycontain.lib.objects import H_polytope,zonotope,AH_polytope,hyperbox
 from pypolycontain.lib.operations import Box,point_membership,directed_Hausdorff_distance,\
         check_non_empty,distance_polytopes,bounding_box,\
         distance_hyperbox,directed_Hausdorff_hyperbox,\
-        distance_point_polytope
+        distance_point_polytope,AH_polytope_vertices
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes as visZ
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes_ax as visZ_ax
 from pypolycontain.visualization.visualize_2D import visualize_2D_ax as vis_ax
+from pypolycontain.visualization.visualize_2D import visualize_2D_AH_polytope as vis_AH
+
 
 
 from pypolycontain.lib.hausdorff.hausdorff import Hausdorff_directed
@@ -139,18 +141,40 @@ def test_distance_point():
     visZ_ax(ax,[Z],a=3,alpha=0.7)
     ax.plot([x[0,0],x_nearest[0,0]],[x[1,0],x_nearest[1,0]])
     ax.plot([x[0,0],x_nearest[0,0]],[x[1,0],x_nearest[1,0]],'o')
-    print x,x_nearest,d   
+    print x,x_nearest,d 
+    
+def test_AH_vertices():
+    # Test 1: # Random
+    np.random.seed(0)
+    N,n,m=15,4,2
+    H=np.random.random((N,n))-0.5
+    h=np.random.random((N,1))+2
+    T=np.random.random((m,n))
+    t=np.random.random((m,1))*0
+    H_P=H_polytope(H,h)
+    P=AH_polytope(T,t,H_P)
+    Z=zonotope(np.random.random((2,1))*6,np.random.random((2,11))-0.5,color='red')
+    Z.vertices_2D=None
+    P.color="blue"
+    v=AH_polytope_vertices(P,N=22)
+    AH_polytope_vertices(Z,N=22)
+    print v.shape
+    print v
+    plt.plot(v[:,0],v[:,1])
+    plt.plot(v[:,0],v[:,1],'o')
+    vis_AH([Z,P])
+    visZ([Z],alpha=0.5)
     
 def __main__():
-    test_memebership()
-    test_emptyness()
-    test_hausdorff()
-    test_distance()
-    test_distance_H()
-    test_bounding_box()
-    test_box_distances()
-    test_distance_point()
-    
+#    test_memebership()
+#    test_emptyness()
+#    test_hausdorff()
+#    test_distance()
+#    test_distance_H()
+#    test_bounding_box()
+#    test_box_distances()
+#    test_distance_point()
+    test_AH_vertices()
 
 if __name__=="__main__":
     __main__()

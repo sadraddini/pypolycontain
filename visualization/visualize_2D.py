@@ -139,7 +139,37 @@ def visualize_3D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None):
     ax.add_collection3d(p)
     ax.grid3d(color=(0,0,0), linestyle='--', linewidth=0.3)
     
-    
+def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig=None,ax=None,axis_limit=[0],title=r"AH-Polytopes"):
+    p_list=[]
+    v_all=np.empty((0,2))
+    for Q in list_of_AH_polytopes:
+        v=Q.vertices_2D
+        v=v[ConvexHull(v).vertices,:]
+        v_all=np.vstack((v_all,v))
+        p=Polygon(v)
+        p_list.append(p)
+    if color is None:
+        p_patch = PatchCollection(p_list, color=[Z.color for Z in list_of_AH_polytopes],alpha=alpha)
+    else:
+        p_patch = PatchCollection(p_list, color=color,alpha=alpha)
+#    p_patch = PatchCollection(p_list, color=[(1-zono.x[0,0]>=1,0,zono.x[0,0]>=1) \
+#        for zono in list_of_zonotopes],alpha=0.75)
+    if fig is None or ax is None:
+        fig, ax = plt.subplots()
+    ax.add_collection(p_patch)
+#    print(axis_limit)
+    if len(axis_limit)==1:
+        ax.set_xlim([np.min(v_all[:,0])-a,a+np.max(v_all[:,0])])
+        ax.set_ylim([np.min(v_all[:,1])-a,a+np.max(v_all[:,1])])
+    else:
+        ax.set_xlim([axis_limit[0],axis_limit[1]])
+        ax.set_ylim([axis_limit[2],axis_limit[3]])
+    ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
+    ax.set_title(title)
+    return fig,ax
+
+
+
 """
 The following functions involve the ax object, or the plot, as one of the arguments
 """
