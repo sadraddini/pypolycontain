@@ -13,11 +13,12 @@ from pypolycontain.lib.objects import H_polytope,zonotope,AH_polytope,hyperbox
 from pypolycontain.lib.operations import Box,point_membership,directed_Hausdorff_distance,\
         check_non_empty,distance_polytopes,bounding_box,\
         distance_hyperbox,directed_Hausdorff_hyperbox,\
-        distance_point_polytope,AH_polytope_vertices
+        distance_point_polytope,AH_polytope_vertices,convexh_hull_of_point_and_polytope
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes as visZ
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes_ax as visZ_ax
 from pypolycontain.visualization.visualize_2D import visualize_2D_ax as vis_ax
 from pypolycontain.visualization.visualize_2D import visualize_2D_AH_polytope as vis_AH
+
 
 
 
@@ -146,7 +147,7 @@ def test_distance_point():
 def test_AH_vertices():
     # Test 1: # Random
     np.random.seed(0)
-    N,n,m=15,4,2
+    N,n,m=20,4,2
     H=np.random.random((N,n))-0.5
     h=np.random.random((N,1))+2
     T=np.random.random((m,n))
@@ -156,14 +157,30 @@ def test_AH_vertices():
     Z=zonotope(np.random.random((2,1))*6,np.random.random((2,11))-0.5,color='red')
     Z.vertices_2D=None
     P.color="blue"
-    v=AH_polytope_vertices(P,N=22)
-    AH_polytope_vertices(Z,N=22)
-    print v.shape
-    print v
-    plt.plot(v[:,0],v[:,1])
-    plt.plot(v[:,0],v[:,1],'o')
+#    plt.plot(v[:,0],v[:,1])
+#    plt.plot(v[:,0],v[:,1],'o')
     vis_AH([Z,P])
     visZ([Z],alpha=0.5)
+    
+def test_convexhull_of_point_and_AH_polytope():
+    # Test 1: # Random
+    np.random.seed(10)
+    N,n,m=20,4,2
+    H=np.random.random((N,n))-0.5
+    h=np.random.random((N,1))+2
+    T=np.random.random((m,n))
+    t=np.random.random((m,1))*0
+    H_P=H_polytope(H,h)
+    P=AH_polytope(T,t,H_P)
+    x=np.array(([15,5])).reshape(2,1)
+    Q=convexh_hull_of_point_and_polytope(x,P)
+    P.color="red"
+    Q.color="blue"
+    vis_AH([P],N=300)
+    vis_AH([P,Q],N=300)
+    v=Q.vertices_2D
+    plt.plot(v[:,0],v[:,1])
+    plt.plot(v[:,0],v[:,1],'o')
     
 def __main__():
 #    test_memebership()
@@ -174,7 +191,8 @@ def __main__():
 #    test_bounding_box()
 #    test_box_distances()
 #    test_distance_point()
-    test_AH_vertices()
+#    test_AH_vertices()
+    test_convexhull_of_point_and_AH_polytope()
 
 if __name__=="__main__":
     __main__()
