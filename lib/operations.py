@@ -13,7 +13,7 @@ import pydrake.solvers.gurobi as Gurobi_drake
 import pydrake.solvers.osqp as OSQP_drake
 
 # Pypolycontain
-from pypolycontain.lib.objects import AH_polytope,Box,hyperbox
+from pypolycontain.lib.objects import AH_polytope,Box,hyperbox,H_polytope
 # use Gurobi solver
 global gurobi_solver,OSQP_solver
 gurobi_solver=Gurobi_drake.GurobiSolver()
@@ -309,6 +309,60 @@ def make_ball(n,norm):
         pass
     return 
 
+def AH_polytope_vertices(P,N=10,solver="Gurobi"):
+    """
+    Returns N*2 matrix of vertices
+    """
+    if type(P.vertices_2D)==type(None):
+        Q=to_AH_polytope(P)
+        v=np.empty((N,2))
+        prog=MP.MathematicalProgram()
+        zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
+        prog.AddLinearConstraint(A=Q.P.H,ub=Q.P.h,lb=-np.inf*np.ones((Q.P.h.shape[0],1)),vars=zeta)
+        theta=0
+        c=np.array([np.cos(theta),np.sin(theta)]).reshape(2,1)
+        c_T=np.dot(c.T,Q.T)
+        a=prog.AddLinearCost(np.dot(c_T,zeta)[0,0])
+        if solver=="Gurobi":
+            solver=gurobi_solver
+        else:
+            raise NotImplementedError
+        for i in range(N):
+            theta=i*N/2/np.pi
+            c=np.array([np.cos(theta),np.sin(theta)]).reshape(2,1)
+            c_T=np.dot(c.T,Q.T)
+            e=a.evaluator()
+            e.UpdateCoefficients(c_T.reshape(Q.P.H.shape[1]))
+            result=solver.Solve(prog,None,None)
+            assert result.is_success()
+            zeta_n=result.GetSolution(zeta).reshape(zeta.shape)
+            v[i,:]=(np.dot(Q.T,zeta_n)+Q.t).reshape(2)
+        P.vertices_2D=v
+        return v
+    else:
+        return P.vertices_2D
+    
+def convexh_hull_of_point_and_polytope(x,Q):
+    """
+    Inputs:
+        x: numpy n*1 array
+        Q: AH-polytope in R^n
+    Returns:
+        AH-polytope representing convexhull(x,Q)
+    """
+    Q=to_AH_polytope(Q)
+    q=Q.P.H.shape[1]
+    new_T=np.hstack((Q.T,Q.t-x))
+    new_t=x
+    new_H_1=np.hstack((Q.P.H,-Q.P.h))
+    new_H_2=np.zeros((2,q+1))
+    new_H_2[0,q],new_H_2[1,q]=1,-1
+    new_H=np.vstack((new_H_1,new_H_2))
+    new_h=np.zeros((Q.P.h.shape[0]+2,1))
+    new_h[Q.P.h.shape[0],0],new_h[Q.P.h.shape[0]+1,0]=1,0
+    new_P=H_polytope(new_H,new_h)
+    return AH_polytope(new_T,new_t,new_P)
+    
 
 """
 Pydrake Mathematical Program Helper: Matrix based Constraints
