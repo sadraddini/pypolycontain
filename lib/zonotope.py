@@ -13,7 +13,6 @@ from pypolycontain.utils.utils import valuation
 from pypolycontain.lib.AH_polytope import to_AH_polytope,distance_point
 from pypolycontain.lib.operations import distance_point_polytope
 
-
 class zonotope():
     """
     Definition of a Zonotope

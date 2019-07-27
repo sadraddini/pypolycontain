@@ -13,7 +13,7 @@ from pypolycontain.lib.objects import H_polytope,zonotope,AH_polytope,hyperbox
 from pypolycontain.lib.operations import Box,point_membership,directed_Hausdorff_distance,\
         check_non_empty,distance_polytopes,bounding_box,\
         distance_hyperbox,directed_Hausdorff_hyperbox,\
-        distance_point_polytope,AH_polytope_vertices,convexh_hull_of_point_and_polytope
+        distance_point_polytope,AH_polytope_vertices,convex_hull_of_point_and_polytope
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes as visZ
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes_ax as visZ_ax
 from pypolycontain.visualization.visualize_2D import visualize_2D_ax as vis_ax
@@ -173,7 +173,7 @@ def test_convexhull_of_point_and_AH_polytope():
     H_P=H_polytope(H,h)
     P=AH_polytope(T,t,H_P)
     x=np.array(([15,5])).reshape(2,1)
-    Q=convexh_hull_of_point_and_polytope(x,P)
+    Q=convex_hull_of_point_and_polytope(x, P)
     P.color="red"
     Q.color="blue"
     vis_AH([P],N=300)

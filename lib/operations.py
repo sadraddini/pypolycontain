@@ -342,7 +342,7 @@ def AH_polytope_vertices(P,N=10,solver="Gurobi"):
     else:
         return P.vertices_2D
     
-def convexh_hull_of_point_and_polytope(x,Q):
+def convex_hull_of_point_and_polytope(x, Q):
     """
     Inputs:
         x: numpy n*1 array
