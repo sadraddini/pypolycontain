@@ -214,7 +214,7 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
         elif ball=="l2":
             prog.AddQuadraticCost(np.eye(n),np.zeros(n),delta)
         else:
-            print "Not a valid choice of norm",str(ball)
+            print("Not a valid choice of norm",str(ball))
             raise NotImplementedError
         P.distance_program=prog
         return 
@@ -226,7 +226,7 @@ def distance_point_polytope(P, x, ball="infinity", solver="Gurobi"):
     """
     Computes the distance of point x from AH-polytope Q 
     """
-    x_vector = np.atleast_2d(x).T #in case x is not n*1 vector
+    x_vector = np.atleast_2d(x) #in case x is not n*1 vector
     P = to_AH_polytope(P)
     _setup_program_distance_point(P,ball,solver)
     prog=P.distance_program
