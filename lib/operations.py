@@ -214,7 +214,7 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
         elif ball=="l2":
             prog.AddQuadraticCost(np.eye(n),np.zeros(n),delta)
         else:
-            print "Not a valid choice of norm",str(ball)
+            print("Not a valid choice of norm",str(ball))
             raise NotImplementedError
         P.distance_program=prog
         return 
@@ -226,7 +226,7 @@ def distance_point_polytope(P, x, ball="infinity", solver="Gurobi"):
     """
     Computes the distance of point x from AH-polytope Q 
     """
-    x_vector = np.atleast_2d(x).T #in case x is not n*1 vector
+    x_vector = np.atleast_2d(x) #in case x is not n*1 vector
     P = to_AH_polytope(P)
     _setup_program_distance_point(P,ball,solver)
     prog=P.distance_program
@@ -309,6 +309,9 @@ def make_ball(n,norm):
         pass
     return 
 
+def get_nonzero_cost_vectors(cost):
+    cost[cost == 0] = np.random.rand(*cost[cost == 0].shape) * 1e-8 + 1e-8
+
 def AH_polytope_vertices(P,N=10,solver="Gurobi"):
     """
     Returns N*2 matrix of vertices
@@ -322,6 +325,7 @@ def AH_polytope_vertices(P,N=10,solver="Gurobi"):
         theta=0
         c=np.array([np.cos(theta),np.sin(theta)]).reshape(2,1)
         c_T=np.dot(c.T,Q.T)
+        get_nonzero_cost_vectors(c_T)
         a=prog.AddLinearCost(np.dot(c_T,zeta)[0,0])
         if solver=="Gurobi":
             solver=gurobi_solver
@@ -332,7 +336,9 @@ def AH_polytope_vertices(P,N=10,solver="Gurobi"):
             c=np.array([np.cos(theta),np.sin(theta)]).reshape(2,1)
             c_T=np.dot(c.T,Q.T)
             e=a.evaluator()
-            e.UpdateCoefficients(c_T.reshape(Q.P.H.shape[1]))
+            cost = c_T.reshape(Q.P.H.shape[1])
+            get_nonzero_cost_vectors(cost)
+            e.UpdateCoefficients(cost)
             result=solver.Solve(prog,None,None)
             assert result.is_success()
             zeta_n=result.GetSolution(zeta).reshape(zeta.shape)

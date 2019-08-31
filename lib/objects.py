@@ -16,7 +16,7 @@ import numpy as np
 from pypolycontain.utils.utils import unique_rows
 
 class H_polytope():
-    def __init__(self,H,h):
+    def __init__(self,H,h,symbolic=False):
         """
         Class Polytope. A Polytope is defined as (x \in R^n | Hx <= h)
         """
@@ -24,14 +24,16 @@ class H_polytope():
             ValueError("Error: not appropriate h size, it is",h.shape)
         if H.shape[0]!=h.shape[0]:
             ValueError("Error: not consistent dimension of H: %d and h: %d"%(H.shape[0],h.shape[0]))
+        self.H,self.h=H,h
         self.type="H_polytope"
-        self.H,self.h=unique_rows(H,h)
+        if not symbolic:
+            self.H,self.h=unique_rows(H,h)
         self.n=H.shape[1]
         self.hash_value = None
         self.distance_program=None
 
     def __repr__(self):
-        return ("polytope in R^%d"%self.n)
+        return ("H_polytope in R^%d"%self.n)
 
     def __hash__(self):
         if self.hash_value is None:
@@ -126,7 +128,7 @@ class hyperbox(H_polytope):
             self.l=l
             self.u=u
         self.H_polytope=H_polytope(H,h)
-        self.zonotope=zonotope((l+u)/2,np.diagflat((u-l)/2))
+        self.zonotope=zonotope((self.l+self.u)/2,np.diagflat((self.u-self.l)/2))
         self.n=N
     
 def Box(N=None,d=1,corners=[]):

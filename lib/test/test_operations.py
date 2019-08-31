@@ -128,15 +128,15 @@ def test_distance_point():
     Z=zonotope(np.random.random((n,1))*6,np.random.random((n,q))-0.5,color='red')
     x=np.random.random((2,1))
     start=time()
-    d,x_nearest=distance_point_polytope(Z,x,ball="l1")  
+    d,x_nearest=distance_point_polytope(Z,x,ball="l2")  
     print "initial",time()-start
     x=np.random.random((2,1))
     start=time()
-    d,x_nearest=distance_point_polytope(Z,x,ball="l1")  
+    d,x_nearest=distance_point_polytope(Z,x,ball="l2")  
     print "second",time()-start    
     x=np.random.random((2,1))
     start=time()
-    d,x_nearest=distance_point_polytope(Z,x,ball="l1")  
+    d,x_nearest=distance_point_polytope(Z,x,ball="l2")  
     print "Third",time()-start 
     fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
     visZ_ax(ax,[Z],a=3,alpha=0.7)
@@ -190,9 +190,9 @@ def __main__():
 #    test_distance_H()
 #    test_bounding_box()
 #    test_box_distances()
-#    test_distance_point()
+    test_distance_point()
 #    test_AH_vertices()
-    test_convexhull_of_point_and_AH_polytope()
+#    test_convexhull_of_point_and_AH_polytope()
 
 if __name__=="__main__":
     __main__()
