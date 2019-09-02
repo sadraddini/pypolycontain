@@ -15,8 +15,9 @@ import pydrake.solvers.osqp as OSQP_drake
 # Pypolycontain
 from pypolycontain.lib.objects import AH_polytope,Box,hyperbox,H_polytope
 # use Gurobi solver
-global gurobi_solver,OSQP_solver
+global gurobi_solver,OSQP_solver, license
 gurobi_solver=Gurobi_drake.GurobiSolver()
+license = gurobi_solver.AcquireLicense()
 OSQP_solver=OSQP_drake.OsqpSolver()
 
 def to_AH_polytope(P):
@@ -308,9 +309,9 @@ def make_ball(n,norm):
     elif norm=="infinity":
         pass
     return 
-
-def get_nonzero_cost_vectors(cost):
-    cost[cost == 0] = np.random.rand(*cost[cost == 0].shape) * 1e-8 + 1e-8
+#
+# def get_nonzero_cost_vectors(cost):
+#     cost[cost == 0] = np.random.rand(*cost[cost == 0].shape) * 1e-8 + 1e-8
 
 def AH_polytope_vertices(P,N=10,solver="Gurobi"):
     """
@@ -325,7 +326,7 @@ def AH_polytope_vertices(P,N=10,solver="Gurobi"):
         theta=0
         c=np.array([np.cos(theta),np.sin(theta)]).reshape(2,1)
         c_T=np.dot(c.T,Q.T)
-        get_nonzero_cost_vectors(c_T)
+        # get_nonzero_cost_vectors(c_T)
         a=prog.AddLinearCost(np.dot(c_T,zeta)[0,0])
         if solver=="Gurobi":
             solver=gurobi_solver
