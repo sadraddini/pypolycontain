@@ -233,8 +233,10 @@ def distance_point_polytope(P, x, ball="infinity", solver="Gurobi"):
     prog=P.distance_program
     Q=to_AH_polytope(P)
     a=P.distance_constraint.evaluator()
+    x_vector=x_vector.reshape(max(x_vector.shape),1)
+#    print "sadra",x_vector.shape
     a.UpdateCoefficients(np.hstack((Q.T,-np.eye(Q.n))), x_vector - Q.t)
-    if solver=="gurobi":
+    if solver=="Gurobi":
         result=gurobi_solver.Solve(prog,None,None)
     elif solver=="osqp":
         result=OSQP_solver.Solve(prog,None,None)

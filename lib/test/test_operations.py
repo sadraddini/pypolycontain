@@ -115,8 +115,8 @@ def test_box_distances():
     u1,u2=l1+np.random.random((2,1)),l2+np.random.random((2,1))*3
     B1=hyperbox(corners=(l1,u1))
     B2=hyperbox(corners=(l2,u2))
-    print "directed Hausroff B1,B2" ,directed_Hausdorff_hyperbox(B1,B2)
-    print "directed Hausroff B2,B1 ",directed_Hausdorff_hyperbox(B2,B1)
+    print "directed Hausdorff B1,B2" ,directed_Hausdorff_hyperbox(B1,B2)
+    print "directed Hausdorff B2,B1 ",directed_Hausdorff_hyperbox(B2,B1)
     print "distance",distance_hyperbox(B1,B2),distance_hyperbox(B2,B1)
     B1.zonotope.color="red"
     B2.zonotope.color="blue"
@@ -146,7 +146,7 @@ def test_distance_point():
     
 def test_AH_vertices():
     # Test 1: # Random
-    np.random.seed(0)
+    np.random.seed(1)
     N,n,m=20,4,2
     H=np.random.random((N,n))-0.5
     h=np.random.random((N,1))+2
@@ -157,14 +157,12 @@ def test_AH_vertices():
     Z=zonotope(np.random.random((2,1))*6,np.random.random((2,11))-0.5,color='red')
     Z.vertices_2D=None
     P.color="blue"
-#    plt.plot(v[:,0],v[:,1])
-#    plt.plot(v[:,0],v[:,1],'o')
     vis_AH([Z,P])
     visZ([Z],alpha=0.5)
     
 def test_convexhull_of_point_and_AH_polytope():
     # Test 1: # Random
-    np.random.seed(10)
+    np.random.seed(1)
     N,n,m=20,4,2
     H=np.random.random((N,n))-0.5
     h=np.random.random((N,1))+2
