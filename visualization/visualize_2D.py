@@ -14,6 +14,9 @@ from scipy.spatial import ConvexHull
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
+from pypolycontain.lib.operations import AH_polytope_vertices    
+
+
 import numpy as np
 try:
     from cdd import Polyhedron,Matrix,RepType
@@ -139,13 +142,16 @@ def visualize_3D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None):
     ax.add_collection3d(p)
     ax.grid3d(color=(0,0,0), linestyle='--', linewidth=0.3)
     
-def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig=None,ax=None,axis_limit=[0],title=r"AH-Polytopes",N=20):
+def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig=None,ax=None,axis_limit=[0],title=r"AH-Polytopes",N=20,epsilon=0.001):
     p_list=[]
     v_all=np.empty((0,2))
-    from pypolycontain.lib.operations import AH_polytope_vertices    
     for Q in list_of_AH_polytopes:
-        v=AH_polytope_vertices(Q,N=N)
-        v=v[ConvexHull(v).vertices,:]
+        v,w=AH_polytope_vertices(Q,N=N,epsilon=epsilon)
+        # Minkowski sum with epsilon ball
+        try:
+            v=v[ConvexHull(v).vertices,:]
+        except:
+            v=v[ConvexHull(w).vertices,:]
         v_all=np.vstack((v_all,v))
         p=Polygon(v)
         p_list.append(p)

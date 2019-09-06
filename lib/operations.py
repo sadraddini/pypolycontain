@@ -312,10 +312,10 @@ def make_ball(n,norm):
         pass
     return 
 #
-# def get_nonzero_cost_vectors(cost):
-#     cost[cost == 0] = np.random.rand(*cost[cost == 0].shape) * 1e-8 + 1e-8
+def get_nonzero_cost_vectors(cost):
+     cost[cost == 0] = np.random.rand(*cost[cost == 0].shape) * 1e-8 + 1e-8
 
-def AH_polytope_vertices(P,N=10,solver="Gurobi"):
+def AH_polytope_vertices(P,N=10,epsilon=0.001,solver="Gurobi"):
     """
     Returns N*2 matrix of vertices
     """
@@ -346,8 +346,14 @@ def AH_polytope_vertices(P,N=10,solver="Gurobi"):
             assert result.is_success()
             zeta_n=result.GetSolution(zeta).reshape(zeta.shape)
             v[i,:]=(np.dot(Q.T,zeta_n)+Q.t).reshape(2)
-        P.vertices_2D=v
-        return v
+        w=np.empty((4*N,2))
+        for i in range(N):
+            w[4*i,:]=v[i,:]+np.array([epsilon,epsilon])
+            w[4*i+1,:]=v[i,:]+np.array([-epsilon,epsilon])
+            w[4*i+2,:]=v[i,:]+np.array([-epsilon,-epsilon])
+            w[4*i+3,:]=v[i,:]+np.array([epsilon,-epsilon])
+        P.vertices_2D=v,w
+        return v,w
     else:
         return P.vertices_2D
     

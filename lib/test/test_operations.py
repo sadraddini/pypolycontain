@@ -155,10 +155,11 @@ def test_AH_vertices():
     H_P=H_polytope(H,h)
     P=AH_polytope(T,t,H_P)
     Z=zonotope(np.random.random((2,1))*6,np.random.random((2,11))-0.5,color='red')
+    Z=zonotope(np.array([1,0]).reshape(2,1),np.array([6,1]).reshape(2,1),color='red')
     Z.vertices_2D=None
     P.color="blue"
-    vis_AH([Z,P])
-    visZ([Z],alpha=0.5)
+    vis_AH([Z,P],epsilon=0.2,N=20)
+#    visZ([Z],alpha=0.5)
     
 def test_convexhull_of_point_and_AH_polytope():
     # Test 1: # Random
@@ -188,8 +189,8 @@ def __main__():
 #    test_distance_H()
 #    test_bounding_box()
 #    test_box_distances()
-    test_distance_point()
-#    test_AH_vertices()
+#    test_distance_point()
+    test_AH_vertices()
 #    test_convexhull_of_point_and_AH_polytope()
 
 if __name__=="__main__":
