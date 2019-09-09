@@ -313,9 +313,9 @@ def make_ball(n,norm):
     return 
 #
 def get_nonzero_cost_vectors(cost):
-     cost[cost == 0] = np.random.rand(*cost[cost == 0].shape) * 1e-8 + 1e-8
+     cost[cost == 0] = 1e-3
 
-def AH_polytope_vertices(P,N=10,epsilon=0.001,solver="Gurobi"):
+def AH_polytope_vertices(P,N=200,epsilon=0.001,solver="Gurobi"):
     """
     Returns N*2 matrix of vertices
     """
@@ -325,9 +325,10 @@ def AH_polytope_vertices(P,N=10,epsilon=0.001,solver="Gurobi"):
         prog=MP.MathematicalProgram()
         zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
         prog.AddLinearConstraint(A=Q.P.H,ub=Q.P.h,lb=-np.inf*np.ones((Q.P.h.shape[0],1)),vars=zeta)
-        theta=0
+        theta=1
         c=np.array([np.cos(theta),np.sin(theta)]).reshape(2,1)
         c_T=np.dot(c.T,Q.T)
+        get_nonzero_cost_vectors(c_T)
         # get_nonzero_cost_vectors(c_T)
         a=prog.AddLinearCost(np.dot(c_T,zeta)[0,0])
         if solver=="Gurobi":
@@ -341,7 +342,6 @@ def AH_polytope_vertices(P,N=10,epsilon=0.001,solver="Gurobi"):
             e=a.evaluator()
             cost = c_T.reshape(Q.P.H.shape[1])
             get_nonzero_cost_vectors(cost)
-            print cost.T,cost.shape
             e.UpdateCoefficients(cost)
             result=solver.Solve(prog,None,None)
             assert result.is_success()

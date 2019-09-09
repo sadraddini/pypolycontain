@@ -31,6 +31,7 @@ class H_polytope():
         self.n=H.shape[1]
         self.hash_value = None
         self.distance_program=None
+        self.color="red"
 
     def __repr__(self):
         return ("H_polytope in R^%d"%self.n)
@@ -64,6 +65,7 @@ class zonotope():
         self.type="zonotope"
         self.hash_value = None
         self.distance_program=None
+        self.color="red"
 
     def __repr__(self):
         return self.name
@@ -96,6 +98,7 @@ class AH_polytope():
         self.hash_value = None
         self.distance_program=None
         self.vertices_2D=None
+        self.color="red"
 
     def __repr__(self):
         return "AH_polytope from R^%d to R^%d"%(self.P.n,self.n)
