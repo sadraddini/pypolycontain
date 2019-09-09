@@ -151,7 +151,8 @@ def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig
         try:
             v=v[ConvexHull(v).vertices,:]
         except:
-            v=v[ConvexHull(w).vertices,:]
+            print "WARNING:", Q,": was degerate or very thin to plot. Adding a tube of", epsilon
+            v=w[ConvexHull(w).vertices,:]
         v_all=np.vstack((v_all,v))
         p=Polygon(v)
         p_list.append(p)

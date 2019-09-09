@@ -341,6 +341,7 @@ def AH_polytope_vertices(P,N=10,epsilon=0.001,solver="Gurobi"):
             e=a.evaluator()
             cost = c_T.reshape(Q.P.H.shape[1])
             get_nonzero_cost_vectors(cost)
+            print cost.T,cost.shape
             e.UpdateCoefficients(cost)
             result=solver.Solve(prog,None,None)
             assert result.is_success()
