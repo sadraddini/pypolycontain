@@ -335,7 +335,7 @@ def AH_polytope_vertices(P,N=10,epsilon=0.001,solver="Gurobi"):
         else:
             raise NotImplementedError
         for i in range(N):
-            theta=i*N/2/np.pi
+            theta=i*N/2/np.pi+0.01
             c=np.array([np.cos(theta),np.sin(theta)]).reshape(2,1)
             c_T=np.dot(c.T,Q.T)
             e=a.evaluator()
