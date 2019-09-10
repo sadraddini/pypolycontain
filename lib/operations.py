@@ -321,6 +321,8 @@ def AH_polytope_vertices(P,N=200,epsilon=0.001,solver="Gurobi"):
     """
     try:
         P.vertices_2D
+        if type(P.vertices_2D) == type(None):
+            raise Exception
     except:
         Q=to_AH_polytope(P)
         v=np.empty((N,2))
