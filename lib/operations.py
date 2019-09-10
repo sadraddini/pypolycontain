@@ -319,7 +319,9 @@ def AH_polytope_vertices(P,N=200,epsilon=0.001,solver="Gurobi"):
     """
     Returns N*2 matrix of vertices
     """
-    if type(P.vertices_2D)==type(None):
+    try:
+        P.vertices_2D
+    except:
         Q=to_AH_polytope(P)
         v=np.empty((N,2))
         prog=MP.MathematicalProgram()
