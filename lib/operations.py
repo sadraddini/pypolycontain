@@ -144,7 +144,7 @@ def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
 def Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
     return max(directed_Hausdorff_distance(Q1,Q2,ball,solver),directed_Hausdorff_distance(Q2,Q1,ball,solver))
     
-def distance_polytopes(Q1,Q2,ball="infinity",solver="Gurobi"):
+def distance_polytopes(Q1,Q2,ball="infinity",solver="gurobi"):
     Q1,Q2=to_AH_polytope(Q1),to_AH_polytope(Q2)
     n=Q1.n
     prog=MP.MathematicalProgram()
@@ -260,7 +260,7 @@ def bounding_box(Q,solver="Gurobi"):
     zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
     x=prog.NewContinuousVariables(Q.n,1,"x")
     prog.AddLinearConstraint(A=Q.P.H,ub=Q.P.h,lb=-np.inf*np.ones((Q.P.h.shape[0],1)),vars=zeta)
-    prog.AddLinearEqualityConstraint(np.hstack((Q.T,np.eye(Q.n))),Q.t,np.vstack((zeta,x)))
+    prog.AddLinearEqualityConstraint(np.hstack((-Q.T,np.eye(Q.n))),Q.t,np.vstack((zeta,x)))
     lower_corner=np.zeros((Q.n,1))
     upper_corner=np.zeros((Q.n,1))
     c=prog.AddLinearCost(np.dot(np.ones((1,Q.n)),x)[0,0])
@@ -274,20 +274,24 @@ def bounding_box(Q,solver="Gurobi"):
         e=c.evaluator()
         a[i,0]=1
         e.UpdateCoefficients(a.reshape(Q.n))
+#        print "cost:",e.a(),
         result=solver.Solve(prog,None,None)
         assert result.is_success()
         lower_corner[i,0]=result.GetSolution(x)[i]
         a[i,0]=0
+#        print result.GetSolution(x)
     # Upper Corners
     for i in range(Q.n):
         e=c.evaluator()
         a[i,0]=-1
-        e.UpdateCoefficients(a)
+        e.UpdateCoefficients(a.reshape(Q.n))
+#        print "cost:",e.a(),
         result=solver.Solve(prog,None,None)
         assert result.is_success()
         upper_corner[i,0]=result.GetSolution(x)[i]
         a[i,0]=0
-    print lower_corner,upper_corner
+#        print result.GetSolution(x)
+#    print lower_corner,upper_corner
     return hyperbox(corners=(lower_corner,upper_corner))
         
         

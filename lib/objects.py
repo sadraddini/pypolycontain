@@ -31,7 +31,7 @@ class H_polytope():
         self.n=H.shape[1]
         self.hash_value = None
         self.distance_program=None
-        self.color="red"
+#        self.color="red"
 
     def __repr__(self):
         return ("H_polytope in R^%d"%self.n)
@@ -65,7 +65,7 @@ class zonotope():
         self.type="zonotope"
         self.hash_value = None
         self.distance_program=None
-        self.color="red"
+#        self.color="red"
 
     def __repr__(self):
         return self.name
@@ -108,7 +108,7 @@ class AH_polytope():
             self.hash_value = hash(self.P) + hash(str(np.hstack([self.T, self.t])))  # FIXME: better hashing implementation
         return self.hash_value
     
-class hyperbox(H_polytope):
+class hyperbox():
     def __init__(self,N=None,corners=[],d=1):
         """
         returns N-dimensional Box 

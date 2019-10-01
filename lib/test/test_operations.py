@@ -105,8 +105,8 @@ def test_distance_H():
     print x1,x2
     
 def test_bounding_box():
-    n,q=2,4
-    z=zonotope(np.random.random((n,1))*1,np.random.random((n,q))-0.5,color='red')
+    n,q=2,2
+    z=zonotope(np.random.random((n,1))*2,np.random.random((n,q))-0.5,color='red')
     b=bounding_box(z)
     visZ([z,b.zonotope],a=0.5,alpha=0.2)
     
@@ -182,17 +182,34 @@ def test_convexhull_of_point_and_AH_polytope():
     plt.plot(v[:,0],v[:,1])
     plt.plot(v[:,0],v[:,1],'o')
     
+def test_bounding_box_of_AH_polytope():
+    # Test 1: # Random
+    np.random.seed(0)
+    N,n,m=25,7,2
+    H=np.random.random((N,n))-0.5
+    h=np.random.random((N,1))+2
+    T=np.random.random((m,n))
+    t=np.random.random((m,1))*0
+    H_P=H_polytope(H,h)
+    P=AH_polytope(T,t,H_P)
+    P.color="red"
+    b=bounding_box(P)
+    b.zonotope.color="blue"
+    vis_AH([P],a=0.5,alpha=0.2,N=200)
+    vis_AH([P,b.zonotope],a=0.5,alpha=0.2,N=200)
+    
 def __main__():
 #    test_memebership()
 #    test_emptyness()
 #    test_hausdorff()
 #    test_distance()
 #    test_distance_H()
-#    test_bounding_box()
+    test_bounding_box()
 #    test_box_distances()
 #    test_distance_point()
-    test_AH_vertices()
-    test_convexhull_of_point_and_AH_polytope()
+#    test_AH_vertices()
+#    test_convexhull_of_point_and_AH_polytope()
+    test_bounding_box_of_AH_polytope()
 
 if __name__=="__main__":
     __main__()
