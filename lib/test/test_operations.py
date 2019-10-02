@@ -13,7 +13,8 @@ from pypolycontain.lib.objects import H_polytope,zonotope,AH_polytope,hyperbox
 from pypolycontain.lib.operations import Box,point_membership,directed_Hausdorff_distance,\
         check_non_empty,distance_polytopes,bounding_box,\
         distance_hyperbox,directed_Hausdorff_hyperbox,\
-        distance_point_polytope,AH_polytope_vertices,convex_hull_of_point_and_polytope
+        distance_point_polytope,AH_polytope_vertices,convex_hull_of_point_and_polytope,\
+        intersection
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes as visZ
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes_ax as visZ_ax
 from pypolycontain.visualization.visualize_2D import visualize_2D_ax as vis_ax
@@ -197,6 +198,24 @@ def test_bounding_box_of_AH_polytope():
     b.zonotope.color="blue"
     vis_AH([P],a=0.5,alpha=0.2,N=200)
     vis_AH([P,b.zonotope],a=0.5,alpha=0.2,N=200)
+
+def test_intersection():
+    # An AH_polytope
+    np.random.seed(0)
+    N,n,m=25,7,2
+    H=np.random.random((N,n))-0.5
+    h=np.random.random((N,1))+2
+    T=np.random.random((m,n))
+    t=np.random.random((m,1))*0
+    H_P=H_polytope(H,h)
+    P=AH_polytope(T,t,H_P)
+    # A zonotope
+    Z=zonotope(np.random.random((2,1))*1-4,5*(np.random.random((2,7))-0.5))
+    # The intersection
+    Q=intersection(P,Z)
+    Q.color="yellow"
+    # Now visualize
+    vis_AH([P,Z,Q],a=0.2,alpha=0.9,N=200)
     
 def __main__():
 #    test_memebership()
@@ -204,12 +223,13 @@ def __main__():
 #    test_hausdorff()
 #    test_distance()
 #    test_distance_H()
-    test_bounding_box()
+#    test_bounding_box()
 #    test_box_distances()
 #    test_distance_point()
 #    test_AH_vertices()
 #    test_convexhull_of_point_and_AH_polytope()
-    test_bounding_box_of_AH_polytope()
+#    test_bounding_box_of_AH_polytope()
+    test_intersection()
 
 if __name__=="__main__":
     __main__()

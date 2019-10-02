@@ -21,7 +21,7 @@ import numpy as np
 try:
     from cdd import Polyhedron,Matrix,RepType
 except:
-    print "WARNING: You don't have CDD package installed. Unable to visualize polytopes. You may still visualize zonotopes."
+    print("WARNING: You don't have CDD package installed. Unable to visualize polytopes. You may still visualize zonotopes.")
 
 def visualize_2D(list_of_polytopes,a=1.5,title="polytopes",alpha=0.5):
     """

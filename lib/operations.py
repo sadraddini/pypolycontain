@@ -7,6 +7,12 @@ Created on Thu May 30 10:45:14 2019
 """
 
 import numpy as np
+# Scipy
+try:
+    import scipy.linalg as spa
+except:
+    print("WARNING: You don't have scipy package installed. You may get error while using some feautures.")
+
 # Pydrake
 import pydrake.solvers.mathematicalprogram as MP
 import pydrake.solvers.gurobi as Gurobi_drake
@@ -28,7 +34,7 @@ def to_AH_polytope(P):
         return AH_polytope(np.eye(n),np.zeros((n,1)),P)
     elif P.type=="zonotope":
         q=P.G.shape[1]
-        return AH_polytope(P.G,P.x,Box(N=q))
+        return AH_polytope(P.G,P.x,Box(N=q),color=P.color)
     else:
         raise ValueError("P type not understood:",P.type)
 
@@ -388,6 +394,24 @@ def convex_hull_of_point_and_polytope(x, Q):
     return AH_polytope(new_T,new_t,new_P)
     
 
+def intersection(P1,P2):
+    """
+    Inputs: 
+        P1, P2: AH_polytopes
+    Outputs:
+        returns P1 \wedge P2 as a AH-polytope
+    """
+    Q1,Q2=to_AH_polytope(P1),to_AH_polytope(P2)
+    T=np.hstack((Q1.T,Q2.T*0))
+    t=Q1.t
+    H_1=spa.block_diag(*[Q1.P.H,Q2.P.H])
+    H_2=np.hstack((Q1.T,-Q2.T))
+    H=np.vstack((H_1,H_2,-H_2))
+    h=np.vstack((Q1.P.h,Q2.P.h,Q2.t-Q1.t,Q1.t-Q2.t))
+    new_P=H_polytope(H,h)
+    return AH_polytope(T,t,new_P)
+
+    
 """
 Pydrake Mathematical Program Helper: Matrix based Constraints
 """

@@ -16,7 +16,7 @@ import numpy as np
 from pypolycontain.utils.utils import unique_rows
 
 class H_polytope():
-    def __init__(self,H,h,symbolic=False):
+    def __init__(self,H,h,symbolic=False,color="red"):
         """
         Class Polytope. A Polytope is defined as (x \in R^n | Hx <= h)
         """
@@ -50,18 +50,14 @@ class zonotope():
     """
     Definition of a Zonotope
     """
-    def __init__(self,x,G,name=None,color=None):
+    def __init__(self,x,G,name=None,color="green"):
         self.x=x
         self.G=G
         if name==None:
             self.name="zonotope"
         else:
             self.name=name
-        try:
-            assert color!=None
-            self.color=color
-        except:
-            self.color=(np.random.random(),np.random.random(),np.random.random())
+        self.color=color
         self.type="zonotope"
         self.hash_value = None
         self.distance_program=None
@@ -83,7 +79,7 @@ class AH_polytope():
         T: R^(n*q) matrix: linear transformation
         t: R^{n*1) vector: translation
     """
-    def __init__(self,T,t,P):
+    def __init__(self,T,t,P,color='blue'):
         """
         Initilization: T,t,P. X=TP+t
         """
@@ -98,7 +94,7 @@ class AH_polytope():
         self.hash_value = None
         self.distance_program=None
         self.vertices_2D=None
-        self.color="red"
+        self.color=color
 
     def __repr__(self):
         return "AH_polytope from R^%d to R^%d"%(self.P.n,self.n)
