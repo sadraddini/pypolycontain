@@ -28,7 +28,7 @@ visZ([z2,z1],title="Zonotopes")
 D12_H=Hausdorff_directed(z1,z2)
 D21_H=Hausdorff_directed(z2,z1)
 
-print D12_H,D21_H
+print(D12_H,D21_H)
 
 visZ([zonotope(z2.x,np.hstack((z2.G,D12_H*np.eye(z2.x.shape[0])))),z2,z1],title="")
 visZ([zonotope(z1.x,np.hstack((z1.G,D21_H*np.eye(z1.x.shape[0])))),z1,z2],title="")

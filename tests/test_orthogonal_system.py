@@ -53,7 +53,7 @@ if True:
     
     for i in range(N):
         var_index=A_P.shape[1]-1
-        print "remvoing",i
+        print("remvoing",i)
         (A_P,b_P)=fourier_motzkin_eliminate_single(var_index,A_P,b_P,atol=10**-8)
     p_real=polytope(A_P,b_P)
 

@@ -82,7 +82,7 @@ def zonotope_distance(z1,z2,eps_min=0,eps_max=10,eps=0.05):
     if (eps_max-eps_min)<eps:
         return d
     else:
-        print("searching between",eps_min,"and",eps_max)
+        print(("searching between",eps_min,"and",eps_max))
         model=Model("Zonotope Distance")
         Q1=z1
         Q2=zonotope(z2.x,np.hstack((z2.G,d*np.eye(z2.G.shape[0]))))
@@ -184,7 +184,7 @@ def zonotope_order_reduction_outer(Z,G_r,i_max=100,delta=0.05,scale=1.05):
     G_r=np.dot(G_r,np.diag(gamma_diag[:,0]))*scale
     i=0
     while i<i_max:
-        print ("***** iteration",i)
+        print(("***** iteration",i))
         try:
             Z_r_list[i]=zonotope(Z.x,G_r)
             Gamma=zonotope_order_reduction_Gamma(Z,G_r)
@@ -255,11 +255,11 @@ def zonotope_order_reduction_gradient(z,G_r,Gamma,eps,delta=0.1):
     model.setParam('OutputFlag', False)
     model.optimize()
     if model.Status!=2:
-        print("model status is", model.Status)
+        print(("model status is", model.Status))
         return 
-    print("epsilon",epsilon)
-    print("gamma_norm",gamma_norm)
-    print(valuation(delta_r),valuation(delta_gamma))
+    print(("epsilon",epsilon))
+    print(("gamma_norm",gamma_norm))
+    print((valuation(delta_r),valuation(delta_gamma)))
     return valuation(G_r_plus)
 
 def zonotope_order_reduction_initial_Gamma0(z,G_r):
@@ -353,9 +353,9 @@ def zonotope_order_reduction_initial_Gamma0_inner(z,G_r):
     infinity_norm(model,Gamma_abs,1)
     model.optimize()
     if model.Status!=2:
-        print("model status is", model.Status)
+        print(("model status is", model.Status))
         return 
-    print("epsilon",epsilon)
+    print(("epsilon",epsilon))
     return valuation(Gamma)
     
 def zonotope_order_reduction_inner_alternation(z,G_r,Gamma,eps=1000):
@@ -391,7 +391,7 @@ def zonotope_order_reduction_inner_alternation(z,G_r,Gamma,eps=1000):
     model.setParam('OutputFlag', False)
     model.optimize()
     if model.Status!=2:
-        print("model status is", model.Status)
+        print(("model status is", model.Status))
         return 
     print(("epsilon",epsilon))
     return valuation(G_r)

@@ -21,7 +21,7 @@ import numpy as np
 try:
     from cdd import Polyhedron,Matrix,RepType
 except:
-    print "WARNING: You don't have CDD package installed. Unable to visualize polytopes. You may still visualize zonotopes."
+    print("WARNING: You don't have CDD package installed. Unable to visualize polytopes. You may still visualize zonotopes.")
 
 def visualize_2D(list_of_polytopes,a=1.5,title="polytopes"):
     """
@@ -151,7 +151,7 @@ def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig
         try:
             v=v[ConvexHull(v).vertices,:]
         except:
-            print "WARNING:", Q,": was degenerate or very thin to plot. Adding a tube of", epsilon,"N:", v.shape
+            print("WARNING:", Q,": was degenerate or very thin to plot. Adding a tube of", epsilon,"N:", v.shape)
             v=w[ConvexHull(w).vertices,:]
         v_all=np.vstack((v_all,v))
         p=Polygon(v)
@@ -217,7 +217,7 @@ def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None
     """
     Given a plot, add zonotopes
     """ 
-    print("*"*30,"Getting a plot of your zonotopes, be patient!")
+    print(("*"*30,"Getting a plot of your zonotopes, be patient!"))
     print(ax)
     if type(list_of_dimensions)==type(None):
         list_of_dimensions=[0,1]
@@ -254,5 +254,5 @@ def vcube(T):
     Description: 2**n * n array of vectors of vertices in unit cube in R^n
     """
     from itertools import product 
-    v=list(product(*zip([-1]*T,[1]*T)))
+    v=list(product(*list(zip([-1]*T,[1]*T))))
     return np.array(v)

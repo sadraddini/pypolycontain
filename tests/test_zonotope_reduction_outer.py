@@ -18,7 +18,7 @@ G_r=np.array([[1,0,1,2],[0,2,1,-1]])
 Z_r,Z_r_list,eps=zonotope_order_reduction_outer(Z,G_r,delta=0.01,scale=1.06)
 i_max=len(eps)
 for i in range(i_max):
-    print "iteration",i,
+    print("iteration",i, end=' ')
     e=zonotope_distance_cocenter(Z_r_list[i],Z)
     fig=visZ([Z_r_list[i],Z],title=r"Iteration %d - Outer Approximation $d_H(\mathbb{Z}_r,\mathbb{Z})=%0.02f$"%(i,e),axis_limit=50)
     fig.savefig('figures/reduction_outer %d'%i,dpi=100)

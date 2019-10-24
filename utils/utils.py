@@ -16,7 +16,7 @@ def valuation(x):
     """
     if type(x)==type(dict()):
         x_n={}
-        for key,val in x.items():
+        for key,val in list(x.items()):
             x_n[key]=ones(val.shape)
             (n_r,n_c)=val.shape
             for row in range(n_r):
@@ -40,7 +40,7 @@ def vertices_cube(T):
     Description: 2**n * n array of vectors of vertices in unit cube in R^n
     """
     from itertools import product 
-    v=list(product(*zip([-1]*T,[1]*T)))
+    v=list(product(*list(zip([-1]*T,[1]*T))))
     return array(v)
     
 

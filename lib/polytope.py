@@ -33,8 +33,8 @@ class polytope():
 
     def show(self):
         print(self)
-        print("H=",self.H)
-        print("h=",self.h)
+        print(("H=",self.H))
+        print(("h=",self.h))
         
     def if_inside(self,x,tol=10**-5):
         if x.shape[0]!=self.H.shape[1]:

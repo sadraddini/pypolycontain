@@ -53,7 +53,7 @@ class AH_polytope():
         """
         if self.method=="Gurobi":
             model=Model("check_if_inside")
-            p=tupledict_to_array(model.addVars(range(self.P.n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p"))
+            p=tupledict_to_array(model.addVars(list(range(self.P.n)),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p"))
             model.update()
             constraints_list_of_tuples(model,[(self.T,p),(np.eye(self.n),self.t-x)],sign="=")
             constraints_list_of_tuples(model,[(self.P.H,p),(-np.eye(self.P.h.shape[0]),self.P.h)],sign="<")
@@ -73,8 +73,8 @@ class AH_polytope():
             
     def is_nonempty(self,tol=10**-6):
         model=Model("check_if_inside")
-        p=tupledict_to_array(model.addVars(range(self.P.n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p"))
-        x=tupledict_to_array(model.addVars(range(self.T.shape[0]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="x"))
+        p=tupledict_to_array(model.addVars(list(range(self.P.n)),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p"))
+        x=tupledict_to_array(model.addVars(list(range(self.T.shape[0])),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="x"))
         model.update()
         constraints_list_of_tuples(model,[(self.T,p),(np.eye(self.n),self.t),(-np.eye(self.n),x)],sign="=")
         constraints_list_of_tuples(model,[(self.P.H,p),(-np.eye(self.P.h.shape[0]),(self.P.h+tol))],sign="<")
@@ -119,8 +119,8 @@ def distance_point(P,x,norm="L2"):
     n=poly.T.shape[0]
     x=x.reshape(n,1)
     model=Model("distance to point")
-    p=tupledict_to_array(model.addVars(range(poly.T.shape[1]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p")) # The point in H-polytope
-    delta=tupledict_to_array(model.addVars(range(n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="delta")) # The distance
+    p=tupledict_to_array(model.addVars(list(range(poly.T.shape[1])),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p")) # The point in H-polytope
+    delta=tupledict_to_array(model.addVars(list(range(n)),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="delta")) # The distance
     model.update()
     constraints_list_of_tuples(model,[(np.eye(n),x),(-np.eye(n),delta),(-np.eye(n),poly.t),(-poly.T,p)],sign="=")
     constraints_list_of_tuples(model,[(poly.P.H,p),(-np.eye(poly.P.h.shape[0]),poly.P.h)],sign="<")
@@ -147,7 +147,7 @@ def distance_point(P,x,norm="L2"):
         # print(np.dot(poly.T,p)+poly.t)
         return model.getObjective().getValue()**0.5,np.dot(poly.T,p_float)+poly.t
     elif norm in [1,"L1","l1"]:
-        delta_max=tupledict_to_array(model.addVars(range(n),[0],lb=0,ub=GRB.INFINITY,name="delta_max",obj=1))
+        delta_max=tupledict_to_array(model.addVars(list(range(n)),[0],lb=0,ub=GRB.INFINITY,name="delta_max",obj=1))
         for i in range(n):
             model.addConstr(delta_max[i,0]>=delta[i,0])
             model.addConstr(delta_max[i,0]>=-delta[i,0])
@@ -175,10 +175,10 @@ def minimum_distance(poly_1,poly_2,norm="infinity"):
     n=poly_1.T.shape[0]
     assert n==poly_2.T.shape[0]
     model=Model("minimum_distance")
-    delta=tupledict_to_array(model.addVars(range(n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="delta"))
-    x=tupledict_to_array(model.addVars(range(n),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="x"))
-    p_1=tupledict_to_array(model.addVars(range(poly_1.P.H.shape[1]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p_1"))
-    p_2=tupledict_to_array(model.addVars(range(poly_2.P.H.shape[1]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p_2"))
+    delta=tupledict_to_array(model.addVars(list(range(n)),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="delta"))
+    x=tupledict_to_array(model.addVars(list(range(n)),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="x"))
+    p_1=tupledict_to_array(model.addVars(list(range(poly_1.P.H.shape[1])),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p_1"))
+    p_2=tupledict_to_array(model.addVars(list(range(poly_2.P.H.shape[1])),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p_2"))
     model.update()
     constraints_list_of_tuples(model,[(np.eye(n),x),(-np.eye(n),delta),(-np.eye(n),poly_1.t),(-poly_1.T,p_1)],sign="=")
     constraints_list_of_tuples(model,[(np.eye(n),x),(-np.eye(n),poly_2.t),(-poly_2.T,p_2)],sign="=")

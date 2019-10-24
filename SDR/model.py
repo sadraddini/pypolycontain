@@ -68,13 +68,13 @@ A,S,C,W,constraints_XY=constraint_XY(X,Y,G,Z,sign="=")
 constraint_all+=constraints_XY
 prob = cp.Problem(cp.Minimize( cp.trace(G*X)),constraint_all)
 prob.solve(verbose=True)
-print("The optimal value is", prob.value)
+print(("The optimal value is", prob.value))
 print("A solution X is")
-print(X.value)
+print((X.value))
 
 for row in range(X.shape[0]):
     for column in range(Y.shape[1]):
-        print row,column,np.trace(np.dot(A[row,column],S[row,column].value))+np.dot(G,Z.value)[row,column]
+        print(row,column,np.trace(np.dot(A[row,column],S[row,column].value))+np.dot(G,Z.value)[row,column])
 
 #n=3
 #

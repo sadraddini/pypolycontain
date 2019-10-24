@@ -215,7 +215,7 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
         elif ball=="l2":
             prog.AddQuadraticCost(np.eye(n),np.zeros(n),delta)
         else:
-            print("Not a valid choice of norm",str(ball))
+            print(("Not a valid choice of norm",str(ball)))
             raise NotImplementedError
         P.distance_program=prog
         return 
@@ -287,7 +287,7 @@ def bounding_box(Q,solver="Gurobi"):
         assert result.is_success()
         upper_corner[i,0]=result.GetSolution(x)[i]
         a[i,0]=0
-    print lower_corner,upper_corner
+    print(lower_corner,upper_corner)
     return hyperbox(corners=(lower_corner,upper_corner))
         
         
