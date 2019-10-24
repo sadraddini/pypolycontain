@@ -7,6 +7,12 @@ Created on Thu May 30 10:45:14 2019
 """
 
 import numpy as np
+# Scipy
+try:
+    import scipy.linalg as spa
+except:
+    print("WARNING: You don't have scipy package installed. You may get error while using some feautures.")
+
 # Pydrake
 import pydrake.solvers.mathematicalprogram as MP
 import pydrake.solvers.gurobi as Gurobi_drake
@@ -28,7 +34,7 @@ def to_AH_polytope(P):
         return AH_polytope(np.eye(n),np.zeros((n,1)),P)
     elif P.type=="zonotope":
         q=P.G.shape[1]
-        return AH_polytope(P.G,P.x,Box(N=q))
+        return AH_polytope(P.G,P.x,Box(N=q),color=P.color)
     else:
         raise ValueError("P type not understood:",P.type)
 
@@ -144,7 +150,7 @@ def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
 def Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
     return max(directed_Hausdorff_distance(Q1,Q2,ball,solver),directed_Hausdorff_distance(Q2,Q1,ball,solver))
     
-def distance_polytopes(Q1,Q2,ball="infinity",solver="Gurobi"):
+def distance_polytopes(Q1,Q2,ball="infinity",solver="gurobi"):
     Q1,Q2=to_AH_polytope(Q1),to_AH_polytope(Q2)
     n=Q1.n
     prog=MP.MathematicalProgram()
@@ -260,7 +266,7 @@ def bounding_box(Q,solver="Gurobi"):
     zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
     x=prog.NewContinuousVariables(Q.n,1,"x")
     prog.AddLinearConstraint(A=Q.P.H,ub=Q.P.h,lb=-np.inf*np.ones((Q.P.h.shape[0],1)),vars=zeta)
-    prog.AddLinearEqualityConstraint(np.hstack((Q.T,np.eye(Q.n))),Q.t,np.vstack((zeta,x)))
+    prog.AddLinearEqualityConstraint(np.hstack((-Q.T,np.eye(Q.n))),Q.t,np.vstack((zeta,x)))
     lower_corner=np.zeros((Q.n,1))
     upper_corner=np.zeros((Q.n,1))
     c=prog.AddLinearCost(np.dot(np.ones((1,Q.n)),x)[0,0])
@@ -274,20 +280,23 @@ def bounding_box(Q,solver="Gurobi"):
         e=c.evaluator()
         a[i,0]=1
         e.UpdateCoefficients(a.reshape(Q.n))
+#        print "cost:",e.a(),
         result=solver.Solve(prog,None,None)
         assert result.is_success()
         lower_corner[i,0]=result.GetSolution(x)[i]
         a[i,0]=0
+#        print result.GetSolution(x)
     # Upper Corners
     for i in range(Q.n):
         e=c.evaluator()
         a[i,0]=-1
-        e.UpdateCoefficients(a)
+        e.UpdateCoefficients(a.reshape(Q.n))
+#        print "cost:",e.a(),
         result=solver.Solve(prog,None,None)
         assert result.is_success()
         upper_corner[i,0]=result.GetSolution(x)[i]
         a[i,0]=0
-    print(lower_corner,upper_corner)
+#    print(lower_corner,upper_corner)
     return hyperbox(corners=(lower_corner,upper_corner))
         
         
@@ -384,6 +393,24 @@ def convex_hull_of_point_and_polytope(x, Q):
     return AH_polytope(new_T,new_t,new_P)
     
 
+def intersection(P1,P2):
+    """
+    Inputs: 
+        P1, P2: AH_polytopes
+    Outputs:
+        returns P1 \wedge P2 as a AH-polytope
+    """
+    Q1,Q2=to_AH_polytope(P1),to_AH_polytope(P2)
+    T=np.hstack((Q1.T,Q2.T*0))
+    t=Q1.t
+    H_1=spa.block_diag(*[Q1.P.H,Q2.P.H])
+    H_2=np.hstack((Q1.T,-Q2.T))
+    H=np.vstack((H_1,H_2,-H_2))
+    h=np.vstack((Q1.P.h,Q2.P.h,Q2.t-Q1.t,Q1.t-Q2.t))
+    new_P=H_polytope(H,h)
+    return AH_polytope(T,t,new_P)
+
+    
 """
 Pydrake Mathematical Program Helper: Matrix based Constraints
 """
