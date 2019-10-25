@@ -115,13 +115,13 @@ def orthogonal_projection_gradient_decent(Hx,Lambda_0,X_1,X_2,beta_x,H,F,g,xbar,
 def gradient_decent(Hx,H,F,g,xbar,delta,N=10):
     history=[]
     for i in range(N):
-        print "iteration","*"*30,i,"*"*30
+        print("iteration","*"*30,i,"*"*30)
         Lambda_0,X_1,X_2,beta_x=orthogonal_projection_fixed_Hx(Hx,H,F,g,xbar)
         if type(Lambda_0)==type(False):
             break
         delta_Lambda_0,delta_X_1,delta_X_2,delta_beta_X,delta_Hx,epsilon=orthogonal_projection_gradient_decent(Hx,Lambda_0,X_1,X_2,beta_x,H,F,g,xbar,delta)
         history.append((Hx,epsilon))
-        print "epsilon","+"*30,"+"*30,epsilon
+        print("epsilon","+"*30,"+"*30,epsilon)
         if epsilon==False:
             break
         Lambda_0=Lambda_0+delta_Lambda_0

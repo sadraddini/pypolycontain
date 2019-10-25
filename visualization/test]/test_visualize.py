@@ -16,4 +16,4 @@ xbar=np.random.random((2,1))
 
 N=10
 Z={i:zonotope(np.random.random((2,1))*5,np.random.random((2,3)),color=np.random.random(3)) for i in range(N)}
-visZ(Z.values())
+visZ(list(Z.values()))

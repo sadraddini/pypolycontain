@@ -40,20 +40,20 @@ def test_memebership():
     H_P=H_polytope(H,h)
     P=AH_polytope(T,t,H_P)
     x=np.random.random((m,1))*0
-    print point_membership(P,x,solver="gurobi")
+    print(point_membership(P,x,solver="gurobi"))
     
     # Test 2: # Zonotope
     n=4
     P=zonotope(np.zeros((n,1)),np.eye(n),Box(n))
     x=np.random.random((n,1))
-    print point_membership(P,x,solver="gurobi")
+    print(point_membership(P,x,solver="gurobi"))
  
 def test_emptyness():
     N,n=10,4
     H=np.random.random((N,n))-0.5
     h=np.random.random((N,1))+5  
     H_P=H_polytope(H,h)
-    print check_non_empty(H_P)
+    print(check_non_empty(H_P))
     
 def test_hausdorff():
     n=2
@@ -63,9 +63,9 @@ def test_hausdorff():
     z2=zonotope(np.random.random((n,1))*1,np.random.random((n,q2))-0.5,color='blue')
     start=time()
     D=directed_Hausdorff_distance(z1,z2,solver="gurobi")
-    print "Mathematical Program:",D,"\t",time()-start
+    print("Mathematical Program:",D,"\t",time()-start)
     start=time()
-    print "Gurobipy:",Hausdorff_directed(z1,z2),"\t",time()-start
+    print("Gurobipy:",Hausdorff_directed(z1,z2),"\t",time()-start)
     z3=zonotope(z2.x,np.hstack((z2.G,D*np.eye(n))),color='green')
     visZ([z3,z1,z2],a=0.5,alpha=0.2)
     return D
@@ -78,14 +78,14 @@ def test_distance():
     z2=zonotope(np.random.random((n,1))*20,np.random.random((n,q2))-0.5,color='blue')
     start=time()
     D,x1,x2=distance_polytopes(z1,z2,solver="gurobi",ball="l1")
-    print "Mathematical Program:",D,"\t",time()-start
+    print("Mathematical Program:",D,"\t",time()-start)
     start=time()
-    print "Gurobipy:",minimum_distance(z1,z2),"\t",time()-start
+    print("Gurobipy:",minimum_distance(z1,z2),"\t",time()-start)
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
     visZ_ax(ax,[z1,z2],a=0.5,alpha=0.2)
     ax.plot([x1[0,0],x2[0,0]],[x1[1,0],x2[1,0]])
-    print x1,x2
+    print(x1,x2)
     
 def test_distance_H():
     n=2
@@ -95,15 +95,15 @@ def test_distance_H():
     H=H_polytope(np.random.random((q2,n))-0.5,np.random.random((q2,1)))
     start=time()
     D,x1,x2=distance_polytopes(Z,H,solver="gurobi")
-    print "Mathematical Program:",D,"\t",time()-start
+    print("Mathematical Program:",D,"\t",time()-start)
     start=time()
-    print "Gurobipy:",minimum_distance(Z,H),"\t",time()-start
+    print("Gurobipy:",minimum_distance(Z,H),"\t",time()-start)
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
     visZ_ax(ax,[Z],a=2.5,alpha=0.7)
     vis_ax(ax,[H],a=2.5,alpha=0.7)
     ax.plot([x1[0,0],x2[0,0]],[x1[1,0],x2[1,0]])
-    print x1,x2
+    print(x1,x2)
     
 def test_bounding_box():
     n,q=2,2
@@ -116,9 +116,9 @@ def test_box_distances():
     u1,u2=l1+np.random.random((2,1)),l2+np.random.random((2,1))*3
     B1=hyperbox(corners=(l1,u1))
     B2=hyperbox(corners=(l2,u2))
-    print "directed Hausdorff B1,B2" ,directed_Hausdorff_hyperbox(B1,B2)
-    print "directed Hausdorff B2,B1 ",directed_Hausdorff_hyperbox(B2,B1)
-    print "distance",distance_hyperbox(B1,B2),distance_hyperbox(B2,B1)
+    print("directed Hausdorff B1,B2" ,directed_Hausdorff_hyperbox(B1,B2))
+    print("directed Hausdorff B2,B1 ",directed_Hausdorff_hyperbox(B2,B1))
+    print("distance",distance_hyperbox(B1,B2),distance_hyperbox(B2,B1))
     B1.zonotope.color="red"
     B2.zonotope.color="blue"
     visZ([B1.zonotope,B2.zonotope],a=0.5,alpha=0.8)
@@ -130,20 +130,20 @@ def test_distance_point():
     x=np.random.random((2,1))
     start=time()
     d,x_nearest=distance_point_polytope(Z,x,ball="l2")  
-    print "initial",time()-start
+    print("initial",time()-start)
     x=np.random.random((2,1))
     start=time()
     d,x_nearest=distance_point_polytope(Z,x,ball="l2")  
-    print "second",time()-start    
+    print("second",time()-start)    
     x=np.random.random((2,1))
     start=time()
     d,x_nearest=distance_point_polytope(Z,x,ball="l2")  
-    print "Third",time()-start 
+    print("Third",time()-start) 
     fig, ax = plt.subplots() # note we must use plt.subplots, not plt.subplot
     visZ_ax(ax,[Z],a=3,alpha=0.7)
     ax.plot([x[0,0],x_nearest[0,0]],[x[1,0],x_nearest[1,0]])
     ax.plot([x[0,0],x_nearest[0,0]],[x[1,0],x_nearest[1,0]],'o')
-    print x,x_nearest,d 
+    print(x,x_nearest,d) 
     
 def test_AH_vertices():
     # Test 1: # Random
@@ -179,7 +179,7 @@ def test_convexhull_of_point_and_AH_polytope():
     vis_AH([P],N=300)
     vis_AH([P,Q],N=200)
     v,w=Q.vertices_2D
-    print v.shape
+    print(v.shape)
     plt.plot(v[:,0],v[:,1])
     plt.plot(v[:,0],v[:,1],'o')
     

@@ -25,9 +25,9 @@ def fourier_motzkin_eliminate_single(var_index,A,b,C=None,d=None,atol=10**-8):
         A_new and b_new such that A_new x_reduced <=b_new, where x_reduced does not include var_index
     """
     if var_index>A.shape[1]:
-        raise("Error: %d is greather the number of variables. Choose a variable index between 0 and %d"%(var_index,A.shape[1]))
+        raise "Error: %d is greather the number of variables. Choose a variable index between 0 and %d"
     if A.shape[0]!=b.shape[0]:
-        raise("Error: number of rows in A: ",A.shape[0]," and b:",b.shape[0]," mismatch")
+        raise "Error: number of rows in A: "
     if type(C)==type(np.array([1])):
         A=np.vstack((A,C,-C))
         b=np.vstack((b,d,-d))
@@ -111,7 +111,7 @@ def convexhull(list_of_polytopes,atol=10**-8):
     # Fourier Motzkin Elimination Method
     for i in range(N*(n+1)):
         f.write("\nIteration %d from %d: A shape is (%d,%d) and b length is %d"%(i,N*(n+1),A.shape[0],A.shape[1],b.shape[0]))
-        print "Iteration %d from %d: A shape is (%d,%d) and b length is %d"%(i,N*(n+1),A.shape[0],A.shape[1],b.shape[0])
+        print("Iteration %d from %d: A shape is (%d,%d) and b length is %d"%(i,N*(n+1),A.shape[0],A.shape[1],b.shape[0]))
         (A,b)=fourier_motzkin_eliminate_single(A.shape[1]-1,A,b,None,None,atol)
     f.close()
     return polytope(A,b)

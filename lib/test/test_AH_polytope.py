@@ -25,8 +25,8 @@ if False:
     x=np.zeros((n,1))
     method="Gurobi"
     start=time()
-    print X.is_inside(x)
-    print "Gurobi:",time()-start
+    print(X.is_inside(x))
+    print("Gurobi:",time()-start)
         
 if False:
     G_l=np.array([[1,0,0,1,1],[0,1,15,-1,-3]])*1
@@ -41,7 +41,7 @@ if False:
     Q2=to_AH_polytope(z2)
     
     D_min=minimum_distance(Q1,Q2)
-    print check_collision(Q1,Q2)
+    print(check_collision(Q1,Q2))
 
 if False:
     P=Box(2)
@@ -52,7 +52,7 @@ if False:
     d1=distance_point(X,x,norm="L1")
     d2=distance_point(X,x,norm="L2")
     dInf=distance_point(X,x,norm="Linf")
-    print d1,d2,dInf,X.is_inside(x)
+    print(d1,d2,dInf,X.is_inside(x))
     
 if False:
     T=np.eye(2)
@@ -61,7 +61,7 @@ if False:
     h=np.array([1,1,-1,-1]).reshape(4,1)
     P=polytope(H,h)
     X=AH_polytope(T,t,P)
-    print X.is_nonempty()
+    print(X.is_nonempty())
     
 if True:
     G_l=np.array([[1,0,0,1,1],[0,1,15,-1,-3]])*1

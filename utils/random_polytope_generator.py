@@ -32,7 +32,7 @@ def get_uniform_random_zonotopes(zonotope_count, dim, centroid_range=None, gener
     print('Generating uniform random zonotopes...')
     start_time = time()
     polytopes = p.map(get_single_random_zonotope, arguments)
-    print('Completed random zonotope generation in %f seconds' %(time()-start_time))
+    print(('Completed random zonotope generation in %f seconds' %(time()-start_time)))
     if as_nparray:
         return np.asarray(polytopes)
     else:

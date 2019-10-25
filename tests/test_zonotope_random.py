@@ -78,13 +78,13 @@ if True:
                     y=zono_l.x.T+np.dot(zono_l.G,vcube(zono_l.G.shape[1]).T).T
                     scale_vertices=1/zonotope_inside_scale(zono_r,y.T)
             
-                    print n,N_r,i,scale_vertices,scale_theorem
+                    print(n,N_r,i,scale_vertices,scale_theorem)
             
                     scale_table[n,N_r,k][i,0]=scale_vertices
                     scale_table[n,N_r,k][i,1]=scale_theorem
                     difference_table[n,N_r,k][i]=(scale_vertices-scale_theorem)/(scale_vertices+10**-12)
     #        plt.hist(difference_table[n,N_r])
-    x_all=np.hstack([difference_table[key] for key in difference_table.keys()])
+    x_all=np.hstack([difference_table[key] for key in list(difference_table.keys())])
 plt.hist(x_all)
 plt.hist(x_all,30)
 plt.yscale('log')

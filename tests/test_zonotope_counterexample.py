@@ -49,7 +49,7 @@ def find_a_counterxample(n,tol=0.01):
                 G_r=np.round(np.random.random((n,N_r))-0.5,1)*10.0
                 x_l=np.zeros((n,1))
                 x_r=np.zeros((n,1))
-                print G_l,G_r,np.linalg.matrix_rank(G_l),np.linalg.matrix_rank(G_r)
+                print(G_l,G_r,np.linalg.matrix_rank(G_l),np.linalg.matrix_rank(G_r))
                 G_l_var=np.empty((n,N_l),dtype='object')
                 scale=model.addVar(obj=-1)
                 for row in range(n):
@@ -64,7 +64,7 @@ def find_a_counterxample(n,tol=0.01):
                 alpha=valuation(alpha)
                 beta=valuation(beta)
                 scale_theorem=scale.X
-                print "scale_theorem is",scale_theorem
+                print("scale_theorem is",scale_theorem)
                 if scale_theorem<=10**-5:
                     continue
                 # Let's look at vertices
@@ -73,7 +73,7 @@ def find_a_counterxample(n,tol=0.01):
                 y=zono_l.x.T+np.dot(zono_l.G,vcube(zono_l.G.shape[1]).T).T
                 scale_vertices=1/zonotope_inside_scale(zono_r,y.T)        
                 if (scale_vertices-scale_theorem)/(scale_vertices+10**-12)>tol:
-                    print "find a counterexample!"
+                    print("find a counterexample!")
                     return (G_l,G_r,scale_vertices,scale_theorem)
 
 (G_l,G_r,scale_vertices,scale_theorem)=find_a_counterxample(3,tol=10**-8)

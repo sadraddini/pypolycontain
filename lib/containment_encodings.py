@@ -22,9 +22,9 @@ def subset_generic(model,Q1,Q2):
     """
     Q1=to_AH_polytope(Q1)
     Q2=to_AH_polytope(Q2)
-    Gamma=tupledict_to_array(model.addVars(range(Q2.T.shape[1]),range(Q1.T.shape[1]),lb=-GRB.INFINITY,ub=GRB.INFINITY,name="Gamma"))
-    Lambda=tupledict_to_array(model.addVars(range(Q2.P.H.shape[0]),range(Q1.P.H.shape[0]),lb=0,ub=GRB.INFINITY,name="Lambda"))
-    beta=tupledict_to_array(model.addVars(range(Q2.T.shape[1]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="beta"))
+    Gamma=tupledict_to_array(model.addVars(list(range(Q2.T.shape[1])),list(range(Q1.T.shape[1])),lb=-GRB.INFINITY,ub=GRB.INFINITY,name="Gamma"))
+    Lambda=tupledict_to_array(model.addVars(list(range(Q2.P.H.shape[0])),list(range(Q1.P.H.shape[0])),lb=0,ub=GRB.INFINITY,name="Lambda"))
+    beta=tupledict_to_array(model.addVars(list(range(Q2.T.shape[1])),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="beta"))
     model.update()
     n=Q1.T.shape[0]
     assert n==Q2.T.shape[0]
@@ -43,7 +43,7 @@ def point_in_AH_polytope(model,Q,x):
         No direct output, adds Q1 \subset Q2 to the model
     """
     Q=to_AH_polytope(Q)
-    p=tupledict_to_array(model.addVars(range(Q.T.shape[1]),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p"))
+    p=tupledict_to_array(model.addVars(list(range(Q.T.shape[1])),[0],lb=-GRB.INFINITY,ub=GRB.INFINITY,name="p"))
     model.update()
     n=x.shape[0]
     constraints_list_of_tuples(model,[(Q.T,p),(-np.eye(n),Q.t),(-np.eye(n),x)],sign="=")
