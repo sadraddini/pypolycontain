@@ -1,7 +1,7 @@
 Objects
 =======
 
-.. automodule:: pypolycontain.lib.objects
+.. automodule:: lib.objects
     :members:
     :undoc-members:
     :show-inheritance:

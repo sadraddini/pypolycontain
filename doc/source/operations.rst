@@ -1,7 +1,7 @@
 Operations
 ==========
 
-.. automodule:: pypolycontain.lib.operations
+.. automodule:: lib.operations
     :members:
     :undoc-members:
     :show-inheritance:

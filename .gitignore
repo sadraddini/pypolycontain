@@ -5,3 +5,9 @@
 *.idea/
 *.png
 *.bak
+
+*.doctree
+
+doc/build/html/
+
+*.pickle
