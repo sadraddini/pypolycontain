@@ -22,7 +22,7 @@ echo "export CLASSPATH=\".:$PWD/:$CLASSPATH\"" >> ~/.bashrc
 
 
 ## Documentation (NEW - Under Construction):
-We are working on the [documentation](https://github.com/sadraddini/pypolycontain/doc/index.html) of this package. Check for updates. 
+We are working on the [documentation](https://pypolycontain.readthedocs.io/en/latest/) of this package. Check for updates. 
 
 
 
