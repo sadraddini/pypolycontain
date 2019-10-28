@@ -10,7 +10,7 @@ Computing Hausdoff Distance Between AH-Polytopes
 
 import numpy as np
 
-from gurobipy import Model,LinExpr,QuadExpr,GRB
+#from gurobipy import Model,LinExpr,QuadExpr,GRB
 
 from pypolycontain.lib.AH_polytope import AH_polytope,to_AH_polytope
 

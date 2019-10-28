@@ -10,7 +10,7 @@ import numpy as np
 
 from scipy.optimize import linprog as lp
 from scipy.linalg import block_diag as blk
-from gurobipy import Model,LinExpr,QuadExpr,GRB
+#from gurobipy import Model,LinExpr,QuadExpr,GRB
 
 from pypolycontain.lib.polytope import polytope,Box
 from pypolycontain.utils.utils import valuation

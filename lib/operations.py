@@ -27,12 +27,12 @@ license = gurobi_solver.AcquireLicense()
 OSQP_solver=OSQP_drake.OsqpSolver()
 
 def to_AH_polytope(P):
-    if P.type=="AH_polytope":
+    if type(P).__name__=="AH_polytope":
         return P
-    elif P.type=="H_polytope" or P.type=="H-polytope":
+    elif type(P).__name__=="H_polytope":
         n=P.H.shape[1]
         return AH_polytope(np.eye(n),np.zeros((n,1)),P)
-    elif P.type=="zonotope":
+    elif type(P).__name__=="zonotope":
         q=P.G.shape[1]
         return AH_polytope(P.G,P.x,Box(N=q),color=P.color)
     else:
@@ -43,7 +43,7 @@ Optimization-based Operations:
 """  
       
 def point_membership(Q,x,tol=10**-5,solver="gurobi"):
-    if Q.type=="H_polytope":
+    if type(Q).__name__=="H_polytope":
         return Q.if_inside(x,tol)
     else:
         Q=to_AH_polytope(Q)

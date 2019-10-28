@@ -21,6 +21,11 @@ echo "export CLASSPATH=\".:$PWD/:$CLASSPATH\"" >> ~/.bashrc
 * [pycdd](https://pycddlib.readthedocs.io/en/latest/index.html)
 
 
+## Documentation (NEW - Under Construction):
+We are working on the [documentation](https://github.com/sadraddini/pypolycontain/doc/index.html) of this package. Check for updates. 
+
+
+
 ## Polytopic Containment Encodings
 Our package provides linear encodings for the following problems.
 * A-Polytope inside H-Polytope (necessary and sufficient conditions)

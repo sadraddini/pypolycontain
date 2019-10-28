@@ -16,22 +16,27 @@ import numpy as np
 from pypolycontain.utils.utils import unique_rows
 
 class H_polytope():
-    def __init__(self,H,h,symbolic=False,color="red"):
+    def __init__(self,H,h,symbolic=False,color='red'):
         """
         Class Polytope. A Polytope is defined as (x \in R^n | Hx <= h)
         """
+        # Sanity Checks (H should be q*n matrix and h should be q*1 vector)
+        h=np.atleast_2d(h)
+        if h.shape[0]==1:
+            h=h.T
         if h.shape[1]!=1:
             ValueError("Error: not appropriate h size, it is",h.shape)
         if H.shape[0]!=h.shape[0]:
             ValueError("Error: not consistent dimension of H: %d and h: %d"%(H.shape[0],h.shape[0]))
+        # End of sanity checks
         self.H,self.h=H,h
         self.type="H_polytope"
-        if not symbolic:
+        if type(h[0,0]):
             self.H,self.h=unique_rows(H,h)
         self.n=H.shape[1]
         self.hash_value = None
         self.distance_program=None
-#        self.color="red"
+        self.color=color
 
     def __repr__(self):
         return ("H_polytope in R^%d"%self.n)
@@ -58,7 +63,6 @@ class zonotope():
         else:
             self.name=name
         self.color=color
-        self.type="zonotope"
         self.hash_value = None
         self.distance_program=None
 #        self.color="red"
@@ -89,7 +93,6 @@ class AH_polytope():
         self.n=T.shape[0]
         if T.shape[1]!=P.H.shape[1]:
             ValueError("Error: not appropriate T size, it is",T.shape[1],P.n)
-        self.type="AH_polytope"
         self.method="Gurobi"
         self.hash_value = None
         self.distance_program=None

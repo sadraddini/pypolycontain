@@ -21,8 +21,6 @@ from pypolycontain.visualization.visualize_2D import visualize_2D_ax as vis_ax
 from pypolycontain.visualization.visualize_2D import visualize_2D_AH_polytope as vis_AH
 
 
-
-
 from pypolycontain.lib.hausdorff.hausdorff import Hausdorff_directed
 from pypolycontain.lib.AH_polytope import minimum_distance
 
@@ -177,7 +175,7 @@ def test_convexhull_of_point_and_AH_polytope():
     P.color="red"
     Q.color="blue"
     vis_AH([P],N=300)
-    vis_AH([P,Q],N=200)
+    vis_AH([P,Q],N=200,title="test_convexhull_of_point_and_AH_polytope")
     v,w=Q.vertices_2D
     print(v.shape)
     plt.plot(v[:,0],v[:,1])
@@ -197,7 +195,7 @@ def test_bounding_box_of_AH_polytope():
     b=bounding_box(P)
     b.zonotope.color="blue"
     vis_AH([P],a=0.5,alpha=0.2,N=200)
-    vis_AH([P,b.zonotope],a=0.5,alpha=0.2,N=200)
+    vis_AH([P,b.zonotope],a=0.5,alpha=0.2,N=200,title="test_bounding_box_of_AH_polytope")
 
 def test_intersection():
     # An AH_polytope
@@ -215,20 +213,20 @@ def test_intersection():
     Q=intersection(P,Z)
     Q.color="yellow"
     # Now visualize
-    vis_AH([P,Z,Q],a=0.2,alpha=0.9,N=200)
+    vis_AH([P,Z,Q],a=0.2,alpha=0.9,N=200,title="test_intersection")
     
 def __main__():
-#    test_memebership()
-#    test_emptyness()
+    test_memebership()
+    test_emptyness()
 #    test_hausdorff()
 #    test_distance()
 #    test_distance_H()
-#    test_bounding_box()
-#    test_box_distances()
-#    test_distance_point()
-#    test_AH_vertices()
-#    test_convexhull_of_point_and_AH_polytope()
-#    test_bounding_box_of_AH_polytope()
+    test_bounding_box()
+    test_box_distances()
+    test_distance_point()
+    test_AH_vertices()
+    test_convexhull_of_point_and_AH_polytope()
+    test_bounding_box_of_AH_polytope()
     test_intersection()
 
 if __name__=="__main__":
