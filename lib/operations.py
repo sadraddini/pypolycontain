@@ -60,6 +60,32 @@ def point_membership(Q,x,tol=10**-5,solver="gurobi"):
             result=MP.Solve(prog)
     return result.is_success()
 
+def point_membership_fuzzy(Q,x,tol=10**-5,solver="gurobi"):
+    """
+    Fuzzy membership check. If x contains NaN, the entry is unconstrained
+    @param Q: Polytope in R^n
+    @param x: n*1 numpy array, may contain NaNs
+    @param tol:
+    @param solver: solver to use
+    @return: boolean of whether x is in Q
+    """
+    Q=to_AH_polytope(Q)
+    prog=MP.MathematicalProgram()
+    zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
+    prog.AddLinearConstraint(A=Q.P.H,ub=Q.P.h+tol,lb=-np.inf*np.ones((Q.P.h.shape[0],1)),vars=zeta)
+    assert(x.shape[1]==1)
+    for i, xi in enumerate(x):
+        if not np.isnan(xi):
+            prog.AddLinearEqualityConstraint(np.atleast_2d(Q.T[i,:]),(x[i]-Q.t[i]).reshape([-1,1]),zeta)
+    if solver=="gurobi":
+        result=gurobi_solver.Solve(prog,None,None)
+    elif solver=="osqp":
+        prog.AddQuadraticCost(np.eye(zeta.shape[0]),np.zeros(zeta.shape),zeta)
+        result=OSQP_solver.Solve(prog,None,None)
+    else:
+        result=MP.Solve(prog)
+    return result.is_success()
+
 def check_non_empty(Q,tol=10**-5,solver="gurobi"):
     Q=to_AH_polytope(Q)
     prog=MP.MathematicalProgram()

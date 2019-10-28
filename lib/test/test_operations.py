@@ -14,7 +14,7 @@ from pypolycontain.lib.operations import Box,point_membership,directed_Hausdorff
         check_non_empty,distance_polytopes,bounding_box,\
         distance_hyperbox,directed_Hausdorff_hyperbox,\
         distance_point_polytope,AH_polytope_vertices,convex_hull_of_point_and_polytope,\
-        intersection
+        intersection,point_membership_fuzzy
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes as visZ
 from pypolycontain.visualization.visualize_2D import visualize_2D_zonotopes_ax as visZ_ax
 from pypolycontain.visualization.visualize_2D import visualize_2D_ax as vis_ax
@@ -45,7 +45,20 @@ def test_memebership():
     P=zonotope(np.zeros((n,1)),np.eye(n),Box(n))
     x=np.random.random((n,1))
     print(point_membership(P,x,solver="gurobi"))
- 
+
+def test_membership_fuzzy():
+    H = np.asarray([[1.,0.],[-1.,0.],[0.,1.],[0.,-1.]])
+    h = np.ones(4).reshape([-1,1])
+    P = H_polytope(H,h)
+    x = np.asarray([-1, np.nan]).reshape([-1,1])
+    assert(point_membership_fuzzy(P, x))
+    x = np.asarray([np.nan, np.nan]).reshape([-1,1])
+    assert(point_membership_fuzzy(P, x))
+    x = np.asarray([-1.1, np.nan]).reshape([-1,1])
+    assert(not point_membership_fuzzy(P, x))
+    x = np.asarray([-1, 1]).reshape([-1,1])
+    assert(point_membership_fuzzy(P, x))
+
 def test_emptyness():
     N,n=10,4
     H=np.random.random((N,n))-0.5
