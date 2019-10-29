@@ -1,32 +1,42 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
 """
 Created on Thu May 30 10:45:14 2019
 
 @author: sadra
-"""
 
+Operations
+==========
+Here we have polytopic operations
+"""
+import warnings
 import numpy as np
 # Scipy
 try:
     import scipy.linalg as spa
 except:
-    print("WARNING: You don't have scipy package installed. You may get error while using some feautures.")
+    warnings.warn("You don't have scipy package installed. You may get error while using some feautures.")
 
 # Pydrake
-import pydrake.solvers.mathematicalprogram as MP
-import pydrake.solvers.gurobi as Gurobi_drake
-import pydrake.solvers.osqp as OSQP_drake
+try:
+    import pydrake.solvers.mathematicalprogram as MP
+    import pydrake.solvers.gurobi as Gurobi_drake
+    import pydrake.solvers.osqp as OSQP_drake
+    # use Gurobi solver
+    global gurobi_solver,OSQP_solver, license
+    gurobi_solver=Gurobi_drake.GurobiSolver()
+    license = gurobi_solver.AcquireLicense()
+    OSQP_solver=OSQP_drake.OsqpSolver()
+except:
+    warnings.warn("You don't have pydrake installed properly. Methods that rely on optimization may fail.")
+    
 
 # Pypolycontain
 from objects import AH_polytope,Box,hyperbox,H_polytope
-# use Gurobi solver
-global gurobi_solver,OSQP_solver, license
-gurobi_solver=Gurobi_drake.GurobiSolver()
-license = gurobi_solver.AcquireLicense()
-OSQP_solver=OSQP_drake.OsqpSolver()
+
 
 def to_AH_polytope(P):
+    """
+    Converts the polytopic object P into an AH-polytope
+    """
     if type(P).__name__=="AH_polytope":
         return P
     elif type(P).__name__=="H_polytope":
@@ -102,9 +112,9 @@ def check_non_empty(Q,tol=10**-5,solver="gurobi"):
 
 def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
     """
-    ***************************************************************************
     Computes the directed Hausdorff distance of Q_1 and Q_2 (AH_polytopes)
-    
+    ***************************************************************************
+    The optimization problem is:
                         Minimize    epsilon  
                         such that   Q1 \subset Q2+epsilon(Ball)
                         
@@ -112,9 +122,9 @@ def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
                 
                     Sadraddini&Tedrake, 2019, CDC (available on ArXiv)
                     
-    We solve the following problem:
+    @We solve the following problem:
         D*ball+Q1 subset Q2
-    We solve the following linear program:
+    @We solve the following linear program:
         min     D
         s.t.    Lambda_1 H_1=H_2 Gamma_1
                 Lambda_2 H_1=H_ball Gamma_2
