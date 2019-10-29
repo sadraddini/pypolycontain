@@ -14,7 +14,7 @@ from scipy.spatial import ConvexHull
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-from pypolycontain.lib.operations import AH_polytope_vertices    
+#from .lib.operations import AH_polytope_vertices    
 
 
 import numpy as np

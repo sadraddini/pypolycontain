@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='pypolycontain',
     version='1.0',
-    packages=['pypolycontain',],
+    packages=[],
     license='MIT',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
 )

@@ -13,7 +13,7 @@ We have three type of objects:
 # Numpy
 import numpy as np
 # Pypolycontain
-from pypolycontain.utils.utils import unique_rows
+#from .utils.utils import unique_rows
 
 class H_polytope():
     def __init__(self,H,h,symbolic=False,color='red'):
@@ -31,8 +31,8 @@ class H_polytope():
         # End of sanity checks
         self.H,self.h=H,h
         self.type="H_polytope"
-        if type(h[0,0]):
-            self.H,self.h=unique_rows(H,h)
+#        if type(h[0,0]):
+#            self.H,self.h=unique_rows(H,h)
         self.n=H.shape[1]
         self.hash_value = None
         self.distance_program=None

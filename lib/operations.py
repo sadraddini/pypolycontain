@@ -19,7 +19,7 @@ import pydrake.solvers.gurobi as Gurobi_drake
 import pydrake.solvers.osqp as OSQP_drake
 
 # Pypolycontain
-from pypolycontain.lib.objects import AH_polytope,Box,hyperbox,H_polytope
+from objects import AH_polytope,Box,hyperbox,H_polytope
 # use Gurobi solver
 global gurobi_solver,OSQP_solver, license
 gurobi_solver=Gurobi_drake.GurobiSolver()
