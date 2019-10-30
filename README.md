@@ -1,30 +1,28 @@
-# pypolycontain: A Python Package for Polytope Containment Problems
+# pypolycontain
+### A Python Package for Polytopic Objects, Operations, and Polytope Containment Problems
 
-The polytope containment problem is deciding whether a polytope is a contained within another polytope. This problem is rooted in computational convexity, and arises in applications such as verification and control of dynamical systems. The complexity heavily depends on how the polytopes are represented. Describing polytopes by their hyperplanes (H-polytopes) is a popular representation. In many applications we use affine transformations of H-polytopes, which we refer to as AH-polytopes. Zonotopes, orthogonal projections of H-polytopes, and convex hulls/Minkowski sums of multiple H-polytopes can be efficiently represented as AH-polytopes. While there exists efficient necessary and sufficient conditions for AH-polytope in H-polytope containment, the case of AH-polytope in AH-polytope is known to be NP-complete. In this paper, we provide a sufficient condition for this problem that is cast as a linear program with size that grows linearly with the number of hyperplanes of each polytope. Special cases on zonotopes, Minkowski sums, convex hulls, and disjunctions of H-polytopes are studied. These efficient encodings enable us to designate certain components of polytopes as decision variables, and incorporate them into a convex optimization problem. We present examples on the zonotope containment problem, polytopic Hausdorff distances, zonotope order reduction, inner approximations of orthogonal projections, and demonstrate the usefulness of our results on formal controller verification and synthesis for hybrid systems.
+## Documentation (NEW - Under Construction):
+We are working on the [documentation](https://pypolycontain.readthedocs.io/en/latest/). Please reguarly check for updates. 
 
+## Publications
+* A preprint of the paper on the theoretical background of this package is available [here](https://arxiv.org/pdf/1903.05214.pdf).
+* A version of this work is going to be presented in [CDC 2019](https://cdc2019.ieeecss.org/)
 
-## Arxiv Paper
+## Dependencies:
+None
 
-A preprint of the paper on the theoretical background of this package is available [here](https://arxiv.org/pdf/1903.05214.pdf)
+### Optional (for some features)
+* [pycdd](https://pycddlib.readthedocs.io/en/latest/index.html)
+* Drake *please install the python bindings with Gurobi.* [Drake](https://drake.mit.edu/)
+* Gurobi 7.0 or later [Gurobi](https://gurobi.com) (Free Academic License)
 
 ## Setup
+As of right now, pip is not available for the latest release. Please clone the repository and add it to your python path.
 ```
 git clone https://github.com/sadraddini/pypolycontain.git
 cd pypolcontain
 echo "export CLASSPATH=\".:$PWD/:$CLASSPATH\"" >> ~/.bashrc
 ```
-
-## Dependencies:
-* Gurobi 7.0 or later [Gurobi](https://gurobi.com) (Free Academic License)
-
-## Optional (only used for polytope visualization):
-* [pycdd](https://pycddlib.readthedocs.io/en/latest/index.html)
-
-
-## Documentation (NEW - Under Construction):
-We are working on the [documentation](https://pypolycontain.readthedocs.io/en/latest/) of this package. Check for updates. 
-
-
 
 ## Polytopic Containment Encodings
 Our package provides linear encodings for the following problems.
