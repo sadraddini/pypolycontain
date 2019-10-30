@@ -6,4 +6,5 @@ setup(
     packages=[],
     license='MIT',
     long_description=open('README.md').read(),
+    url="https://github.com/sadraddini/pypolycontain",
 )

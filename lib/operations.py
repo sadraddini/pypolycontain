@@ -31,7 +31,7 @@ except:
 
 # Pypolycontain
 try:
-    from pypolycontain.objects import AH_polytope,Box,hyperbox,H_polytope
+    from pypolycontain.lib.objects import AH_polytope,Box,hyperbox,H_polytope
 except:
     warnings.warn("You don't have pypolycontain properly installed. Can not execute 'import pypyplycontain'")
 

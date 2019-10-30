@@ -22,7 +22,6 @@ try:
 except:
     warnings.warn("You don't have pypolycontain properly installed. Can not execute 'import pypyplycontain'")
 
-
 try:
     from cdd import Polyhedron,Matrix,RepType
 except:

@@ -10,11 +10,12 @@ Welcome to pypolycontain's documentation!
   :end-before: ## Setup
   
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 4
+   :caption: Table of Contents:
     
    objects
    operations
+   containment
    visualization
 
 
