@@ -3,12 +3,37 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. include:: ../../README.rst
-  :end-before: Polytopic Containment Encodings
-
 Welcome to pypolycontain's documentation!
 =========================================
-  
+pypolycontain is a python package for polytopic objects, operations, and polytope containment Problems
+
+
+Dependencies:
+*************
+* numpy
+
+
+Optional dependencies (for some features)
+-----------------------------------------
+    * `Drake <https://drake.mit.edu/>`_
+    * `pycdd <https://pycddlib.readthedocs.io/en/latest/index.html>`_ 
+    * Gurobi 8.0.1 or later `Gurobi Website <https://gurobi.com>`_ *Free Academic License*
+    * Scipy
+
+
+
+
+Setup
+***************************
+As of right now, pip is not available for the latest release. Please clone the repository and add it to your python path.
+
+.. code-block:: bash
+    $ git clone https://github.com/sadraddini/pypolycontain.git
+    
+    $ cd pypolcontain
+    
+    $ echo "export CLASSPATH=\".:$PWD/:$CLASSPATH\"" >> ~/.bashrc
+    
 .. toctree::
    :maxdepth: 4
    :caption: Table of Contents:
