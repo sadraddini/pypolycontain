@@ -1,12 +1,3 @@
-"""
-Created on Thu May 30 10:45:14 2019
-
-@author: sadra
-
-Operations
-==========
-Here we have polytopic operations
-"""
 import warnings
 import numpy as np
 # Scipy
@@ -126,9 +117,9 @@ def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
                 
                     Sadraddini&Tedrake, 2019, CDC (available on ArXiv)
                     
-    @We solve the following problem:
+    We solve the following problem:
         D*ball+Q1 subset Q2
-    @We solve the following linear program:
+    We solve the following linear program:
         min     D
         s.t.    Lambda_1 H_1=H_2 Gamma_1
                 Lambda_2 H_1=H_ball Gamma_2
@@ -433,12 +424,34 @@ def convex_hull_of_point_and_polytope(x, Q):
     return AH_polytope(new_T,new_t,new_P)
     
 
+def minkowski_sum(P1,P2):
+    r"""
+    Inputs: 
+        P1, P2: AH_polytopes
+    Returns:
+        returns the Mkinkowski sum :math:`P_1 \oplus P_2` as an AH-polytope.
+
+    The Minkowski sum of two sets is defined as:
+        
+    .. math::
+        A \oplus B = \{a+b | a \in A, b \in B}.
+        
+    """
+    Q1,Q2=to_AH_polytope(P1),to_AH_polytope(P2)
+    T=np.hstack((Q1.T,Q2.T))
+    t=Q1.t+Q2.t
+    H=spa.block_diag(*[Q1.P.H,Q2.P.H])
+    h=np.vstack((Q1.P.h,Q2.P.h))
+    new_P=H_polytope(H,h)
+    return AH_polytope(T,t,new_P)  
+    
+    
 def intersection(P1,P2):
     """
     Inputs: 
         P1, P2: AH_polytopes
-    Outputs:
-        returns P1 \wedge P2 as a AH-polytope
+    Returns:
+        returns :math:`P_1 \wedge P_2` as an AH-polytope
     """
     Q1,Q2=to_AH_polytope(P1),to_AH_polytope(P2)
     T=np.hstack((Q1.T,Q2.T*0))

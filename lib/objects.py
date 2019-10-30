@@ -1,19 +1,9 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May 30 10:28:04 2019
-
-@author: sadra
-
-We have three type of objects:
-    * H-polytopes
-    * Zonotopes
-    * AH-polytopes
-"""
 # Numpy
 import numpy as np
 # Pypolycontain
 #from ..utils.utils import unique_rows
+
+
 
 class H_polytope():
     def __init__(self,H,h,symbolic=False,color='red'):
@@ -51,6 +41,9 @@ class H_polytope():
             return ValueError("H and x dimensions mismatch")
         return all(np.dot(self.H,x)<=self.h+tol)
     
+    def __add__(self,another_one):
+        return pcp.lib.operations.minkowski_sum(self,another_one)
+ 
 class zonotope():
     """
     Definition of a Zonotope
@@ -74,14 +67,16 @@ class zonotope():
         if self.hash_value is None:
             self.hash_value = hash(str(np.hstack([self.G, self.x])))  # FIXME: better hashing implementation
         return self.hash_value
-    
+
+   
 class AH_polytope():
     """
-    Affine Transformation of an H-polytope
+    AH_polytope: Affine Transformation of an H-polytope
+    
     Attributes:
-        P: The underlying H-polytope P:{x in R^q | Hx \le h}
-        T: R^(n*q) matrix: linear transformation
-        t: R^{n*1) vector: translation
+        * P: The underlying H-polytope :math`P:\\{x in \\mathbb{R}^q | Hx \\le h\\}`
+        * T: :math:`\\mathbb{R}^{n \\times q}` matrix: linear transformation
+        * t: :math:`\\mathbb{R}^{n \\times 1}` vector: translation
     """
     def __init__(self,T,t,P,color='blue'):
         """

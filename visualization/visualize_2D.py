@@ -27,7 +27,7 @@ try:
 except:
     warnings.warn("You don't have CDD package installed. Unable to visualize polytopes. You may still visualize zonotopes.")
 
-def visualize_2D(list_of_polytopes,a=1.5,title="polytopes",alpha=0.5):
+def visualize_2D(list_of_polytopes,a=1.5,title="polytopes",alpha=0.5,color='default'):
     """
     Given a list of polytopes in their H-representation, plot them.
     warning: 
@@ -50,9 +50,10 @@ def visualize_2D(list_of_polytopes,a=1.5,title="polytopes",alpha=0.5):
         x_all=np.vstack((x_all,x))
         p=Polygon(x)
         p_list.append(p)
-#    p_patch = PatchCollection(p_list, color=[(np.random.random(),np.random.random(),np.tanh(np.random.random())) \
-#        for polytope in list_of_polytopes],alpha=0.7)
-    p_patch = PatchCollection(p_list,color=ana_color[0:len(list_of_polytopes)], alpha=alpha)
+    if color=='default':
+        p_patch = PatchCollection(p_list, color=[H.color for H in list_of_polytopes],alpha=alpha)
+    else:
+        p_patch = PatchCollection(p_list,color=ana_color[0:len(list_of_polytopes)], alpha=alpha)
     fig, ax = plt.subplots()
     ax.add_collection(p_patch)
     ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])

@@ -15,7 +15,7 @@ from pypolycontain.lib.elimination import project
 from pypolycontain.visualization.visualize_2D import visualize_2D as vis
 from pypolycontain.utils.utils import PI,valuation
 
-model=Model("Zonotope")
+#model=Model("Zonotope")
 H=np.array([[1,1],[-1,1],[0,-1]])
 h=np.array([[1,1,0]]).reshape(3,1)
 p_triangle=polytope(H,h)
