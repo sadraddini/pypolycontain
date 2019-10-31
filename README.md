@@ -1,8 +1,7 @@
-# pypolycontain
-### A Python Package for Polytopic Objects, Operations, and Polytope Containment Problems
+![](pypolycontain.png "pypolycontain")
 
 ## Documentation (NEW - Under Construction):
-We are working on the [documentation](https://pypolycontain.readthedocs.io/en/latest/). Please reguarly check for updates. 
+We are working on the [documentation](https://pypolycontain.readthedocs.io/en/latest/). Please regularly check for updates. 
 
 ## Publications
 * A preprint of the paper on the theoretical background of this package is available [here](https://arxiv.org/pdf/1903.05214.pdf).
@@ -12,9 +11,9 @@ We are working on the [documentation](https://pypolycontain.readthedocs.io/en/la
 None
 
 ### Optional (for some features)
-* [pycdd](https://pycddlib.readthedocs.io/en/latest/index.html)
-* Drake *please install the python bindings with Gurobi.* [Drake](https://drake.mit.edu/)
-* Gurobi 7.0 or later [Gurobi](https://gurobi.com) (Free Academic License)
+* [pycdd library](https://pycddlib.readthedocs.io/en/latest/index.html)
+* Drake (*please build the python bindings with Gurobi*) [get Drake from here](https://drake.mit.edu/)
+* Gurobi 8.0.1 or later [Gurobi website](https://gurobi.com) (Free Academic License)
 
 ## Setup
 As of right now, pip is not available for the latest release. Please clone the repository and add it to your python path.
