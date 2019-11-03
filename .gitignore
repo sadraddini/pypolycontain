@@ -11,3 +11,17 @@
 doc/build/html/
 
 *.pickle
+
+dist/pypolycontain-1\.0\.tar\.gz
+
+license\.txt
+
+MANIFEST
+
+pypolycontain\.egg-info/dependency_links\.txt
+
+pypolycontain\.egg-info/PKG-INFO
+
+pypolycontain\.egg-info/SOURCES\.txt
+
+pypolycontain\.egg-info/top_level\.txt

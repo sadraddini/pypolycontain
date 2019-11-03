@@ -22,7 +22,7 @@ copyright = '2019, Sadra Sadraddini'
 author = 'Sadra Sadraddini'
 
 # The full version, including alpha/beta/rc tags
-release = '28 Oct 2019'
+release = 'October 2019'
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,6 +31,10 @@ master_doc = 'index'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc']
+mathjax_config = {
+    'extensions': ['tex2jax.js'],
+    'jax': ['input/TeX', 'output/HTML-CSS'],
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

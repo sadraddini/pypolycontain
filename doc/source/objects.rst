@@ -1,15 +1,19 @@
 Objects
 ================
-We have the following polytopic objects.
+pypolycontain supprots the following polytopic objects.
 
 --------------------    
 H-polytopes
 --------------------    
 
-.. automodule:: lib.objects
-    :members: H_polytope
+.. autoclass:: lib.objects.H_polytope
+    :members: 
     :undoc-members:
     :show-inheritance:
+
+--------------------    
+V-polytopes
+--------------------
 
 --------------------    
 AH-polytopes

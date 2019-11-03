@@ -5,13 +5,27 @@
 
 Welcome to pypolycontain's documentation!
 =========================================
-pypolycontain is a python package for polytopic objects, operations, and polytope containment Problems
+
+.. figure:: ../../pypolycontain.png
+    :scale: 120 %
 
 
+pypolycontain is a python package for polytopic objects, operations, and polytope containment problems. It is written as part of a 
+project for verification and control of hybrid systems.
+
+Setup
+***************************
+As of right now, pip is not available for the latest release. Please clone the repository and add it to your python path.
+
+.. code-block:: python
+    $ git clone https://github.com/sadraddini/pypolycontain.git
+    $ cd pypolcontain   
+    $ echo "export CLASSPATH=\".:$PWD/:$CLASSPATH\"" >> ~/.bashrc
+    
+    
 Dependencies:
 *************
-* numpy
-
+* `numpy <https://numpy.org/>`_ 
 
 Optional dependencies (for some features)
 -----------------------------------------
@@ -23,16 +37,7 @@ Optional dependencies (for some features)
 
 
 
-Setup
-***************************
-As of right now, pip is not available for the latest release. Please clone the repository and add it to your python path.
 
-.. code-block:: bash
-    $ git clone https://github.com/sadraddini/pypolycontain.git
-    
-    $ cd pypolcontain
-    
-    $ echo "export CLASSPATH=\".:$PWD/:$CLASSPATH\"" >> ~/.bashrc
     
 .. toctree::
    :maxdepth: 4

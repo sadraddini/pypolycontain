@@ -6,10 +6,17 @@ import numpy as np
 
 
 class H_polytope():
+    r"""
+    Class H-polytope.
+    An H-polytope is 
+
+    .. math:: 
+        \mathbb{P}=\{x \in \mathbb{R}^n  | H x \le h \},
+        
+    where :math:`H \in \mathbb{R}^{q \times n}` and :math:`h\in \mathbb{R}^q` define the hyperplanes. The inequality is
+    interpreted element-wise and q is the number of hyperplanes. 
+    """
     def __init__(self,H,h,symbolic=False,color='red'):
-        """
-        Class Polytope. A Polytope is defined as (x \in R^n | Hx <= h)
-        """
         # Sanity Checks (H should be q*n matrix and h should be q*1 vector)
         h=np.atleast_2d(h)
         if h.shape[0]==1:
@@ -74,7 +81,7 @@ class AH_polytope():
     AH_polytope: Affine Transformation of an H-polytope
     
     Attributes:
-        * P: The underlying H-polytope :math`P:\\{x in \\mathbb{R}^q | Hx \\le h\\}`
+        * P: The underlying H-polytope :math:`P:\\{x in \\mathbb{R}^q | Hx \\le h\\}`
         * T: :math:`\\mathbb{R}^{n \\times q}` matrix: linear transformation
         * t: :math:`\\mathbb{R}^{n \\times 1}` vector: translation
     """

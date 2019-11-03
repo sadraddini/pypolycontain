@@ -1,10 +1,10 @@
-from distutils.core import setup
+#from distutils.core import setup
+from setuptools import setup, Extension
 
 setup(
     name='pypolycontain',
     version='1.0',
     packages=[],
     license='MIT',
-    long_description=open('README.md').read(),
     url="https://github.com/sadraddini/pypolycontain",
 )

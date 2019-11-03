@@ -106,7 +106,7 @@ def check_non_empty(Q,tol=10**-5,solver="gurobi"):
     return result.is_success()
 
 def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
-    """
+    r"""
     Computes the directed Hausdorff distance of Q_1 and Q_2 (AH_polytopes)
     ***************************************************************************
     The optimization problem is:
@@ -120,7 +120,8 @@ def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
     We solve the following problem:
         D*ball+Q1 subset Q2
     We solve the following linear program:
-        min     D
+    ..math::
+        \min     D
         s.t.    Lambda_1 H_1=H_2 Gamma_1
                 Lambda_2 H_1=H_ball Gamma_2
                 Lambda_1 h_1<=h_2 + H_2 beta_1
@@ -403,12 +404,15 @@ def AH_polytope_vertices(P,N=200,epsilon=0.001,solver="Gurobi"):
         return P.vertices_2D
     
 def convex_hull_of_point_and_polytope(x, Q):
-    """
+    r"""
     Inputs:
         x: numpy n*1 array
         Q: AH-polytope in R^n
     Returns:
         AH-polytope representing convexhull(x,Q)
+    
+    .. math::
+        \text{conv}(x,Q):=\{y | y= \lambda q + (1-\lambda) x, q \in Q\}.
     """
     Q=to_AH_polytope(Q)
     q=Q.P.H.shape[1]
@@ -430,12 +434,12 @@ def minkowski_sum(P1,P2):
         P1, P2: AH_polytopes
     Returns:
         returns the Mkinkowski sum :math:`P_1 \oplus P_2` as an AH-polytope.
-
-    The Minkowski sum of two sets is defined as:
+        
+    **Background**: The Minkowski sum of two sets is defined as:
         
     .. math::
-        A \oplus B = \{a+b | a \in A, b \in B}.
-        
+        A \oplus B = \{ a + b \big | a \in A, b \in B\}.
+    
     """
     Q1,Q2=to_AH_polytope(P1),to_AH_polytope(P2)
     T=np.hstack((Q1.T,Q2.T))

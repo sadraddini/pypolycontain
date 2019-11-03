@@ -1,4 +1,4 @@
-![](pypolycontain.png "pypolycontain")
+![](doc/pypolycontain.png "pypolycontain")
 
 ## Documentation (NEW - Under Construction):
 We are working on the [documentation](https://pypolycontain.readthedocs.io/en/latest/). Please regularly check for updates. 
@@ -16,12 +16,11 @@ None
 * Gurobi 8.0.1 or later [Gurobi website](https://gurobi.com) (Free Academic License)
 
 ## Setup
-As of right now, pip is not available for the latest release. Please clone the repository and add it to your python path.
+Our package is now available on pip!
 ```
-git clone https://github.com/sadraddini/pypolycontain.git
-cd pypolcontain
-echo "export CLASSPATH=\".:$PWD/:$CLASSPATH\"" >> ~/.bashrc
+pip install pypolycontain
 ```
+You also have the option to clone the repo and manually add it to your pythonpath. 
 
 ## Polytopic Containment Encodings
 Our package provides linear encodings for the following problems.
