@@ -25,3 +25,5 @@ pypolycontain\.egg-info/PKG-INFO
 pypolycontain\.egg-info/SOURCES\.txt
 
 pypolycontain\.egg-info/top_level\.txt
+
+build/

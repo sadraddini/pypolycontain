@@ -1,7 +1,0 @@
-README.md
-setup.cfg
-setup.py
-pypolycontain.egg-info/PKG-INFO
-pypolycontain.egg-info/SOURCES.txt
-pypolycontain.egg-info/dependency_links.txt
-pypolycontain.egg-info/top_level.txt

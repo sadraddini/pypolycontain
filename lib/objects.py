@@ -49,7 +49,7 @@ class H_polytope():
         return all(np.dot(self.H,x)<=self.h+tol)
     
     def __add__(self,another_one):
-        return pcp.lib.operations.minkowski_sum(self,another_one)
+        return minkowski_sum(self,another_one)
  
 class zonotope():
     """

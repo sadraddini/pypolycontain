@@ -1,10 +1,15 @@
-#from distutils.core import setup
-from setuptools import setup, Extension
+from setuptools import setup, find_packages
+
 
 setup(
     name='pypolycontain',
-    version='1.0',
-    packages=[],
+    author='Sadra Sadraddini',
+    description='A python package for polytopic objects, operations, and containment encodings',
+    author_email='sadra@mit.edu',
+    version='0.2',
+    packages=['lib','visualization'], #fix
+#    package_dir={'pypolycontain': 'lib'},
     license='MIT',
     url="https://github.com/sadraddini/pypolycontain",
+    zip_safe=False,
 )
