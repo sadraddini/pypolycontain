@@ -1,29 +1,23 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May 30 10:28:04 2019
-
-@author: sadra
-
-We have three type of objects:
-    * H-polytopes
-    * Zonotopes
-    * AH-polytopes
-"""
 # Numpy
 import numpy as np
 # Pypolycontain
-from pypolycontain.utils.utils import unique_rows
+#from ..utils.utils import unique_rows
+
 
 class H_polytope():
     r"""
-    Class H-polytope.
-    An H-polytope is 
+    An H-polytope is a set defined as follows:
 
     .. math:: 
         \mathbb{P}=\{x \in \mathbb{R}^n  | H x \le h \},
         
-    where :math:`H \in \mathbb{R}^{q \times n}` and :math:`h\in \mathbb{R}^q` define the hyperplanes. The inequality is
+    where 
+    
+    Attributes:
+        * :math:`H \in \mathbb{R}^{q \times n}`:  `numpy.ndarray[float[[q,n]]`
+        * :math:`h\in \mathbb{R}^q` : `numpy.ndarray[float[[q,1]]`
+    
+    define the hyperplanes. The inequality is 
     interpreted element-wise and q is the number of hyperplanes. 
     """
     def __init__(self,H,h,symbolic=False,color='red'):
@@ -38,8 +32,8 @@ class H_polytope():
         # End of sanity checks
         self.H,self.h=H,h
         self.type="H_polytope"
-        if type(h[0,0]):
-            self.H,self.h=unique_rows(H,h)
+#        if type(h[0,0]):
+#            self.H,self.h=unique_rows(H,h)
         self.n=H.shape[1]
         self.hash_value = None
         self.distance_program=None
@@ -52,18 +46,25 @@ class H_polytope():
         if self.hash_value is None:
             self.hash_value = hash(str(np.hstack([self.H, self.h])))
         return self.hash_value
-
-    def if_inside(self,x,tol=10**-5):
-        if x.shape[0]!=self.H.shape[1]:
-            return ValueError("H and x dimensions mismatch")
-        return all(np.dot(self.H,x)<=self.h+tol)
     
     def __add__(self,another_one):
         return minkowski_sum(self,another_one)
  
 class zonotope():
-    """
-    Definition of a Zonotope
+    r"""
+    A Zonotope is a set defined as follows:
+
+    .. math:: 
+        \mathbb{Z}=\langle x,G \rangle = \{x + G p | p \in [-1,1]^q \},
+        
+    where 
+    
+    Attributes:
+        * :math:`G \in \mathbb{R}^{n \times q}`: `numpy.ndarray[float[[n,q]]` is the zonotope generator. 
+        * :math:`x\in \mathbb{R}^n`: `numpy.ndarray[float[[n,1]]` is the zonotope centroid. 
+    
+    The order
+    of the zonotope is defined as :math:`\frac{q}{n}`. 
     """
     def __init__(self,x,G,name=None,color="green"):
         self.x=x
@@ -84,16 +85,21 @@ class zonotope():
         if self.hash_value is None:
             self.hash_value = hash(str(np.hstack([self.G, self.x])))  # FIXME: better hashing implementation
         return self.hash_value
-    
+
+   
 class AH_polytope():
-    """
-    Affine Transformation of an H-polytope
+    r"""
+    An AH_polytope is an affine transformation of an H-polytope and is defined as:
+        
+    .. math::
+        \mathbb{Q}=\{t+Tx  | p \in \mathbb{R}^p, H p \le h \}
+    
     Attributes:
-        * P: The underlying H-polytope :math:`P:\\{x in \\mathbb{R}^q | Hx \\le h\\}`
-        * T: :math:`\\mathbb{R}^{n \\times q}` matrix: linear transformation
-        * t: :math:`\\mathbb{R}^{n \\times 1}` vector: translation
+        * P: The underlying H-polytope :math:`P:\{x \in \mathbb{R}^p | Hx \le h\}`
+        * T: :math:`\mathbb{R}^{n \times p}` matrix: linear transformation
+        * t: :math:`\mathbb{R}^{n}` vector: translation 
     """
-    def __init__(self,T,t,P,color='blue'):
+    def __init__(self,t,T,P,color='blue'):
         """
         Initilization: T,t,P. X=TP+t
         """
@@ -116,7 +122,21 @@ class AH_polytope():
         if self.hash_value is None:
             self.hash_value = hash(self.P) + hash(str(np.hstack([self.T, self.t])))  # FIXME: better hashing implementation
         return self.hash_value
+
+class V_polytope():
+    r"""
+    V-polytopes are a convex hull of vertices. 
+    .. math:: 
+        \mathbb{V}= \{ x \in \mathbb{R}^n | x = \sum_{i=1}^N \lambda_i v_i,  \sum_{i=1}^N \lambda_i=1, \lambda_i \ge 0, i=1,\cdots,N \}
+    where each :math:`v_i, i=1,\cdots,N` is a point (some or all are effectively vertices).  
     
+    Attributes:
+        * list_of_vertices= `list` of `numpy.ndarray[float[n,1]]`.  
+    """
+    def __init__(self,list_of_vertices):
+        self.list_of_vertices=list_of_vertices
+        
+        
 class hyperbox():
     def __init__(self,N=None,corners=[],d=1):
         """
@@ -143,7 +163,7 @@ class hyperbox():
         self.zonotope=zonotope((self.l+self.u)/2,np.diagflat((self.u-self.l)/2))
         self.n=N
     
-def Box(N=None,d=1,corners=[]):
+def box(N=None,d=1,corners=[]):
     """
     returns N-dimensional Box 
     corners=typle of 2 numpy arrays: lower_corner and upper_corner

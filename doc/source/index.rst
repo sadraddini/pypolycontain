@@ -40,12 +40,11 @@ Optional dependencies (for some features)
 
     
 .. toctree::
-   :maxdepth: 4
-   :caption: Table of Contents:
+   :maxdepth: 2
+   :caption: Contents:
     
    objects
    operations
-   containment
    visualization
 
 

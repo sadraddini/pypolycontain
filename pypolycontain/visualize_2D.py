@@ -1,14 +1,11 @@
+# -*- coding: utf-8 -*-
 """
-Visualization
-=============
-We currently only provide visualization for 2D Polytopes. 
-We provide the functions for visualizing:
-    * H-polytopes (by first converting them into V-polytopes)
-    * Zonotopes (by first finding the V-representation)
-    * AH-polytopes (by 2D shooting ray method)
+Created on Wed Oct 24 16:35:05 2018
+
+@author: sadra
+
+This part is only for visualization of 2D Polytopes
 """
-import warnings
-import numpy as np
 
 from matplotlib.patches import Polygon
 import matplotlib.pyplot as plt
@@ -17,25 +14,18 @@ from scipy.spatial import ConvexHull
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-try:
-    from pypolycontain.lib.operations import AH_polytope_vertices    
-except:
-    warnings.warn("You don't have pypolycontain properly installed. Can not execute 'import pypyplycontain'")
+from pypolycontain.lib.operations import AH_polytope_vertices    
 
+
+import numpy as np
 try:
     from cdd import Polyhedron,Matrix,RepType
 except:
-    warnings.warn("You don't have CDD package installed. Unable to visualize polytopes. You may still visualize zonotopes.")
+    print("WARNING: You don't have CDD package installed. Unable to visualize polytopes. You may still visualize zonotopes.")
 
-def visualize_2D(list_of_polytopes,a=1.5,title="polytopes",alpha=0.5,color='default'):
+def visualize_2D(list_of_polytopes,a=1.5,title="polytopes",alpha=0.5):
     """
-    Given a list of polytopes in their H-representation, plot them.
-    warning: 
-    ********
-        pycddlib package
-    Arguments:
-        * list_of_polytopes: list
-        * a= the default margin for all sides for the plots
+    Given a polytope in its H-representation, plot it
     """ 
     ana_color=[(1,0,0),(0,1,0),(0,0,1),(1,1,0),(1,0,1),(0,0,1),(0,0,1)]
     p_list=[]
@@ -50,10 +40,9 @@ def visualize_2D(list_of_polytopes,a=1.5,title="polytopes",alpha=0.5,color='defa
         x_all=np.vstack((x_all,x))
         p=Polygon(x)
         p_list.append(p)
-    if color=='default':
-        p_patch = PatchCollection(p_list, color=[H.color for H in list_of_polytopes],alpha=alpha)
-    else:
-        p_patch = PatchCollection(p_list,color=ana_color[0:len(list_of_polytopes)], alpha=alpha)
+#    p_patch = PatchCollection(p_list, color=[(np.random.random(),np.random.random(),np.tanh(np.random.random())) \
+#        for polytope in list_of_polytopes],alpha=0.7)
+    p_patch = PatchCollection(p_list,color=ana_color[0:len(list_of_polytopes)], alpha=alpha)
     fig, ax = plt.subplots()
     ax.add_collection(p_patch)
     ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
@@ -162,7 +151,7 @@ def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig
         try:
             v=v[ConvexHull(v).vertices,:]
         except:
-            warnings.warn(Q,": was degenerate or very thin to plot. Adding a tube of", epsilon,"N:", v.shape)
+            print("WARNING:", Q,": was degenerate or very thin to plot. Adding a tube of", epsilon,"N:", v.shape)
             v=w[ConvexHull(w).vertices,:]
         v_all=np.vstack((v_all,v))
         p=Polygon(v)

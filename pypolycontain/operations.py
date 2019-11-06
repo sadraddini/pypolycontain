@@ -1,32 +1,37 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May 30 10:45:14 2019
-
-@author: sadra
-"""
-
+import warnings
 import numpy as np
 # Scipy
 try:
     import scipy.linalg as spa
 except:
-    print("WARNING: You don't have scipy package installed. You may get error while using some feautures.")
+    warnings.warn("You don't have scipy package installed. You may get error while using some feautures.")
 
 # Pydrake
-import pydrake.solvers.mathematicalprogram as MP
-import pydrake.solvers.gurobi as Gurobi_drake
-import pydrake.solvers.osqp as OSQP_drake
+try:
+    import pydrake.solvers.mathematicalprogram as MP
+    import pydrake.solvers.gurobi as Gurobi_drake
+    import pydrake.solvers.osqp as OSQP_drake
+    # use Gurobi solver
+    global gurobi_solver,OSQP_solver, license
+    gurobi_solver=Gurobi_drake.GurobiSolver()
+    license = gurobi_solver.AcquireLicense()
+    OSQP_solver=OSQP_drake.OsqpSolver()
+except:
+    warnings.warn("You don't have pydrake installed properly. Methods that rely on optimization may fail.")
+    
 
 # Pypolycontain
-from pypolycontain.lib.objects import AH_polytope,Box,hyperbox,H_polytope
-# use Gurobi solver
-global gurobi_solver,OSQP_solver, license
-gurobi_solver=Gurobi_drake.GurobiSolver()
-license = gurobi_solver.AcquireLicense()
-OSQP_solver=OSQP_drake.OsqpSolver()
+try:
+    from objects import AH_polytope,Box,hyperbox,H_polytope
+except:
+    warnings.warn("You don't have pypolycontain properly installed. Can not execute 'import pypyplycontain'")
+
+
 
 def to_AH_polytope(P):
+    """
+    Converts the polytopic object P into an AH-polytope
+    """
     if type(P).__name__=="AH_polytope":
         return P
     elif type(P).__name__=="H_polytope":
@@ -104,8 +109,7 @@ def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
     r"""
     Computes the directed Hausdorff distance of Q_1 and Q_2 (AH_polytopes)
     ***************************************************************************
-    Computes the directed Hausdorff distance of Q_1 and Q_2 (AH_polytopes)
-    
+    The optimization problem is:
                         Minimize    epsilon  
                         such that   Q1 \subset Q2+epsilon(Ball)
                         
@@ -450,8 +454,8 @@ def intersection(P1,P2):
     """
     Inputs: 
         P1, P2: AH_polytopes
-    Outputs:
-        returns P1 \wedge P2 as a AH-polytope
+    Returns:
+        returns :math:`P_1 \wedge P_2` as an AH-polytope
     """
     Q1,Q2=to_AH_polytope(P1),to_AH_polytope(P2)
     T=np.hstack((Q1.T,Q2.T*0))

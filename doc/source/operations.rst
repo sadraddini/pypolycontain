@@ -1,13 +1,7 @@
 Operations
 ==========
 
-.. automodule:: lib.operations
+.. automodule:: pypolycontain.operations
     :members:
-    :undoc-members: 
+    :undoc-members:
     :show-inheritance:
-
-Minkowski sum    
---------------
-  
-.. automodule:: lib.operations
-    :members: minkowski_sum
