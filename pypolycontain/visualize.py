@@ -10,9 +10,9 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 # Pypolycontain
 try:
-    from conversions import to_V    
+    from pypolycontain.conversions import to_V    
 except:
-    warnings.warn("You don't have pypolycontain properly installed. Can not import objects")
+    warnings.warn("You don't have pypolycontain properly installed. Can not import conversions")
     
 
 try:

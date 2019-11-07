@@ -9,9 +9,9 @@ except:
     
 # Pypolycontain
 try:
-    from objects import H_polytope,zonotope,AH_polytope,unitbox,hyperbox,V_polytope
+    from pypolycontain.objects import H_polytope,zonotope,AH_polytope,unitbox,hyperbox,V_polytope
 except:
-    warnings.warn("You don't have pypolycontain properly installed. Can not execute 'import pypyplycontain'")
+    warnings.warn("You don't have pypolycontain properly installed. Can not execute 'import pypolycontain'")
 
 # pycdd
 try:
