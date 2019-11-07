@@ -2,7 +2,7 @@ import warnings
 import numpy as np
 # Scipy
 try:
-    import scipy.linalg as spa
+    from scipy.spatial import ConvexHull
 except:
     warnings.warn("You don't have scipy package installed. You may get error while using some feautures.")
 
@@ -22,9 +22,9 @@ except:
 
 # Pypolycontain
 try:
-    from objects import AH_polytope,Box,hyperbox,H_polytope
+    from objects import AH_polytope,H_polytope,zonotope,unitbox
 except:
-    warnings.warn("You don't have pypolycontain properly installed. Can not execute 'import pypyplycontain'")
+    warnings.warn("You don't have pypolycontain properly installed. Can not import objects")
 
 
 

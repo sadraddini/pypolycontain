@@ -162,7 +162,20 @@ class hyperbox():
         self.H_polytope=H_polytope(H,h)
         self.zonotope=zonotope((self.l+self.u)/2,np.diagflat((self.u-self.l)/2))
         self.n=N
-    
+
+class unitbox():
+    r"""
+    A unitbox in :math:`\mathbb{R}^n` is :math:`[-1,1]^n`.
+    """    
+    def __init__(self,N):
+        H=np.vstack((np.eye(N),-np.eye(N)))
+        h=np.ones((2*N,1))
+        self.H_polytope=H_polytope(H,h)
+        self.zonotope=zonotope(x=np.zeros((N,1)),G=np.eye(N))
+        
+        
+        
+        
 def box(N=None,d=1,corners=[]):
     """
     returns N-dimensional Box 

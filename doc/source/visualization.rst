@@ -1,7 +1,7 @@
 Visualization
 =============
+.. important::
+    We only support 2D visualization.
 
-.. automodule:: visualization.visualize_2D
-    :members:
-    :undoc-members:
-    :show-inheritance:
+
+.. autofunction:: pypolycontain.visualize.visualize

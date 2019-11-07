@@ -15,12 +15,7 @@ project for verification and control of hybrid systems.
 
 Setup
 ***************************
-As of right now, pip is not available for the latest release. Please clone the repository and add it to your python path.
-
-.. code-block:: python
-    $ git clone https://github.com/sadraddini/pypolycontain.git
-    $ cd pypolcontain   
-    $ echo "export CLASSPATH=\".:$PWD/:$CLASSPATH\"" >> ~/.bashrc
+As of right now, pip is not up-to-date for the latest release. Please clone the repository and add it to your python path.
     
     
 Dependencies:

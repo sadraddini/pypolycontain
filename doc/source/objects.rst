@@ -3,22 +3,27 @@ Objects
 pypolycontain has the following polytopic objects.
 
 --------------------    
-H-polytopes
+H-polytope
 --------------------    
 
 .. autoclass:: pypolycontain.objects.H_polytope
 
 --------------------    
-V-polytopes
+V-polytope
 --------------------
 .. autoclass:: pypolycontain.objects.V_polytope
 
 --------------------    
-AH-polytopes
+AH-polytope
 --------------------
 .. autoclass:: pypolycontain.objects.AH_polytope
     
 --------------------    
-Zonotopes
+Zonotope
 --------------------
 .. autoclass:: pypolycontain.objects.zonotope
+
+--------------------    
+Unitbox
+--------------------
+.. autoclass:: pypolycontain.objects.unitbox
