@@ -18,7 +18,8 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 try:
-    from pypolycontain.lib.operations import AH_polytope_vertices    
+    from pypolycontain.lib.operations import AH_polytope_vertices
+    from pypolycontain.lib.objects import AH_polytope
 except:
     warnings.warn("You don't have pypolycontain properly installed. Can not execute 'import pypyplycontain'")
 
@@ -162,7 +163,7 @@ def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig
         try:
             v=v[ConvexHull(v).vertices,:]
         except:
-            warnings.warn(Q,": was degenerate or very thin to plot. Adding a tube of", epsilon,"N:", v.shape)
+            warnings.warn(str(Q)+": was degenerate or very thin to plot. Adding a tube of"+str(epsilon)+"N:"+str(v.shape))
             v=w[ConvexHull(w).vertices,:]
         v_all=np.vstack((v_all,v))
         p=Polygon(v)
@@ -187,6 +188,36 @@ def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig
     ax.set_title(title)
     return fig,ax
 
+def visualize_ND_AH_polytope(list_of_AH_polytopes,dim1, dim2, a=1.5,color=None,alpha=0.5,fig=None,ax=None,axis_limit=[0],title=r"AH-Polytopes",N=20,epsilon=0.001):
+    '''
+    Visualize N-D AH polytope by projecting to dim1 and dim2
+    @param list_of_AH_polytopes:
+    @param dim1: integer between 0~N-1
+    @param dim2: integer between 0~N-1
+    @param a:
+    @param color:
+    @param alpha:
+    @param fig:
+    @param ax:
+    @param axis_limit:
+    @param title:
+    @param N:
+    @param epsilon:
+    @return:
+    '''
+    assert(len(list_of_AH_polytopes)>0)
+    original_dim = list_of_AH_polytopes[0].t.shape[0]
+    K = np.zeros([2, original_dim])
+    assert (0 <= dim1 <= N)
+    assert (0 <= dim2 <= N)
+    K[0, dim1] = 1
+    K[1, dim2] = 1
+
+    projected_AH_polytopes = []
+    for ahp in list_of_AH_polytopes:
+        projected_ahp = AH_polytope(np.dot(K, ahp.T), np.dot(K, ahp.t).reshape([-1,1]), ahp.P, ahp.color)
+        projected_AH_polytopes.append(projected_ahp)
+    return visualize_2D_AH_polytope(projected_AH_polytopes, a, color, alpha, fig, ax, axis_limit, title, N, epsilon)
 
 
 """
