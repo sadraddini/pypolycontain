@@ -93,6 +93,7 @@ class AH_polytope():
         self.t=t # vector n*1
         self.P=P # Polytope in n_p dimensions
         self.n=T.shape[0]
+        self.type="AH_polytope"
         if T.shape[1]!=P.H.shape[1]:
             ValueError("Error: not appropriate T size, it is",T.shape[1],P.n)
         self.method="Gurobi"
