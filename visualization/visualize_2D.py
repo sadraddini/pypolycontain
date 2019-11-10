@@ -1,7 +1,7 @@
 """
 Visualization
 =============
-We currently only provide visualization for 2D Polytopes. 
+We currently only provide visualization for 2D Polytopes.
 We provide the functions for visualizing:
     * H-polytopes (by first converting them into V-polytopes)
     * Zonotopes (by first finding the V-representation)
@@ -31,13 +31,13 @@ except:
 def visualize_2D(list_of_polytopes,a=1.5,title="polytopes",alpha=0.5,color='default'):
     """
     Given a list of polytopes in their H-representation, plot them.
-    warning: 
+    warning:
     ********
         pycddlib package
     Arguments:
         * list_of_polytopes: list
         * a= the default margin for all sides for the plots
-    """ 
+    """
     ana_color=[(1,0,0),(0,1,0),(0,0,1),(1,1,0),(1,0,1),(0,0,1),(0,0,1)]
     p_list=[]
     x_all=np.empty((0,2))
@@ -64,12 +64,12 @@ def visualize_2D(list_of_polytopes,a=1.5,title="polytopes",alpha=0.5,color='defa
     return fig
 
 
-    
+
 def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[0],\
                            alpha = 0.975,fig=None, ax = None, color = None):
     """
     Given a list of zonotopes, draw them. The zonotopes already have colors.
-    """       
+    """
     if type(list_of_dimensions)==type(None):
         list_of_dimensions=[0,1]
     p_list=[]
@@ -101,7 +101,7 @@ def visualize_2D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None,title
     ax.set_title(title)
     return fig,ax
 
-    
+
 def visualize_2D_zonotopes_convexhull(fig,ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[0]):
     if type(list_of_dimensions)==type(None):
         list_of_dimensions=[0,1]
@@ -130,7 +130,7 @@ def visualize_2D_zonotopes_convexhull(fig,ax,list_of_zonotopes,a=1.5,list_of_dim
 def visualize_3D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None):
     """
     Given a polytope in its H-representation, plot it
-    """ 
+    """
     if type(list_of_dimensions)==type(None):
         list_of_dimensions=[0,1,2]
     p_list=[]
@@ -153,7 +153,7 @@ def visualize_3D_zonotopes(list_of_zonotopes,a=1.5,list_of_dimensions=None):
     ax.set_zlim3d([np.min(x_all[:,2])-a,a+np.max(x_all[:,2])])
     ax.add_collection3d(p)
     ax.grid3d(color=(0,0,0), linestyle='--', linewidth=0.3)
-    
+
 def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig=None,ax=None,axis_limit=[0],title=r"AH-Polytopes",N=20,epsilon=0.001):
     p_list=[]
     v_all=np.empty((0,2))
@@ -188,7 +188,7 @@ def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig
     ax.set_title(title)
     return fig,ax
 
-def visualize_ND_AH_polytope(list_of_AH_polytopes,dim1, dim2, a=1.5,color=None,alpha=0.5,fig=None,ax=None,axis_limit=[0],title=r"AH-Polytopes",N=20,epsilon=0.001):
+def visualize_ND_AH_polytope(list_of_AH_polytopes,dim1, dim2, a=0.005,color=None,alpha=0.5,fig=None,ax=None,axis_limit=[0],title=r"AH-Polytopes",N=200,epsilon=0.001):
     '''
     Visualize N-D AH polytope by projecting to dim1 and dim2
     @param list_of_AH_polytopes:
@@ -227,7 +227,7 @@ The following functions involve the ax object, or the plot, as one of the argume
 def visualize_2D_ax(ax,list_of_polytopes,a=1.5,title="polytopes",color=False,alpha=0.5):
     """
     Given a polytope in its H-representation, plot it
-    """ 
+    """
     ana_color=[(1,0,0),(0,1,0),(0,0,1),(1,1,0),(1,0,1),(0,1,1),
                (0.5,0.5,0),(0,0.5,0.5),(0.5,0,0.5),(0.5,0.5,0.5),
                (1,1,0.5),(1,0.5,1),(0.5,1,1),
@@ -258,7 +258,7 @@ def visualize_2D_ax(ax,list_of_polytopes,a=1.5,title="polytopes",color=False,alp
 def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None,title="zonotopes",axis_limit=[0],alpha=0.5):
     """
     Given a plot, add zonotopes
-    """ 
+    """
     print(("*"*30,"Getting a plot of your zonotopes, be patient!"))
     print(ax)
     if type(list_of_dimensions)==type(None):
@@ -290,11 +290,11 @@ def visualize_2D_zonotopes_ax(ax,list_of_zonotopes,a=1.5,list_of_dimensions=None
 Auxilary functions
 """
 
-    
+
 def vcube(T):
     """
     Description: 2**n * n array of vectors of vertices in unit cube in R^n
     """
-    from itertools import product 
+    from itertools import product
     v=list(product(*list(zip([-1]*T,[1]*T))))
     return np.array(v)
