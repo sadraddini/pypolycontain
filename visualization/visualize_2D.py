@@ -188,7 +188,7 @@ def visualize_2D_AH_polytope(list_of_AH_polytopes,a=1.5,color=None,alpha=0.5,fig
     ax.set_title(title)
     return fig,ax
 
-def visualize_ND_AH_polytope(list_of_AH_polytopes,dim1, dim2, a=0.005,color=None,alpha=0.5,fig=None,ax=None,axis_limit=[0],title=r"AH-Polytopes",N=200,epsilon=0.001):
+def visualize_ND_AH_polytope(list_of_AH_polytopes,dim1, dim2, a=0.005,color=None,alpha=0.5,fig=None,ax=None,axis_limit=[0],title=r"AH-Polytopes",N=50,epsilon=0.001):
     '''
     Visualize N-D AH polytope by projecting to dim1 and dim2
     @param list_of_AH_polytopes:

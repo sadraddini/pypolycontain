@@ -27,7 +27,7 @@ class H_polytope():
             ValueError("Error: not consistent dimension of H: %d and h: %d"%(H.shape[0],h.shape[0]))
         # End of sanity checks
         self.H,self.h=H,h
-        self.type="H_polytope"
+        self.__name__="H_polytope"
 #        if type(h[0,0]):
 #            self.H,self.h=unique_rows(H,h)
         self.n=H.shape[1]
@@ -65,6 +65,7 @@ class zonotope():
         self.color=color
         self.hash_value = None
         self.distance_program=None
+        self.__name__ = "zonotope"
 #        self.color="red"
 
     def __repr__(self):
@@ -101,6 +102,7 @@ class AH_polytope():
         self.distance_program=None
         self.vertices_2D=None
         self.color=color
+        self.__name__ = "AH_polytope"
 
     def __repr__(self):
         return "AH_polytope from R^%d to R^%d"%(self.P.n,self.n)

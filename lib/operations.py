@@ -32,12 +32,12 @@ def to_AH_polytope(P):
     """
     Converts the polytopic object P into an AH-polytope
     """
-    if type(P).__name__=="AH_polytope":
+    if P.__name__=="AH_polytope":
         return P
-    elif type(P).__name__=="H_polytope":
+    elif P.__name__=="H_polytope":
         n=P.H.shape[1]
         return AH_polytope(np.eye(n),np.zeros((n,1)),P)
-    elif type(P).__name__=="zonotope":
+    elif P.__name__=="zonotope":
         q=P.G.shape[1]
         return AH_polytope(P.G,P.x,Box(N=q),color=P.color)
     else:
@@ -220,7 +220,7 @@ def distance_polytopes(Q1,Q2,ball="infinity",solver="gurobi"):
             np.dot(Q1.T,result.GetSolution(zeta1).reshape(zeta1.shape[0],1))+Q1.t,\
             np.dot(Q2.T,result.GetSolution(zeta2).reshape(zeta2.shape[0],1))+Q2.t
 
-def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
+def _setup_program_distance_point(P,ball="infinity",solver="Gurobi",distance_scaling_matrix = None):
     """
     Initilize the mathematial program
     Choice of balls:
@@ -251,7 +251,11 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
             cost=np.dot(np.ones((1,n)),delta_abs)
             prog.AddLinearCost(cost[0,0])
         elif ball=="l2":
-            prog.AddQuadraticCost(np.eye(n),np.zeros(n),delta)
+            if distance_scaling_matrix is None:
+                distance_scaling_matrix = np.eye(n)
+            else:
+                assert(distance_scaling_matrix.shape==(n,))
+            prog.AddQuadraticCost(np.diag(distance_scaling_matrix),np.zeros(n),delta)
         else:
             print(("Not a valid choice of norm",str(ball)))
             raise NotImplementedError
@@ -261,13 +265,15 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
         return
             
         
-def distance_point_polytope(P, x, ball="infinity", solver="Gurobi"):
+def distance_point_polytope(P, x, ball="infinity", solver="Gurobi", distance_scaling_matrix=None):
     """
     Computes the distance of point x from AH-polytope Q 
     """
     x_vector = np.atleast_2d(x) #in case x is not n*1 vector
     P = to_AH_polytope(P)
-    _setup_program_distance_point(P,ball,solver)
+    if distance_scaling_matrix is None:
+        distance_scaling_matrix = np.ones(x.shape[0])
+    _setup_program_distance_point(P,ball,solver, distance_scaling_matrix)
     prog=P.distance_program
     Q=to_AH_polytope(P)
     a=P.distance_constraint.evaluator()
@@ -289,7 +295,9 @@ def distance_point_polytope(P, x, ball="infinity", solver="Gurobi"):
         elif ball=="l1":
             d=np.linalg.norm(delta,ord=1)
         elif ball=="l2":
-            d=np.linalg.norm(delta,ord=2)  
+            d=np.linalg.norm(np.multiply(distance_scaling_matrix, delta),ord=2)
+        else:
+            raise NotImplementedError
         return d,x_nearest
     
 def bounding_box(Q,solver="Gurobi"):

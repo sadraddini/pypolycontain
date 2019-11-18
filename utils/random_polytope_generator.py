@@ -1,5 +1,5 @@
 import numpy as np
-from pypolycontain.lib.zonotope import zonotope
+from pypolycontain.lib.objects import zonotope
 from pypolycontain.lib.polytope import polytope
 from pypolycontain.lib.AH_polytope import AH_polytope, to_AH_polytope
 from time import time
