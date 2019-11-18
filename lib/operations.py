@@ -220,7 +220,7 @@ def distance_polytopes(Q1,Q2,ball="infinity",solver="gurobi"):
             np.dot(Q1.T,result.GetSolution(zeta1).reshape(zeta1.shape[0],1))+Q1.t,\
             np.dot(Q2.T,result.GetSolution(zeta2).reshape(zeta2.shape[0],1))+Q2.t
 
-def _setup_program_distance_point(P,ball="infinity",solver="Gurobi",distance_scaling_matrix = None):
+def _setup_program_distance_point(P,ball="infinity",solver="Gurobi",distance_scaling_array = None):
     """
     Initilize the mathematial program
     Choice of balls:
@@ -251,11 +251,11 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi",distance_sca
             cost=np.dot(np.ones((1,n)),delta_abs)
             prog.AddLinearCost(cost[0,0])
         elif ball=="l2":
-            if distance_scaling_matrix is None:
-                distance_scaling_matrix = np.eye(n)
+            if distance_scaling_array is None:
+                distance_scaling_array = np.eye(n)
             else:
-                assert(distance_scaling_matrix.shape==(n,))
-            prog.AddQuadraticCost(np.diag(distance_scaling_matrix),np.zeros(n),delta)
+                assert(distance_scaling_array.shape==(n,))
+            prog.AddQuadraticCost(np.diag(distance_scaling_array),np.zeros(n),delta)
         else:
             print(("Not a valid choice of norm",str(ball)))
             raise NotImplementedError
@@ -265,15 +265,15 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi",distance_sca
         return
             
         
-def distance_point_polytope(P, x, ball="infinity", solver="Gurobi", distance_scaling_matrix=None):
+def distance_point_polytope(P, x, ball="infinity", solver="Gurobi", distance_scaling_array=None):
     """
     Computes the distance of point x from AH-polytope Q 
     """
     x_vector = np.atleast_2d(x) #in case x is not n*1 vector
     P = to_AH_polytope(P)
-    if distance_scaling_matrix is None:
-        distance_scaling_matrix = np.ones(x.shape[0])
-    _setup_program_distance_point(P,ball,solver, distance_scaling_matrix)
+    if distance_scaling_array is None:
+        distance_scaling_array = np.ones(x.shape[0])
+    _setup_program_distance_point(P,ball,solver, distance_scaling_array)
     prog=P.distance_program
     Q=to_AH_polytope(P)
     a=P.distance_constraint.evaluator()
@@ -295,7 +295,7 @@ def distance_point_polytope(P, x, ball="infinity", solver="Gurobi", distance_sca
         elif ball=="l1":
             d=np.linalg.norm(delta,ord=1)
         elif ball=="l2":
-            d=np.linalg.norm(np.multiply(distance_scaling_matrix, delta),ord=2)
+            d=np.linalg.norm(np.multiply(distance_scaling_array, delta),ord=2)
         else:
             raise NotImplementedError
         return d,x_nearest
