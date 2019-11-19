@@ -30,17 +30,16 @@ Optional dependencies (for some features)
     * Scipy
 
 
-
-
-
     
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
+   :glob:
     
    objects
    operations
    visualization
+   examples
 
 
 Indices and tables

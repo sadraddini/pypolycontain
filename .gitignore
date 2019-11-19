@@ -27,3 +27,7 @@ pypolycontain\.egg-info/SOURCES\.txt
 pypolycontain\.egg-info/top_level\.txt
 
 build/
+
+*.egg
+
+pypolycontain\.egg-info/

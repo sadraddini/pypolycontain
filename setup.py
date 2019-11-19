@@ -7,7 +7,7 @@ setup(
     description='A python package for polytopic objects, operations, and containment encodings',
     author_email='sadra@mit.edu',
     version='0.2',
-    packages=['lib','visualization'], #fix
+    packages=['pypolycontain'], #fix
 #    package_dir={'pypolycontain': 'lib'},
     license='MIT',
     url="https://github.com/sadraddini/pypolycontain",

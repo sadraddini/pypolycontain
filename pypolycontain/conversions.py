@@ -47,7 +47,7 @@ def to_AH_polytope(P):
         return P
     elif type(P).__name__=="H_polytope":
         n=P.H.shape[1]
-        return AH_polytope(np.eye(n),np.zeros((n,1)),P)
+        return AH_polytope(T=np.eye(n),t=np.zeros((n,1)),P=P)
     elif type(P).__name__=="zonotope":
         q=P.G.shape[1]
         return AH_polytope(T=P.G,t=P.x,P=unitbox(N=q).H_polytope,color=P.color)

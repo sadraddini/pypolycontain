@@ -163,6 +163,8 @@ class hyperbox():
         self.zonotope=zonotope((self.l+self.u)/2,np.diagflat((self.u-self.l)/2))
         self.n=N
 
+
+
 class unitbox():
     r"""
     A unitbox in :math:`\mathbb{R}^n` is :math:`[-1,1]^n`.

@@ -67,7 +67,7 @@ def extreme_rays_for_containment(circumbody,N=0):
     return Theta
 
 
-def subset(program,inbody,circombody,N=-1):
+def subset(program,inbody,circumbody,N=-1):
     """
     Adds containment property Q1 subset Q2
     
@@ -84,13 +84,14 @@ def subset(program,inbody,circombody,N=-1):
         * No direct output, adds :\math:`inbody \subseteq circumbody` to the model
     """
     Q1=to_AH_polytope(inbody)
-    Q2=to_AH_polytope(circombody)
+    Q2=to_AH_polytope(circumbody)
     Hx,Hy,hx,hy,X,Y,xbar,ybar=Q1.P.H,Q2.P.H,Q1.P.h,Q2.P.h,Q1.T,Q2.T,Q1.t,Q2.t
     qx,qy,nx,ny=Hx.shape[0],Hy.shape[0],X.shape[1],Y.shape[1]
     if N<0:
         Theta=np.eye(qy)
     else:
-        Theta=extreme_rays_for_containment(circombody,N)
+        Theta=extreme_rays_for_containment(circumbody,N)
+    print("Theta Dimensions were",Theta.shape)
     Lambda=program.NewContinuousVariables(Theta.shape[1],qx,'Lambda')
     Gamma=program.NewContinuousVariables(ny,nx,'Gamma')
     beta=program.NewContinuousVariables(ny,1,'beta')
@@ -100,3 +101,4 @@ def subset(program,inbody,circombody,N=-1):
     program.AddLinearConstraint(np.equal(ybar-xbar,np.dot(Y,beta),dtype='object').flatten()) 
     program.AddLinearConstraint(np.equal(np.dot(Lambda,Hx),np.dot(Theta.T,np.dot(Hy,Gamma)),dtype='object').flatten()) 
     program.AddLinearConstraint(np.less_equal(np.dot(Lambda,hx),np.dot(Theta.T,hy)+np.dot(Theta.T,np.dot(Hy,beta)),dtype='object').flatten())
+    return Theta

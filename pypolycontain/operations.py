@@ -2,6 +2,7 @@ import warnings
 import numpy as np
 # Scipy
 try:
+    import scipy.linalg as spa
     from scipy.spatial import ConvexHull
 except:
     warnings.warn("You don't have scipy package installed. You may get error while using some feautures.")
@@ -22,26 +23,27 @@ except:
 
 # Pypolycontain
 try:
-    from objects import AH_polytope,H_polytope,zonotope,unitbox
+    from pypolycontain.objects import AH_polytope,H_polytope,zonotope,unitbox,hyperbox
+    from pypolycontain.conversions import to_AH_polytope
 except:
     warnings.warn("You don't have pypolycontain properly installed. Can not import objects")
 
 
 
-def to_AH_polytope(P):
-    """
-    Converts the polytopic object P into an AH-polytope
-    """
-    if type(P).__name__=="AH_polytope":
-        return P
-    elif type(P).__name__=="H_polytope":
-        n=P.H.shape[1]
-        return AH_polytope(np.eye(n),np.zeros((n,1)),P)
-    elif type(P).__name__=="zonotope":
-        q=P.G.shape[1]
-        return AH_polytope(P.G,P.x,Box(N=q),color=P.color)
-    else:
-        raise ValueError("P type not understood:",P.type)
+#def to_AH_polytope(P):
+#    """
+#    Converts the polytopic object P into an AH-polytope
+#    """
+#    if type(P).__name__=="AH_polytope":
+#        return P
+#    elif type(P).__name__=="H_polytope":
+#        n=P.H.shape[1]
+#        return AH_polytope(np.eye(n),np.zeros((n,1)),P)
+#    elif type(P).__name__=="zonotope":
+#        q=P.G.shape[1]
+#        return AH_polytope(P.G,P.x,Box(N=q),color=P.color)
+#    else:
+#        raise ValueError("P type not understood:",P.type)
 
 """
 Optimization-based Operations:
@@ -447,7 +449,7 @@ def minkowski_sum(P1,P2):
     H=spa.block_diag(*[Q1.P.H,Q2.P.H])
     h=np.vstack((Q1.P.h,Q2.P.h))
     new_P=H_polytope(H,h)
-    return AH_polytope(T,t,new_P)  
+    return AH_polytope(t=t,T=T,P=new_P)  
     
     
 def intersection(P1,P2):
@@ -465,7 +467,7 @@ def intersection(P1,P2):
     H=np.vstack((H_1,H_2,-H_2))
     h=np.vstack((Q1.P.h,Q2.P.h,Q2.t-Q1.t,Q1.t-Q2.t))
     new_P=H_polytope(H,h)
-    return AH_polytope(T,t,new_P)
+    return AH_polytope(T=T,t=t,P=new_P)
 
     
 """
