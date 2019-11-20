@@ -255,7 +255,7 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi",distance_sca
                 distance_scaling_array = np.eye(n)
             else:
                 assert(distance_scaling_array.shape==(n,))
-            prog.AddQuadraticCost(np.diag(distance_scaling_array),np.zeros(n),delta)
+            prog.AddQuadraticCost(np.diag(np.square(distance_scaling_array)),np.zeros(n),delta)
         else:
             print(("Not a valid choice of norm",str(ball)))
             raise NotImplementedError
