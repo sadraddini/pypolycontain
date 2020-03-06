@@ -1,4 +1,4 @@
-![](doc/pypolycontain.png "pypolycontain")
+![](pypolycontain.png "pypolycontain")
 
 ## Documentation (NEW - Under Construction):
 We are working on the [documentation](https://pypolycontain.readthedocs.io/en/latest/). Please regularly check for updates. 
