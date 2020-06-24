@@ -13,7 +13,8 @@ We have three type of objects:
 # Numpy
 import numpy as np
 # Pypolycontain
-from pypolycontain.utils.utils import unique_rows
+#from pypolycontain.utils.utils import unique_rows
+from utils.utils import unique_rows
 
 class H_polytope():
     r"""

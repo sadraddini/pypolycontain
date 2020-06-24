@@ -1,5 +1,6 @@
 import warnings
 import numpy as np
+
 # Scipy
 try:
     import scipy.linalg as spa
@@ -13,12 +14,29 @@ try:
 except:
     warnings.warn("You don't have CDD package installed. Unable to run cone ray generation.")
 
-#pycdd    
+# Internal Imports
 try:
-    from pypolycontain.conversions import to_AH_polytope
+    import pypolycontain as pp
 except:
-    warnings.warn("You don't have pyplycontain not properly installed.")
-    
+    warnings.warn("You don't have pypolycontain not properly installed.")
+#try:
+#    from pypolycontain.conversions import to_AH_polytope
+#except:
+#    pass
+#    warnings.warn("You don't have pypolycontain not properly installed.")
+
+# try:
+#    import pydrake.solvers.mathematicalprogram as MP
+#    import pydrake.solvers.gurobi as Gurobi_drake
+#    import pydrake.solvers.osqp as OSQP_drake
+#    # use Gurobi solver
+#    global gurobi_solver,OSQP_solver, license
+#    gurobi_solver=Gurobi_drake.GurobiSolver()
+#    license = gurobi_solver.AcquireLicense()
+#    OSQP_solver=OSQP_drake.OsqpSolver()
+# except:
+#    warnings.warn("You don't have pydrake installed properly. Methods that rely on optimization may fail.")
+        
 
 """
 ***********
@@ -26,12 +44,13 @@ Description
 ***********
 
 The necessary and sufficient conditions for encoding was provided here.
+
 """
 
 
-def extreme_rays_for_containment(circumbody,N=0):
+def extreme_rays_for_containment(circumbody,k=0,i=0):
     """
-    This is from the paper of Sadraddini and Tedrake (2019).
+    This is from the Section 4 of the paper [Sadraddini and Tedrake, 2020].
     
     Inputs:
     
@@ -44,20 +63,24 @@ def extreme_rays_for_containment(circumbody,N=0):
     
         * 2D numpy array ``Theta``, which is defined in the paper
     """
-    circumbody_AH=to_AH_polytope(circumbody)
+    circumbody_AH=pp.to_AH_polytope(circumbody)
     H_y=circumbody_AH.P.H
+    q_y=H_y.shape[0]
+    if k<0:
+        return np.eye(q_y)
     Y=circumbody_AH.T
-    # First identify K=[H_y'^+  ker(H_y')]
-    K_1=np.dot(np.linalg.pinv(H_y.T),Y.T)
-    K_2=spa.null_space(H_y.T)
-    if K_2.shape[1]>0:
-        phi=np.hstack((K_1,K_2))
+    # First identify K=[H_y'^Y'+  ker(H_y')]
+    S_1=np.dot(np.linalg.pinv(H_y.T),Y.T)
+    S_2=spa.null_space(H_y.T)
+    if S_2.shape[1]>0:
+        S=np.hstack((S_1,S_2))
     else:
-        phi=K_1
+        S=S_1
     # phiw>=0. Now with the augmentation 
-    phi_complement=spa.null_space(phi.T)   
-    number_of_columns=min(N,phi_complement.shape[1])
-    psi=np.hstack((phi,phi_complement[:,0:number_of_columns]))
+    S_complement=spa.null_space(S.T)   
+    circumbody.dim_complement=S_complement.shape[1]
+    number_of_columns=min(k,S_complement.shape[1])
+    psi=np.hstack((S,S_complement[:,i:number_of_columns+i]))
     p_mat=Matrix(np.hstack((np.zeros((psi.shape[0],1)),psi)))
     p_mat.rep_type = RepType.INEQUALITY
     poly=Polyhedron(p_mat)
@@ -67,7 +90,7 @@ def extreme_rays_for_containment(circumbody,N=0):
     return Theta
 
 
-def subset(program,inbody,circumbody,N=-1):
+def subset(program,inbody,circumbody,k=-1,Theta=None,i=0):
     """
     Adds containment property Q1 subset Q2
     
@@ -76,29 +99,32 @@ def subset(program,inbody,circumbody,N=-1):
         * inbody: a polytopic object
         * circumbody: a polytopic object
         * N: 
-            * **Default**: :math:`-1``. Sufficient as in Sadraddini and Tedrake (2019a)
+            * **Default**: :math:`-1``. Sufficient as in [Sadraddini and Tedrake, 2020]
             * pick `0` for necessary and sufficient encoding (may be too slow) (2019b)
-            * pick any positive number. As the number is smaller, the condition becomes closer to necessity. However, this may be too slow.
+            * pick any positive number. As the number is smaller, 
+            the condition becomes closer to necessity. However, this may be too slow.
     
     Output:
         * No direct output, adds :\math:`inbody \subseteq circumbody` to the model
     """
-    Q1=to_AH_polytope(inbody)
-    Q2=to_AH_polytope(circumbody)
+    Q1=pp.to_AH_polytope(inbody)
+    Q2=pp.to_AH_polytope(circumbody)
     Hx,Hy,hx,hy,X,Y,xbar,ybar=Q1.P.H,Q2.P.H,Q1.P.h,Q2.P.h,Q1.T,Q2.T,Q1.t,Q2.t
     qx,qy,nx,ny=Hx.shape[0],Hy.shape[0],X.shape[1],Y.shape[1]
-    if N<0:
+    if k<0:
         Theta=np.eye(qy)
     else:
-        Theta=extreme_rays_for_containment(circumbody,N)
-    print("Theta Dimensions were",Theta.shape)
+        Theta=extreme_rays_for_containment(circumbody,k,i)
     Lambda=program.NewContinuousVariables(Theta.shape[1],qx,'Lambda')
     Gamma=program.NewContinuousVariables(ny,nx,'Gamma')
-    beta=program.NewContinuousVariables(ny,1,'beta')
+    gamma=program.NewContinuousVariables(ny,1,'gamma')
     # Constraints
     program.AddBoundingBoxConstraint(0,np.inf,Lambda) # Lambda Non-Negative
     program.AddLinearConstraint(np.equal(X,np.dot(Y,Gamma),dtype='object').flatten()) #X=YGamma
-    program.AddLinearConstraint(np.equal(ybar-xbar,np.dot(Y,beta),dtype='object').flatten()) 
+    program.AddLinearConstraint(np.equal(ybar-xbar,np.dot(Y,gamma),dtype='object').flatten()) 
     program.AddLinearConstraint(np.equal(np.dot(Lambda,Hx),np.dot(Theta.T,np.dot(Hy,Gamma)),dtype='object').flatten()) 
-    program.AddLinearConstraint(np.less_equal(np.dot(Lambda,hx),np.dot(Theta.T,hy)+np.dot(Theta.T,np.dot(Hy,beta)),dtype='object').flatten())
-    return Theta
+    program.AddLinearConstraint(np.less_equal(np.dot(Lambda,hx),\
+          np.dot(Theta.T,hy)+np.dot(Theta.T,np.dot(Hy,gamma)),dtype='object').flatten())
+    return Theta,Lambda,Gamma,gamma
+
+    

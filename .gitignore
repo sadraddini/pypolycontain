@@ -31,3 +31,5 @@ build/
 *.egg
 
 pypolycontain\.egg-info/
+
+doc/source/\.ipynb_checkpoints/

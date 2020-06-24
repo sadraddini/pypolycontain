@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath(''))
 # -- Project information -----------------------------------------------------
 
 project = 'pypolycontain'
-copyright = '2019, Sadra Sadraddini'
+copyright = '2020, Sadra Sadraddini'
 author = 'Sadra Sadraddini'
 
 # The full version, including alpha/beta/rc tags

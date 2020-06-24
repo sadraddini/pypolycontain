@@ -6,7 +6,8 @@ Created on Wed Oct 24 13:56:09 2018
 """
 
 import numpy as np
-from pypolycontain.utils.utils import unique_rows
+#from pypolycontain.utils.utils import unique_rows
+from utils.utils import unique_rows
 
 
 class polytope():

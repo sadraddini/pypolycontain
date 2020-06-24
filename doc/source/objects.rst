@@ -22,6 +22,7 @@ AH-polytope
 Zonotope
 --------------------
 .. autoclass:: pypolycontain.objects.zonotope
+.. autofunction:: pypolycontain.objects.zonotope.volume
 
 --------------------    
 Unitbox

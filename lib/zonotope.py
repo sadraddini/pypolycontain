@@ -8,10 +8,14 @@ import numpy as np
 from gurobipy import Model,LinExpr,QuadExpr,GRB
 from random import randint
 
-from pypolycontain.lib.containment_encodings import subset_generic,constraints_AB_eq_CD,add_Var_matrix
-from pypolycontain.utils.utils import valuation
-from pypolycontain.lib.AH_polytope import to_AH_polytope,distance_point
-from pypolycontain.lib.operations import distance_point_polytope
+#from pypolycontain.lib.containment_encodings import subset_generic,constraints_AB_eq_CD,add_Var_matrix
+#from pypolycontain.utils.utils import valuation
+#from pypolycontain.lib.AH_polytope import to_AH_polytope,distance_point
+#from pypolycontain.lib.operations import distance_point_polytope
+from lib.containment_encodings import subset_generic,constraints_AB_eq_CD,add_Var_matrix
+from utils.utils import valuation
+from lib.AH_polytope import to_AH_polytope,distance_point
+from lib.operations import distance_point_polytope
 
 class zonotope():
     """

@@ -1,5 +1,6 @@
 import warnings
 import numpy as np
+
 # Scipy
 try:
     import scipy.linalg as spa
@@ -23,14 +24,13 @@ except:
 
 # Pypolycontain
 try:
-    from pypolycontain.objects import AH_polytope,H_polytope,zonotope,unitbox,hyperbox
-    from pypolycontain.conversions import to_AH_polytope
+    import pypolycontain as pp
 except:
     warnings.warn("You don't have pypolycontain properly installed. Can not import objects")
 
 
 
-#def to_AH_polytope(P):
+#def pp.to_AH_polytope(P):
 #    """
 #    Converts the polytopic object P into an AH-polytope
 #    """
@@ -53,7 +53,7 @@ def point_membership(Q,x,tol=10**-5,solver="gurobi"):
     if type(Q).__name__=="H_polytope":
         return Q.if_inside(x,tol)
     else:
-        Q=to_AH_polytope(Q)
+        Q=pp.to_AH_polytope(Q)
         prog=MP.MathematicalProgram()
         zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
         prog.AddLinearConstraint(A=Q.P.H,ub=Q.P.h+tol,lb=-np.inf*np.ones((Q.P.h.shape[0],1)),vars=zeta)
@@ -76,7 +76,7 @@ def point_membership_fuzzy(Q,x,tol=10**-5,solver="gurobi"):
     @param solver: solver to use
     @return: boolean of whether x is in Q
     """
-    Q=to_AH_polytope(Q)
+    Q=pp.to_AH_polytope(Q)
     prog=MP.MathematicalProgram()
     zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
     prog.AddLinearConstraint(A=Q.P.H,ub=Q.P.h+tol,lb=-np.inf*np.ones((Q.P.h.shape[0],1)),vars=zeta)
@@ -94,7 +94,7 @@ def point_membership_fuzzy(Q,x,tol=10**-5,solver="gurobi"):
     return result.is_success()
 
 def check_non_empty(Q,tol=10**-5,solver="gurobi"):
-    Q=to_AH_polytope(Q)
+    Q=pp.to_AH_polytope(Q)
     prog=MP.MathematicalProgram()
     zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
     prog.AddLinearConstraint(A=Q.P.H,ub=Q.P.h+tol,lb=-np.inf*np.ones((Q.P.h.shape[0],1)),vars=zeta)
@@ -132,7 +132,7 @@ def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
                 X_2 Gamma_1 + Gamma_2 = X_1
     ***************************************************************************
     """
-    Q1,Q2=to_AH_polytope(Q1),to_AH_polytope(Q2)
+    Q1,Q2=pp.to_AH_polytope(Q1),pp.to_AH_polytope(Q2)
     n=Q1.t.shape[0]
     if ball=="infinty_norm":
         HB=np.vstack((np.eye(n),-np.eye(n)))
@@ -185,7 +185,7 @@ def Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
     return max(directed_Hausdorff_distance(Q1,Q2,ball,solver),directed_Hausdorff_distance(Q2,Q1,ball,solver))
     
 def distance_polytopes(Q1,Q2,ball="infinity",solver="gurobi"):
-    Q1,Q2=to_AH_polytope(Q1),to_AH_polytope(Q2)
+    Q1,Q2=pp.to_AH_polytope(Q1),pp.to_AH_polytope(Q2)
     n=Q1.n
     prog=MP.MathematicalProgram()
     zeta1=prog.NewContinuousVariables(Q1.P.H.shape[1],1,"zeta1")
@@ -232,7 +232,7 @@ def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
     """
     if P.distance_program is None:
         prog=MP.MathematicalProgram()
-        Q=to_AH_polytope(P)
+        Q=pp.to_AH_polytope(P)
         n=Q.n
         x=np.zeros((n,1))
         P.zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
@@ -268,13 +268,12 @@ def distance_point_polytope(P, x, ball="infinity", solver="Gurobi"):
     Computes the distance of point x from AH-polytope Q 
     """
     x_vector = np.atleast_2d(x) #in case x is not n*1 vector
-    P = to_AH_polytope(P)
+    P = pp.to_AH_polytope(P)
     _setup_program_distance_point(P,ball,solver)
     prog=P.distance_program
-    Q=to_AH_polytope(P)
+    Q=pp.to_AH_polytope(P)
     a=P.distance_constraint.evaluator()
     x_vector=x_vector.reshape(max(x_vector.shape),1)
-#    print "sadra",x_vector.shape
     a.UpdateCoefficients(np.hstack((Q.T,-np.eye(Q.n))), x_vector - Q.t)
     if solver=="Gurobi":
         result=gurobi_solver.Solve(prog,None,None)
@@ -295,7 +294,27 @@ def distance_point_polytope(P, x, ball="infinity", solver="Gurobi"):
         return d,x_nearest
     
 def bounding_box(Q,solver="Gurobi"):
-    Q=to_AH_polytope(Q)
+    r"""
+    Computes the bounding box of a polytope by solving :math:`2n` linear programs. 
+    Each linear program is in the form:
+        
+    .. math:: 
+        \begin{array}{lll}
+        l_i= & \min & e_i^T x \\
+        & \text{subject to} & x \in \mathbb{P}
+        \end{array}
+        
+    and
+    
+    .. math:: 
+        \begin{array}{lll}
+        u_i= & \max & e_i^T x \\
+        & \text{subject to} & x \in \mathbb{P}
+        \end{array}  
+        
+    where :math:`l,u` define the lower and upper corners of the bounding box.
+    """
+    Q=pp.to_AH_polytope(Q)
     prog=MP.MathematicalProgram()
     zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
     x=prog.NewContinuousVariables(Q.n,1,"x")
@@ -303,7 +322,7 @@ def bounding_box(Q,solver="Gurobi"):
     prog.AddLinearEqualityConstraint(np.hstack((-Q.T,np.eye(Q.n))),Q.t,np.vstack((zeta,x)))
     lower_corner=np.zeros((Q.n,1))
     upper_corner=np.zeros((Q.n,1))
-    c=prog.AddLinearCost(np.dot(np.ones((1,Q.n)),x)[0,0])
+    c=prog.AddLinearCost(np.ones(Q.n),0,x)
     if solver=="Gurobi":
         solver=gurobi_solver
     else:
@@ -314,24 +333,20 @@ def bounding_box(Q,solver="Gurobi"):
         e=c.evaluator()
         a[i,0]=1
         e.UpdateCoefficients(a.reshape(Q.n))
-#        print "cost:",e.a(),
         result=solver.Solve(prog,None,None)
         assert result.is_success()
         lower_corner[i,0]=result.GetSolution(x)[i]
         a[i,0]=0
-#        print result.GetSolution(x)
     # Upper Corners
     for i in range(Q.n):
         e=c.evaluator()
         a[i,0]=-1
         e.UpdateCoefficients(a.reshape(Q.n))
-#        print "cost:",e.a(),
         result=solver.Solve(prog,None,None)
         assert result.is_success()
         upper_corner[i,0]=result.GetSolution(x)[i]
         a[i,0]=0
-#    print(lower_corner,upper_corner)
-    return hyperbox(corners=(lower_corner,upper_corner))
+    return pp.hyperbox(corners=(lower_corner,upper_corner))
         
         
 def directed_Hausdorff_hyperbox(b1,b2):
@@ -367,7 +382,7 @@ def AH_polytope_vertices(P,N=200,epsilon=0.001,solver="Gurobi"):
         if type(P.vertices_2D) == type(None):
             raise Exception
     except:
-        Q=to_AH_polytope(P)
+        Q=pp.to_AH_polytope(P)
         v=np.empty((N,2))
         prog=MP.MathematicalProgram()
         zeta=prog.NewContinuousVariables(Q.P.H.shape[1],1,"zeta")
@@ -416,7 +431,7 @@ def convex_hull_of_point_and_polytope(x, Q):
     .. math::
         \text{conv}(x,Q):=\{y | y= \lambda q + (1-\lambda) x, q \in Q\}.
     """
-    Q=to_AH_polytope(Q)
+    Q=pp.to_AH_polytope(Q)
     q=Q.P.H.shape[1]
     new_T=np.hstack((Q.T,Q.t-x))
     new_t=x
@@ -426,8 +441,8 @@ def convex_hull_of_point_and_polytope(x, Q):
     new_H=np.vstack((new_H_1,new_H_2))
     new_h=np.zeros((Q.P.h.shape[0]+2,1))
     new_h[Q.P.h.shape[0],0],new_h[Q.P.h.shape[0]+1,0]=1,0
-    new_P=H_polytope(new_H,new_h)
-    return AH_polytope(new_T,new_t,new_P)
+    new_P=pp.H_polytope(new_H,new_h)
+    return pp.AH_polytope(new_T,new_t,new_P)
     
 
 def minkowski_sum(P1,P2):
@@ -443,13 +458,13 @@ def minkowski_sum(P1,P2):
         A \oplus B = \{ a + b \big | a \in A, b \in B\}.
     
     """
-    Q1,Q2=to_AH_polytope(P1),to_AH_polytope(P2)
+    Q1,Q2=pp.to_AH_polytope(P1),pp.to_AH_polytope(P2)
     T=np.hstack((Q1.T,Q2.T))
     t=Q1.t+Q2.t
     H=spa.block_diag(*[Q1.P.H,Q2.P.H])
     h=np.vstack((Q1.P.h,Q2.P.h))
-    new_P=H_polytope(H,h)
-    return AH_polytope(t=t,T=T,P=new_P)  
+    new_P=pp.H_polytope(H,h)
+    return pp.AH_polytope(t=t,T=T,P=new_P)  
     
     
 def intersection(P1,P2):
@@ -457,17 +472,17 @@ def intersection(P1,P2):
     Inputs: 
         P1, P2: AH_polytopes
     Returns:
-        returns :math:`P_1 \wedge P_2` as an AH-polytope
+        returns :math:`P_1 \cap P_2` as an AH-polytope
     """
-    Q1,Q2=to_AH_polytope(P1),to_AH_polytope(P2)
+    Q1,Q2=pp.to_AH_polytope(P1),pp.to_AH_polytope(P2)
     T=np.hstack((Q1.T,Q2.T*0))
     t=Q1.t
     H_1=spa.block_diag(*[Q1.P.H,Q2.P.H])
     H_2=np.hstack((Q1.T,-Q2.T))
     H=np.vstack((H_1,H_2,-H_2))
     h=np.vstack((Q1.P.h,Q2.P.h,Q2.t-Q1.t,Q1.t-Q2.t))
-    new_P=H_polytope(H,h)
-    return AH_polytope(T=T,t=t,P=new_P)
+    new_P=pp.H_polytope(H,h)
+    return pp.AH_polytope(T=T,t=t,P=new_P)
 
     
 """

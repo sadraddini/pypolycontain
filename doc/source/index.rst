@@ -7,7 +7,11 @@ Welcome to pypolycontain's documentation!
 =========================================
 
 .. figure:: ../../pypolycontain.png
-    :scale: 120 %
+   :height: 400px
+   :width: 1000 px
+   :scale: 50 %
+   :alt: alternate text
+   :align: center
 
 
 pypolycontain is a python package for polytopic objects, operations, and polytope containment problems. It is written as part of a 
@@ -20,14 +24,14 @@ As of right now, pip is not up-to-date for the latest release. Please clone the 
     
 Dependencies:
 *************
-* `numpy <https://numpy.org/>`_ 
+* `numpy <https://numpy.org/>`_ (Use latest version)
 
 Optional dependencies (for some features)
 -----------------------------------------
-    * `Drake <https://drake.mit.edu/>`_
-    * `pycdd <https://pycddlib.readthedocs.io/en/latest/index.html>`_ 
-    * Gurobi 8.0.1 or later `Gurobi Website <https://gurobi.com>`_ *Free Academic License*
-    * Scipy
+    * `Drake <https://drake.mit.edu/>`_ (Use latest version)
+    * `pycdd <https://pycddlib.readthedocs.io/en/latest/index.html>`_ (Use latest version)
+    * `Gurobi <https://gurobi.com>`_  (Version 8.0.1 or later) *Free Academic License*
+    * `scipy <https://scipy.org//>`_ (Use latest version)
 
 
     
@@ -36,10 +40,12 @@ Optional dependencies (for some features)
    :caption: Contents:
    :glob:
     
+   examples
    objects
+   conversions
    operations
    visualization
-   examples
+   
 
 
 Indices and tables
@@ -50,7 +56,11 @@ Indices and tables
 * :ref:`search`
 
 
-Developers
+Main Developer
 ==================
 * `Sadra Sadraddini <http://www.sadraddini.com/>`_
+
+Contributors
+==================
 * `Albert Wu <https://github.com/wualbert/>`_
+* `Kasra Ghasemi <https://github.com/Kasraghasemi>`_

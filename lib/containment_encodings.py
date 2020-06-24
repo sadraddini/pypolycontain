@@ -10,7 +10,8 @@ import warnings
 import numpy as np
 from gurobipy import Model,GRB,LinExpr,QuadExpr
 
-from pypolycontain.lib.AH_polytope import to_AH_polytope
+from lib.AH_polytope import to_AH_polytope
+#from pypolycontain.lib.AH_polytope import to_AH_polytope
 
 def subset_generic(model,Q1,Q2):
     """

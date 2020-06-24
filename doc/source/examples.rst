@@ -6,5 +6,6 @@ Examples
    :caption: Contents:
    :glob:
     
-   notebook_start
+   Getting Started
+   Minkowski Sum
    notebook_containment

@@ -12,9 +12,13 @@ from scipy.optimize import linprog as lp
 from scipy.linalg import block_diag as blk
 #from gurobipy import Model,LinExpr,QuadExpr,GRB
 
-from pypolycontain.lib.polytope import polytope,Box
-from pypolycontain.utils.utils import valuation
-from pypolycontain.lib.operations import distance_point_polytope
+#from pypolycontain.lib.polytope import polytope,Box
+#from pypolycontain.utils.utils import valuation
+#from pypolycontain.lib.operations import distance_point_polytope
+
+from lib.polytope import polytope,Box
+from utils.utils import valuation
+from lib.operations import distance_point_polytope
 
 class AH_polytope():
     """

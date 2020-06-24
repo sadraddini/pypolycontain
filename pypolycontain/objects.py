@@ -1,5 +1,6 @@
 # Numpy
 import numpy as np
+from itertools import combinations
 # Pypolycontain
 #from ..utils.utils import unique_rows
 
@@ -47,8 +48,8 @@ class H_polytope():
             self.hash_value = hash(str(np.hstack([self.H, self.h])))
         return self.hash_value
     
-    def __add__(self,another_one):
-        return minkowski_sum(self,another_one)
+#    def __add__(self,another_one):
+#        return pp.minkowski_sum(self,another_one)
  
 class zonotope():
     r"""
@@ -61,14 +62,17 @@ class zonotope():
     
     Attributes:
         * :math:`G \in \mathbb{R}^{n \times q}`: `numpy.ndarray[float[[n,q]]` is the zonotope generator. 
-        * :math:`x\in \mathbb{R}^n`: `numpy.ndarray[float[[n,1]]` is the zonotope centroid. 
+        * :math:`x\in \mathbb{R}^n`: `numpy.ndarray[float[[n,1]]` is the zonotope centroid. Default is zero vector.
     
     The order
     of the zonotope is defined as :math:`\frac{q}{n}`. 
     """
-    def __init__(self,x,G,name=None,color="green"):
-        self.x=x
-        self.G=G
+    def __init__(self,G,x=None,name=None,color="green"):
+        self.G=G        
+        if type(x)==type(None):
+            self.x=np.zeros((G.shape[0],1))
+        else:
+            self.x=x
         if name==None:
             self.name="zonotope"
         else:
@@ -85,6 +89,46 @@ class zonotope():
         if self.hash_value is None:
             self.hash_value = hash(str(np.hstack([self.G, self.x])))  # FIXME: better hashing implementation
         return self.hash_value
+    
+    def volume(self):
+        r"""
+        Computes the volume of the zonotope in :math:`\mathbb{n}` dimensions. 
+        The formula is based on the paper in [Gover2002]_
+            
+            
+            
+        .. [Gover2002] 
+            Gover, Eugene, and Nishan Krikorian. 
+            "Determinants and the volumes of parallelotopes and zonotopes." 
+            Linear Algebra and its Applications 433, no. 1 (2010): 28-40.
+                
+        """
+        G=self.G
+        S=combinations(range(G.shape[1]),G.shape[0])
+        V=0
+        for s in S:
+            Gs=np.hstack([G[:,i:i+1] for i in s])
+            V+=abs(np.linalg.det(Gs))
+        return V
+    
+    def volume_gradient(self):
+        G=self.G
+        S=combinations(range(G.shape[1]),G.shape[0])
+        V_dot=np.zeros(G.shape)
+        for s in S:
+            Gs=np.hstack([G[:,i:i+1] for i in s])
+            D=np.linalg.det(Gs)
+            if D!=0:
+                adj_Gs=D*np.linalg.inv(Gs)
+                X=adj_Gs.T*np.sign(np.linalg.det(Gs))
+            else:
+                print("Warning: we have a singular matrix")
+                e=np.eye(G.shape[0])*10**(-5)
+                adj_Gs=np.linalg.det(Gs+e)*np.linalg.inv(Gs+e)
+                X=adj_Gs.T*np.sign(np.linalg.det(Gs+e))
+            for i in range(len(s)):
+                V_dot[:,s[i]]+=X[:,i]
+        return V_dot
 
    
 class AH_polytope():
@@ -92,7 +136,7 @@ class AH_polytope():
     An AH_polytope is an affine transformation of an H-polytope and is defined as:
         
     .. math::
-        \mathbb{Q}=\{t+Tx  | p \in \mathbb{R}^p, H p \le h \}
+        \mathbb{Q}=\{t+Tx  | x \in \mathbb{R}^p, H x \le h \}
     
     Attributes:
         * P: The underlying H-polytope :math:`P:\{x \in \mathbb{R}^p | Hx \le h\}`
@@ -122,6 +166,9 @@ class AH_polytope():
         if self.hash_value is None:
             self.hash_value = hash(self.P) + hash(str(np.hstack([self.T, self.t])))  # FIXME: better hashing implementation
         return self.hash_value
+    
+    def copy(self):
+        return AH_polytope(self.t,self.T,H_polytope(self.P.H,self.P.h))
 
 class V_polytope():
     r"""
@@ -159,9 +206,10 @@ class hyperbox():
             h=np.vstack((u,-l))
             self.l=l
             self.u=u
-        self.H_polytope=H_polytope(H,h)
-        self.zonotope=zonotope((self.l+self.u)/2,np.diagflat((self.u-self.l)/2))
+        self.H_polytope=H_polytope(H,h,color='cyan')
+        self.zonotope=zonotope((self.l+self.u)/2,np.diagflat((self.u-self.l)/2),color='cyan')
         self.n=N
+        self.color='cyan'
 
 
 
