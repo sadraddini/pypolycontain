@@ -207,7 +207,7 @@ class hyperbox():
             self.l=l
             self.u=u
         self.H_polytope=H_polytope(H,h,color='cyan')
-        self.zonotope=zonotope((self.l+self.u)/2,np.diagflat((self.u-self.l)/2),color='cyan')
+        self.zonotope=zonotope(x=(self.l+self.u)/2,G=np.diagflat((self.u-self.l)/2),color='cyan')
         self.n=N
         self.color='cyan'
 

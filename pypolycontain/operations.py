@@ -456,7 +456,6 @@ def minkowski_sum(P1,P2):
         
     .. math::
         A \oplus B = \{ a + b \big | a \in A, b \in B\}.
-    
     """
     Q1,Q2=pp.to_AH_polytope(P1),pp.to_AH_polytope(P2)
     T=np.hstack((Q1.T,Q2.T))
@@ -470,9 +469,9 @@ def minkowski_sum(P1,P2):
 def intersection(P1,P2):
     """
     Inputs: 
-        P1, P2: AH_polytopes
-    Returns:
-        returns :math:`P_1 \cap P_2` as an AH-polytope
+        P1, P2: AH_polytopes :math:`\mathbb{P}_1,\mathbb{P}_2`. Converted to AH-polytopes
+    Output:
+        returns :math:`\mathbb{P}_1 \cap \mathbb{P}_2` as an AH-polytope
     """
     Q1,Q2=pp.to_AH_polytope(P1),pp.to_AH_polytope(P2)
     T=np.hstack((Q1.T,Q2.T*0))
@@ -483,6 +482,24 @@ def intersection(P1,P2):
     h=np.vstack((Q1.P.h,Q2.P.h,Q2.t-Q1.t,Q1.t-Q2.t))
     new_P=pp.H_polytope(H,h)
     return pp.AH_polytope(T=T,t=t,P=new_P)
+
+def convex_hull(P1,P2):
+    """
+    Inputs:
+        P1, P2: AH_polytopes
+    Output:
+        returns :math:`\text{ConvexHull}(\mathbb{P}_1,\mathbb{P}_2)` as an AH-polytope
+    """
+    Q1,Q2=pp.to_AH_polytope(P1),pp.to_AH_polytope(P2)
+    T=np.hstack((Q1.T,Q2.T,Q1.t-Q2.t ))
+    H_1 = np.hstack((Q1.P.H,np.zeros((Q1.P.H.shape[0],Q2.P.n)), -Q1.P.h ))
+    H_2 = np.hstack((np.zeros((Q2.P.H.shape[0],Q1.P.n)), Q2.P.H, Q2.P.h ))
+    H_3 = np.zeros(( 2, Q1.P.n + Q2.P.n +1 ))
+    H_3[:,-1:]=np.array([1,-1]).reshape(2,1)
+    H=np.vstack((H_1,H_2,H_3))
+    h=np.vstack((Q1.P.h*0,Q2.P.h,1,0))
+    new_P=pp.H_polytope(H,h)
+    return pp.AH_polytope(T=T,t=Q2.t,P=new_P)
 
     
 """
