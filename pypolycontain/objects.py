@@ -122,10 +122,11 @@ class zonotope():
                 adj_Gs=D*np.linalg.inv(Gs)
                 X=adj_Gs.T*np.sign(np.linalg.det(Gs))
             else:
-                print("Warning: we have a singular matrix")
+#                print("Warning: we have a singular matrix")
                 e=np.eye(G.shape[0])*10**(-5)
                 adj_Gs=np.linalg.det(Gs+e)*np.linalg.inv(Gs+e)
                 X=adj_Gs.T*np.sign(np.linalg.det(Gs+e))
+#                X=adj_Gs.T*(np.linalg.det(Gs+e))
             for i in range(len(s)):
                 V_dot[:,s[i]]+=X[:,i]
         return V_dot
@@ -173,8 +174,10 @@ class AH_polytope():
 class V_polytope():
     r"""
     V-polytopes are a convex hull of vertices. 
+    
     .. math:: 
         \mathbb{V}= \{ x \in \mathbb{R}^n | x = \sum_{i=1}^N \lambda_i v_i,  \sum_{i=1}^N \lambda_i=1, \lambda_i \ge 0, i=1,\cdots,N \}
+    
     where each :math:`v_i, i=1,\cdots,N` is a point (some or all are effectively vertices).  
     
     Attributes:
