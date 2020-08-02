@@ -556,3 +556,92 @@ def Lambda_H_Gamma(mathematical_program,Lambda,H_1,H_2,Gamma):
             M=np.hstack((H_1[:,j],-H_2[i,:]))
             v=np.hstack((Lambda[i,:],Gamma[:,j]))
             mathematical_program.AddLinearEqualityConstraint(M.reshape(1,M.shape[0]),np.zeros(1),v)
+
+
+
+
+def sorting_generator(G,desired_numberofcolumns):
+    """
+    The goal is deviding the generator into to parts.
+    One part that is used for zonotope order reduction methods.
+    And the other part which is used to enforce the reduced zonotope to have the desire order.
+    """
+    dimension = len(G)
+
+    if dimension == desired_numberofcolumns:
+        return G , None
+    indexlist = np.argsort(np.linalg.norm( G ,axis=0 ,ord = None))
+    sortedG = (G)[:,indexlist]
+    G_untouched = sortedG[: , - (desired_numberofcolumns - dimension ): ]
+    G_reduced = sortedG[: , : -(desired_numberofcolumns - dimension )  ]
+    
+    return G_reduced , G_untouched
+
+
+def boxing_order_reduction(zonotope,desired_order=1):
+    """
+    boxing method for zonotope order reduction
+    inputs: input zonotope , order of the output zonotope
+    output: zonotope
+
+    Based on Kopetzki, Anna-Kathrin, Bastian Schürmann, and Matthias Althoff.
+    "Methods for order reduction of zonotopes."
+    2017 IEEE 56th Annual Conference on Decision and Control (CDC). IEEE, 2017.
+    """
+    assert(type(zonotope) == pp.zonotope),"TypeError: The first argument need to be from \"zonotope\" class in pypolycontain package "
+    assert(type(desired_order) == int or type(desired_order) == float) , "TypeError: The second argument need to be a number greater than 1. \n \
+                                                                            It is the order of the reduced zonotpe which equal to the number of \
+                                                                                columns over the space dimension."
+    assert(desired_order >= 1), "desired order of the outcome zonotope needs to be greater or equal to 1"
+    
+    x = np.array(zonotope.x)
+    G = np.array(zonotope.G)
+    
+    dimension =  len(x)
+    desired_numberofcolumns = round(desired_order * dimension)
+
+    if dimension == desired_numberofcolumns:
+        G_box = np.diag(np.sum(abs( G ) ,axis=1 ))
+        return pp.zonotope( G_box , x)  
+
+    G_reduced , G_untouched = sorting_generator( G , desired_numberofcolumns )
+    G_box = np.concatenate(  ( np.diag(np.sum(abs( G_reduced ) ,axis=1 )) , G_untouched   ), axis=1  )
+    return pp.zonotope( G_box , x)  
+
+
+
+
+def pca_order_reduction(zonotope,desired_order=1):
+
+    """
+    PCA method for zonotope order reduction
+    inputs: input zonotope , order of the output zonotope
+    output: zonotope
+
+    Based on Kopetzki, Anna-Kathrin, Bastian Schürmann, and Matthias Althoff.
+    "Methods for order reduction of zonotopes."
+    2017 IEEE 56th Annual Conference on Decision and Control (CDC). IEEE, 2017.
+    """
+    assert(type(zonotope) == pp.zonotope),"TypeError: The first argument need to be from \"zonotope\" class in pypolycontain package "
+    assert(type(desired_order) == int or type(desired_order) == float) , "TypeError: The second argument need to be a number greater than 1. \n \
+                                                                            It is the order of the reduced zonotpe which equal to the number of \
+                                                                                columns over the space dimension."
+    assert(desired_order >= 1), "desired order of the outcome zonotope needs to be greater or equal to 1"
+    
+    x = np.array(zonotope.x)
+    G = np.array(zonotope.G)
+    
+    dimension = len(x)
+    desired_numberofcolumns = round(desired_order * dimension)
+
+    G_reduced , G_untouched = sorting_generator( G , desired_numberofcolumns )
+    X = np.concatenate(  (G_reduced ,  - G_reduced), axis=1 ).T
+    covariance = np.dot(X.T , X)
+    U,_,_ =np.linalg.svd( covariance )
+    interval_hull = boxing_order_reduction( pp.zonotope( np.dot(U.T , G_reduced) , x ) ).G 
+    G_pca = np.dot(U , interval_hull)
+    
+    if G_untouched == None:
+        return pp.zonotope(G_pca , x)
+    else:
+        return pp.zonotope( np.concatenate((  G_pca , G_untouched   ), axis=1  ) , x) 
