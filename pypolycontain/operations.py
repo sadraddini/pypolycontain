@@ -29,22 +29,6 @@ except:
     warnings.warn("You don't have pypolycontain properly installed. Can not import objects")
 
 
-
-#def pp.to_AH_polytope(P):
-#    """
-#    Converts the polytopic object P into an AH-polytope
-#    """
-#    if type(P).__name__=="AH_polytope":
-#        return P
-#    elif type(P).__name__=="H_polytope":
-#        n=P.H.shape[1]
-#        return AH_polytope(np.eye(n),np.zeros((n,1)),P)
-#    elif type(P).__name__=="zonotope":
-#        q=P.G.shape[1]
-#        return AH_polytope(P.G,P.x,Box(N=q),color=P.color)
-#    else:
-#        raise ValueError("P type not understood:",P.type)
-
 """
 Optimization-based Operations:
 """  
@@ -364,12 +348,13 @@ def distance_hyperbox(b1,b2):
     
 
 def make_ball(n,norm):
+    # TO COMPLETE
     if norm=="l1":
         pass
     elif norm=="infinity":
         pass
     return 
-#
+
 def get_nonzero_cost_vectors(cost):
      cost[cost == 0] = 1e-3
 
@@ -466,7 +451,7 @@ def minkowski_sum(P1,P2):
     return pp.AH_polytope(t=t,T=T,P=new_P)  
     
     
-def intersection(P1,P2):
+def intersection_old(P1,P2):
     """
     Inputs: 
         P1, P2: AH_polytopes :math:`\mathbb{P}_1,\mathbb{P}_2`. Converted to AH-polytopes
@@ -500,6 +485,24 @@ def convex_hull(P1,P2):
     h=np.vstack((Q1.P.h*0,Q2.P.h,1,0))
     new_P=pp.H_polytope(H,h)
     return pp.AH_polytope(T=T,t=Q2.t,P=new_P)
+
+def intersection(P1,P2):
+    """
+    Inputs:
+        P1, P2: polytopic objects
+    Output:
+        returns :math:`\mathbb{P}_1 \cap \mathbb{P}_2` as an AH-polytope
+    """
+    X,Y=pp.to_AH_polytope(P1),pp.to_AH_polytope(P2)
+    T=np.hstack(( X.T, np.zeros((X.T.shape[0]  ,  Y.T.shape[1] ))  ))
+    H_1 = np.hstack((X.P.H,   np.zeros((X.P.H.shape[0],Y.P.H.shape[1])) ))
+    Ty_inv=np.linalg.pinv(Y.T)
+    H_2 = np.hstack(( np.linalg.multi_dot([Y.P.H,Ty_inv,X.T]),\
+                     np.dot(Y.P.H,np.eye(Y.T.shape[1])-np.dot(Ty_inv,Y.T))  ))
+    H=np.vstack((H_1,H_2))
+    h=np.vstack((X.P.h,Y.P.h-np.linalg.multi_dot([Y.P.H,Ty_inv,X.t-Y.t])))
+    new_P=pp.H_polytope(H,h)
+    return pp.AH_polytope(T=T,t=X.t,P=new_P)
 
     
 """

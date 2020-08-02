@@ -131,7 +131,7 @@ def AH_to_V(P,N=360,epsilon=1e-3,solver="Gurobi"):
         c_T=np.dot(c.T,Q.T)
         e=a.evaluator()
         cost = c_T.reshape(Q.P.H.shape[1])
-        cost[cost == 0] = 1e-3
+#        cost[cost == 0] = 1e-3
         e.UpdateCoefficients(cost)
         result=solver.Solve(prog,None,None)
         assert result.is_success()

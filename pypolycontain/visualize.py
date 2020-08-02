@@ -16,7 +16,8 @@ from matplotlib.collections import PatchCollection
 
 
 def visualize(list_of_objects,fig=None,ax=None,a=0.5,alpha=0.8,list_of_dimensions=[0,1],\
-              title=r'pypolycontain visualization',show_vertices=False,FontSize=15):
+              title=r'pypolycontain visualization',\
+              show_vertices=False,FontSize=15,equal_axis=False,grid=True):
     r"""
     Visualization.
     
@@ -38,7 +39,10 @@ def visualize(list_of_objects,fig=None,ax=None,a=0.5,alpha=0.8,list_of_dimension
     ax.add_collection(p_patch)
     ax.set_xlim([np.min(x_all[:,0])-a,a+np.max(x_all[:,0])])
     ax.set_ylim([np.min(x_all[:,1])-a,a+np.max(x_all[:,1])])
-    ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
+    if grid:
+        ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
     ax.set_title(title,FontSize=FontSize)
     ax.set_xlabel(r"$x_{%d}$"%(list_of_dimensions[0]+1),FontSize=FontSize)
     ax.set_ylabel(r"$x_{%d}$"%(list_of_dimensions[1]+1),FontSize=FontSize)
+    if equal_axis:
+        ax.axis('equal')
