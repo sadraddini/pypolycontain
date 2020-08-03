@@ -15,14 +15,17 @@ from matplotlib.collections import PatchCollection
     
 
 
-def visualize(list_of_objects,fig=None,ax=None,a=0.5,alpha=0.8,list_of_dimensions=[0,1],\
+def visualize(list_of_objects,fig=None,ax=None,a=0.5,alpha=0.8,tuple_of_projection_dimensions=[0,1],\
               title=r'pypolycontain visualization',\
               show_vertices=False,FontSize=15,equal_axis=False,grid=True):
     r"""
     Visualization.
     
     inputs: 
-        * list_of_objects
+        * list_of_objects:
+        * fig:
+        * tuple_of_projection_dimensions: 
+        * 
     """
     if type(ax)==type(None):
         fig,ax=plt.subplots()
@@ -42,7 +45,7 @@ def visualize(list_of_objects,fig=None,ax=None,a=0.5,alpha=0.8,list_of_dimension
     if grid:
         ax.grid(color=(0,0,0), linestyle='--', linewidth=0.3)
     ax.set_title(title,FontSize=FontSize)
-    ax.set_xlabel(r"$x_{%d}$"%(list_of_dimensions[0]+1),FontSize=FontSize)
-    ax.set_ylabel(r"$x_{%d}$"%(list_of_dimensions[1]+1),FontSize=FontSize)
+    ax.set_xlabel(r"$x_{%d}$"%(tuple_of_projection_dimensions[0]+1),FontSize=FontSize)
+    ax.set_ylabel(r"$x_{%d}$"%(tuple_of_projection_dimensions[1]+1),FontSize=FontSize)
     if equal_axis:
         ax.axis('equal')
