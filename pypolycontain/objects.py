@@ -149,7 +149,7 @@ class AH_polytope():
         Initilization: T,t,P. X=TP+t
         """
         self.T=T # Matrix n*n_p
-        self.t=t # vector n*1
+        self.t=np.atleast_2d(t) # vector n*1
         self.P=P # Polytope in n_p dimensions
         self.n=T.shape[0]
         if T.shape[1]!=P.H.shape[1]:
