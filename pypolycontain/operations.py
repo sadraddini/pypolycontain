@@ -597,16 +597,20 @@ def boxing_order_reduction(zonotope,desired_order=1):
     x = np.array(zonotope.x)
     G = np.array(zonotope.G)
     
-    dimension =  len(x)
+    dimension , numberofcolumns =  G.shape
     desired_numberofcolumns = round(desired_order * dimension)
-
-    if dimension == desired_numberofcolumns:
+    
+    if numberofcolumns <= desired_numberofcolumns:
+        return zonotope
+    
+    elif dimension == desired_numberofcolumns:
         G_box = np.diag(np.sum(abs( G ) ,axis=1 ))
         return pp.zonotope( G_box , x)  
-
-    G_reduced , G_untouched = sorting_generator( G , desired_numberofcolumns )
-    G_box = np.concatenate(  ( np.diag(np.sum(abs( G_reduced ) ,axis=1 )) , G_untouched   ), axis=1  )
-    return pp.zonotope( G_box , x)  
+    
+    else:
+        G_reduced , G_untouched = sorting_generator( G , desired_numberofcolumns )
+        G_box = np.concatenate(  ( np.diag(np.sum(abs( G_reduced ) ,axis=1 )) , G_untouched   ), axis=1  )
+        return pp.zonotope( G_box , x)  
 
 
 
@@ -631,8 +635,11 @@ def pca_order_reduction(zonotope,desired_order=1):
     x = np.array(zonotope.x)
     G = np.array(zonotope.G)
     
-    dimension = len(x)
+    dimension , numberofcolumns =  G.shape
     desired_numberofcolumns = round(desired_order * dimension)
+
+    if numberofcolumns <= desired_numberofcolumns:
+        return zonotope
 
     G_reduced , G_untouched = sorting_generator( G , desired_numberofcolumns )
     X = np.concatenate(  (G_reduced ,  - G_reduced), axis=1 ).T
@@ -641,7 +648,7 @@ def pca_order_reduction(zonotope,desired_order=1):
     interval_hull = boxing_order_reduction( pp.zonotope( np.dot(U.T , G_reduced) , x ) ).G 
     G_pca = np.dot(U , interval_hull)
     
-    if G_untouched == None:
-        return pp.zonotope(G_pca , x)
-    else:
+    if type(G_untouched)== np.ndarray:
         return pp.zonotope( np.concatenate((  G_pca , G_untouched   ), axis=1  ) , x) 
+    elif G_untouched == None:
+        return pp.zonotope(G_pca , x)
