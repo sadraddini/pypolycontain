@@ -25,17 +25,16 @@ except:
 #    pass
 #    warnings.warn("You don't have pypolycontain not properly installed.")
 
-# try:
-#    import pydrake.solvers.mathematicalprogram as MP
-#    import pydrake.solvers.gurobi as Gurobi_drake
-#    import pydrake.solvers.osqp as OSQP_drake
-#    # use Gurobi solver
-#    global gurobi_solver,OSQP_solver, license
-#    gurobi_solver=Gurobi_drake.GurobiSolver()
-#    license = gurobi_solver.AcquireLicense()
-#    OSQP_solver=OSQP_drake.OsqpSolver()
-# except:
-#    warnings.warn("You don't have pydrake installed properly. Methods that rely on optimization may fail.")
+try:
+    import pydrake.solvers.mathematicalprogram as MP
+    import pydrake.solvers.gurobi as Gurobi_drake
+    import pydrake.solvers.osqp as OSQP_drake
+    # use Gurobi solver
+    global gurobi_solver,OSQP_solver, license
+    gurobi_solver=Gurobi_drake.GurobiSolver()
+    license = gurobi_solver.AcquireLicense()
+except:
+    warnings.warn("You don't have pydrake installed properly. Methods that rely on optimization may fail.")
         
 
 """
@@ -48,7 +47,7 @@ The necessary and sufficient conditions for encoding was provided here.
 """
 
 
-def extreme_rays_for_containment(circumbody,k=0,i=0):
+def theta_k(circumbody,k=0,i=0):
     """
     This is from the Section 4 of the paper [Sadraddini and Tedrake, 2020].
     
@@ -90,7 +89,7 @@ def extreme_rays_for_containment(circumbody,k=0,i=0):
     return Theta
 
 
-def subset(program,inbody,circumbody,k=-1,Theta=None,i=0):
+def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,verbose=False):
     """
     Adds containment property Q1 subset Q2
     
@@ -111,10 +110,18 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0):
     Q2=pp.to_AH_polytope(circumbody)
     Hx,Hy,hx,hy,X,Y,xbar,ybar=Q1.P.H,Q2.P.H,Q1.P.h,Q2.P.h,Q1.T,Q2.T,Q1.t,Q2.t
     qx,qy,nx,ny=Hx.shape[0],Hy.shape[0],X.shape[1],Y.shape[1]
-    if k<0:
+    if type(Theta)!=type(None):
+        if verbose:
+            print("theta already computed")
+        pass
+    elif k<0:
         Theta=np.eye(qy)
+        if verbose:
+            print("Using Positive Orthant")
     else:
-        Theta=extreme_rays_for_containment(circumbody,k,i)
+        if verbose:
+            print("Computing theta with k=%d"%k)
+        Theta=theta_k(circumbody,k,i)
     Lambda=program.NewContinuousVariables(Theta.shape[1],qx,'Lambda')
     Gamma=program.NewContinuousVariables(ny,nx,'Gamma')
     gamma=program.NewContinuousVariables(ny,1,'gamma')
@@ -127,4 +134,43 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0):
           np.dot(Theta.T,hy)+np.dot(Theta.T,np.dot(Hy,gamma)),dtype='object').flatten())
     return Theta,Lambda,Gamma,gamma
 
+def necessity_gap(X,Y,Theta):
+    """
+    The necessity gap for the encoding using cone defined by Theta
     
+    .. warning:
+        To be added later
+    """
+    alpha_0=alpha(X,Y,theta_k(Y,k=0))
+    my_alpha= alpha(X,Y,Theta)
+    return 1-my_alpha/alpha_0
+
+def necessity_gap_k(X,Y,list_of_k):
+    print("\n \n","="*50,"\n","="*50,"\n\t \t Computing Necessity Gaps")
+    print("="*50,"\n","="*50)
+    print("k \t Theta.shape \t delta(X,Y,C)")
+    alpha_0=alpha(X,Y,theta_k(Y,k=0))
+    for k in list_of_k:
+        Theta=theta_k(Y,k)
+#        print(k,"theta shape",Theta.shape,Theta)
+        delta=1-alpha(X,Y,Theta)/alpha_0
+        print(k, "\t",Theta.shape,"\t"*1, delta)
+
+    
+def alpha(X,Y,Theta):
+    X2=pp.to_AH_polytope(X)
+    Y2=pp.to_AH_polytope(Y)
+    prog=MP.MathematicalProgram()
+    alpha=prog.NewContinuousVariables(1,"alpha")
+    t=prog.NewContinuousVariables(X2.n,1,"t")
+    Y2.P.h=Y2.P.h*alpha
+    X2.t=X2.t+t
+    subset(prog,X2,Y2,Theta=Theta)
+    prog.AddLinearCost(np.eye(1),np.zeros((1)),alpha)
+    result=gurobi_solver.Solve(prog,None,None)
+    if result.is_success():
+#        print("alpha test successful")
+#        print(result.GetSolution(alpha),result.GetSolution(t))
+        return 1/result.GetSolution(alpha)[0]
+    else:
+        print("not a subset") 
