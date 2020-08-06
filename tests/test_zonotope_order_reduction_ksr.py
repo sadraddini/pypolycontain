@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pypolycontain as pp
 
-numberofexamples = 100
+numberofexamples = 10
 for i in range(numberofexamples):
     x=np.random.rand( 2,1  ) # offset
     numofcolumns = np.random.randint(2,30)
@@ -25,7 +25,7 @@ for i in range(numberofexamples):
         title= 'red : original zonotope \n number of columns={0} \n \
             yellow: Boxing \n green: PCA \n order ={1}'.format(numofcolumns,order)
         )
-
+plt.show()
 
 
 
