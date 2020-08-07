@@ -68,11 +68,11 @@ class zonotope():
     of the zonotope is defined as :math:`\frac{q}{n}`. 
     """
     def __init__(self,G,x=None,name=None,color="green"):
-        self.G=G        
+        self.G=np.array(G)        
         if type(x)==type(None):
             self.x=np.zeros((G.shape[0],1))
         else:
-            self.x=x
+            self.x=np.array(x)
         if name==None:
             self.name="zonotope"
         else:
