@@ -1,6 +1,7 @@
 # Numpy
 import numpy as np
 from itertools import combinations
+from scipy.linalg import block_diag
 # Pypolycontain
 #from ..utils.utils import unique_rows
 
@@ -90,6 +91,16 @@ class zonotope():
             self.hash_value = hash(str(np.hstack([self.G, self.x])))  # FIXME: better hashing implementation
         return self.hash_value
     
+    def __add__(self,other):
+        x = self.x + other.x
+        G = np.concatenate([self.G,other.G],axis=1)
+        return zonotope(G=G,x=x)
+
+    def __pow__(self,other):
+        x = np.concatenate([self.x , other.x])
+        G = block_diag(self.G,other.G)
+        return zonotope(G=G,x=x)
+
     def volume(self):
         r"""
         Computes the volume of the zonotope in :math:`\mathbb{n}` dimensions. 
