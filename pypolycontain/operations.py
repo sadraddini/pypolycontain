@@ -5,6 +5,7 @@ import numpy as np
 try:
     import scipy.linalg as spa
     from scipy.spatial import ConvexHull
+    from scipy.linalg import block_diag
 except:
     warnings.warn("You don't have scipy package installed. You may get error while using some feautures.")
 
@@ -613,8 +614,6 @@ def boxing_order_reduction(zonotope,desired_order=1):
         return pp.zonotope( G_box , x)  
 
 
-
-
 def pca_order_reduction(zonotope,desired_order=1):
 
     """
@@ -652,3 +651,88 @@ def pca_order_reduction(zonotope,desired_order=1):
         return pp.zonotope( np.concatenate((  G_pca , G_untouched   ), axis=1  ) , x) 
     elif G_untouched == None:
         return pp.zonotope(G_pca , x)
+
+
+def decompose_cost_function(G):
+    """
+    @author: kasra
+    This function is the objective function for decompose() 
+    """
+    # for i in range(len(G)):
+    #     print('GGGGGGGGGGG',G)
+        #G[i] = G[i].reshape(2,2)
+    #G = [np.array([[G[0],G[1]],[G[2],G[3]]])]
+    log_volumns = list( map( lambda q: np.log(np.linalg.det (np.dot(q.T,q)))  , G) )
+    sum_of_log_volumns = sum(log_volumns)
+
+    return -sum_of_log_volumns
+
+
+def decompose(zonotope,dimensions):
+
+    """
+    @author: kasra
+    Decompising a given set into bunch of fewer dimensional sets such that 
+    the Cartesian product of those sets is a subset of the given set.
+    """
+
+    assert(sum(dimensions) == len(zonotope.G)), "ValueError: sum of the given dimensions has \
+                                                to be equal to the dimension of the input set"
+    #number_of_sets = len(dimensions)
+
+    prog=MP.MathematicalProgram()
+
+    #defining varibales
+    #G_i = list(map(lambda q: prog.NewContinuousVariables(q,q) , dimensions))
+    G_i = list(map(lambda q: prog.NewContinuousVariables(q) , dimensions))              # Diagonal G_i
+    x_i = list(map(lambda q: prog.NewContinuousVariables(q) , dimensions))
+    G_ip = G_i
+  #  for i in range(len(G_i)):
+ #       G_ip[i] = G_i[i].reshape(4,1)
+    ########################################################################
+
+    # X = np.dot(G_i[0].T,G_i[0])
+    # cost = prog.AddMaximizeLogDeterminantSymmetricMatrixCost( X )
+
+    ########################################################################
+    #cost = prog.AddCost( decompose_cost_function, vars=G_ip[0] )         
+    cost = [prog.AddCost( np.prod , vars=G_i[i] )  for i in range(len(dimensions))]             # Cost for diagonal G_i  
+    #prog.AddCost( lambda q: 1 * np.prod( np.dot( np.diag(q), np.diag(q) ) ) , vars=G_i[1] )
+    #prog.AddCost( lambda q: 1 * np.prod( np.dot( np.diag(q), np.diag(q) ) ) , vars=G_i[0] )
+    #[ prog.AddConstraint(G_i[i][j] >= 0) for i in range(len(dimensions)) for j in range(dimensions[i]) ]
+    # for i in range(len(G_i)):
+    #     G_ip[i] = G_i[i].reshape(2,2)
+    inbody_x = np.concatenate(x_i)
+    inbody_G = block_diag( *list( map(lambda q: np.diag(q) ,  G_i ) ) )              #inbody for diagonal G_i
+    #inbody_G = block_diag(*G_i)
+    # print("inbody_G = " , inbody_G)
+    # print("inbody_x ========", inbody_x.shape)
+    # print("G_i ========", G_i[0].shape)
+    # print("inbody_G ========", inbody_G.shape)
+    inbody_zonotope = pp.zonotope(inbody_G , inbody_x)
+    pp.subset(prog, inbody_zonotope , zonotope)
+
+
+
+    from pydrake.solvers.mathematicalprogram import Solve    #remove latter
+
+    result = Solve(prog)
+    print(f"Is optimization successful? {result.is_success()}")
+    print(f"Solution to x_i: {result.GetSolution(x_i[0])}")
+    print(f"Solution to G_i: {result.GetSolution(G_i[1])}")
+    print(f"optimal cost: {result.get_optimal_cost()}")
+    print('solver is: ', result.get_solver_id().name())
+
+    x_i_result = [np.zeros(dimensions) for i in range(len(dimensions))]
+    G_i_result = [np.zeros(dimensions) for i in range(len(dimensions))]
+
+    for i in range(len(dimensions)):
+        x_i_result[i] = result.GetSolution(x_i[i])
+        G_i_result[i] = np.diag(result.GetSolution(G_i[i]))
+
+    return  x_i_result , G_i_result
+    # if result.is_success():
+    #     return result.GetSolution()
+    # else:
+    #     return 'Infeasible'
+
