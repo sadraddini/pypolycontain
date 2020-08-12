@@ -653,23 +653,116 @@ def pca_order_reduction(zonotope,desired_order=1):
         return pp.zonotope(G_pca , x)
 
 
-def decompose_cost_function(G):
-    """
-    @author: kasra
-    This function is the objective function for decompose() 
-    """
-    # for i in range(len(G)):
-    #     print('GGGGGGGGGGG',G)
-        #G[i] = G[i].reshape(2,2)
-    #G = [np.array([[G[0],G[1]],[G[2],G[3]]])]
-    log_volumns = list( map( lambda q: np.log(np.linalg.det (np.dot(q.T,q)))  , G) )
-    sum_of_log_volumns = sum(log_volumns)
+# def decompose_cost_function(G):
+#     """
+#     @author: kasra
+#     This function is the objective function for decompose() 
+#     """
+#     log_volumns = list( map( lambda q: np.log(np.linalg.det (np.dot(q.T,q)))  , G) )
+#     sum_of_log_volumns = sum(log_volumns)
 
-    return -sum_of_log_volumns
+#     return -sum_of_log_volumns
+
+
+# def decompose(zonotope,dimensions,obj_coef= None):
+
+#     """
+#     @author: kasra
+#     Decompising a given set into bunch of fewer dimensional sets such that 
+#     the Cartesian product of those sets is a subset of the given set.
+#     """
+
+#     assert(sum(dimensions) == len(zonotope.G)), "ValueError: sum of the given dimensions has \
+#                                                 to be equal to the dimension of the input set"
+#     #number_of_sets = len(dimensions)
+
+#     prog=MP.MathematicalProgram()
+
+#     #defining varibales
+#     #G_i = list(map(lambda q: prog.NewContinuousVariables(q,q) , dimensions))
+#     G_i = list(map(lambda q: prog.NewContinuousVariables(q) , dimensions))              # Diagonal G_i
+#     x_i = list(map(lambda q: prog.NewContinuousVariables(q) , dimensions))
+
+#     # prog.SetInitialGuess(x_i[0], zonotope.x[:2])
+#     # prog.SetInitialGuess(x_i[1], zonotope.x[2:4])
+#     # prog.SetInitialGuess(x_i[2], zonotope.x[4:6])
+#     # prog.SetInitialGuess(G_i[0], 0.02* np.ones(2))
+#     # prog.SetInitialGuess(G_i[1], 0.02* np.ones(2))
+#     # prog.SetInitialGuess(G_i[2], 0.02* np.ones(2))
+
+
+
+#     if obj_coef == None:
+#         from math import prod
+#         cost = prog.AddCost( -1* prod(list(map(lambda q: np.prod(q) , G_i) ) ) )
+#         #print('COOOOOOOST', cost)
+#         print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    
+#     #cost = [ prog.AddCost( -1 * obj_coef[i] * G_i[i][0]*G_i[i][1])  for i in range(len(dimensions))]
+#     else:
+#         try:
+#             cost = [ prog.AddCost( lambda q: -1 * obj_coef[i] * np.prod(q) , vars=G_i[i] )  for i in range(len(dimensions))]
+#             #print('COOOOOOOST', cost[0],'\n',cost[1])
+#             print("*****************************************************************")
+#         except:
+#             print("Value Error: obj_coeff should have the same size as dimensions.\
+#                  It is the coefficient of each corresponding volume.")
+
+#     ########################################################################
+
+#     # X = np.dot(G_i[0].T,G_i[0])
+#     # cost = prog.AddMaximizeLogDeterminantSymmetricMatrixCost( X )     REPLACE X BY G
+
+#     ########################################################################
+#     #cost = prog.AddCost( decompose_cost_function, vars=G_ip[0] )         
+#     ##############cost = [prog.AddCost( np.prod , vars=G_i[i] )  for i in range(len(dimensions))]             # Cost for diagonal G_i  
+#     #prog.AddCost( lambda q: 1 * np.prod( np.dot( np.diag(q), np.diag(q) ) ) , vars=G_i[1] )
+#     #prog.AddCost( lambda q: 1 * np.prod( np.dot( np.diag(q), np.diag(q) ) ) , vars=G_i[0] )
+
+#     [ prog.AddConstraint(G_i[i][j] >= 0) for i in range(len(dimensions)) for j in range(dimensions[i]) ]
+
+#     # for i in range(len(G_i)):
+#     #     G_ip[i] = G_i[i].reshape(2,2)
+#     inbody_x = np.concatenate(x_i)
+#     inbody_G = block_diag( *list( map(lambda q: np.diag(q) ,  G_i ) ) )              #inbody for diagonal G_i
+#     #inbody_G = block_diag(*G_i)
+#     # print("inbody_G = " , inbody_G)
+#     # print("inbody_x ========", inbody_x.shape)
+#     # print("G_i ========", G_i[0].shape)
+#     # print("inbody_G ========", inbody_G.shape)
+#     inbody_zonotope = pp.zonotope(inbody_G , inbody_x)
+#     pp.subset(prog, inbody_zonotope , zonotope)
+
+#     #from pydrake.solvers.mathematicalprogram import Solve    #remove latter
+#     from pydrake.solvers.mathematicalprogram import MakeSolver
+#     from pydrake.solvers.ipopt import IpoptSolver
+#     solver = MakeSolver(IpoptSolver().solver_id())
+#     #x_init = 0.5 * np.ones(198)
+#     result = solver.Solve(prog)
+#     #result = Solve(prog)
+#     print(f"Is optimization successful? {result.is_success()}")
+#     print(f"Solution to x_i: {result.GetSolution(x_i[0])}")
+#     print(f"Solution to G_i: {result.GetSolution(G_i[1])}")
+#     print(f"optimal cost: {result.get_optimal_cost()}")
+#     print('solver is: ', result.get_solver_id().name())
+
+#     x_i_result = [np.zeros(dimensions) for i in range(len(dimensions))]
+#     G_i_result = [np.zeros(dimensions) for i in range(len(dimensions))]
+
+#     for i in range(len(dimensions)):
+#         x_i_result[i] = result.GetSolution(x_i[i])
+#         G_i_result[i] = np.diag(result.GetSolution(G_i[i]))
+
+#     return  x_i_result , G_i_result
+#     # if result.is_success():
+#     #     return result.GetSolution()
+#     # else:
+#     #     return 'Infeasible'
+
+
 
 
 def decompose(zonotope,dimensions):
-
     """
     @author: kasra
     Decompising a given set into bunch of fewer dimensional sets such that 
@@ -683,56 +776,34 @@ def decompose(zonotope,dimensions):
     prog=MP.MathematicalProgram()
 
     #defining varibales
-    #G_i = list(map(lambda q: prog.NewContinuousVariables(q,q) , dimensions))
-    G_i = list(map(lambda q: prog.NewContinuousVariables(q) , dimensions))              # Diagonal G_i
-    x_i = list(map(lambda q: prog.NewContinuousVariables(q) , dimensions))
-    G_ip = G_i
-  #  for i in range(len(G_i)):
- #       G_ip[i] = G_i[i].reshape(4,1)
-    ########################################################################
+    x_i = [prog.NewContinuousVariables(i) for i in dimensions]
+    G_i = [prog.NewContinuousVariables(i,i) for i in dimensions]                #non-symmetric G_i
+    #G_i = [prog.NewSymmetricContinuousVariables(i) for i in dimensions ]               #symmentric G_i
 
-    # X = np.dot(G_i[0].T,G_i[0])
-    # cost = prog.AddMaximizeLogDeterminantSymmetricMatrixCost( X )
-
-    ########################################################################
-    #cost = prog.AddCost( decompose_cost_function, vars=G_ip[0] )         
-    cost = [prog.AddCost( np.prod , vars=G_i[i] )  for i in range(len(dimensions))]             # Cost for diagonal G_i  
-    #prog.AddCost( lambda q: 1 * np.prod( np.dot( np.diag(q), np.diag(q) ) ) , vars=G_i[1] )
-    #prog.AddCost( lambda q: 1 * np.prod( np.dot( np.diag(q), np.diag(q) ) ) , vars=G_i[0] )
-    #[ prog.AddConstraint(G_i[i][j] >= 0) for i in range(len(dimensions)) for j in range(dimensions[i]) ]
-    # for i in range(len(G_i)):
-    #     G_ip[i] = G_i[i].reshape(2,2)
+    #inbody_zonotope
     inbody_x = np.concatenate(x_i)
-    inbody_G = block_diag( *list( map(lambda q: np.diag(q) ,  G_i ) ) )              #inbody for diagonal G_i
-    #inbody_G = block_diag(*G_i)
-    # print("inbody_G = " , inbody_G)
-    # print("inbody_x ========", inbody_x.shape)
-    # print("G_i ========", G_i[0].shape)
-    # print("inbody_G ========", inbody_G.shape)
+    inbody_G = block_diag(*G_i)
     inbody_zonotope = pp.zonotope(inbody_G , inbody_x)
+
+    #Defining Constraints
+    #prog.AddPositiveSemidefiniteConstraint(inbody_G)
     pp.subset(prog, inbody_zonotope , zonotope)
+    # ASSUMPTION for PSD of inbody_G
+    # ASSUMPTION for SYMMENTRICITY of G_i
 
+    #Defining the cost function
+    cost = prog.AddMaximizeLogDeterminantSymmetricMatrixCost( inbody_G )
 
-
-    from pydrake.solvers.mathematicalprogram import Solve    #remove latter
-
-    result = Solve(prog)
+    #Solving
+    result = MP.Solve(prog)
+    
     print(f"Is optimization successful? {result.is_success()}")
     print(f"Solution to x_i: {result.GetSolution(x_i[0])}")
-    print(f"Solution to G_i: {result.GetSolution(G_i[1])}")
+    print(f"Solution to G_i: {result.GetSolution(G_i[0])}")
     print(f"optimal cost: {result.get_optimal_cost()}")
     print('solver is: ', result.get_solver_id().name())
 
-    x_i_result = [np.zeros(dimensions) for i in range(len(dimensions))]
-    G_i_result = [np.zeros(dimensions) for i in range(len(dimensions))]
-
-    for i in range(len(dimensions)):
-        x_i_result[i] = result.GetSolution(x_i[i])
-        G_i_result[i] = np.diag(result.GetSolution(G_i[i]))
+    x_i_result = [result.GetSolution(x_i[i]) for i in range(len(dimensions))]
+    G_i_result = [result.GetSolution(G_i[i]) for i in range(len(dimensions))]
 
     return  x_i_result , G_i_result
-    # if result.is_success():
-    #     return result.GetSolution()
-    # else:
-    #     return 'Infeasible'
-
