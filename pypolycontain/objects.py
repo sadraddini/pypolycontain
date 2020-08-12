@@ -48,9 +48,11 @@ class H_polytope():
         if self.hash_value is None:
             self.hash_value = hash(str(np.hstack([self.H, self.h])))
         return self.hash_value
-    
-#    def __add__(self,another_one):
-#        return pp.minkowski_sum(self,another_one)
+
+    def __add__(self,other):
+        from pypolycontain.operations import minkowski_sum
+        return minkowski_sum(self,other)                # It is returning the minkowski sum in the form of a AH_Polytope!
+
  
 class zonotope():
     r"""
@@ -181,6 +183,11 @@ class AH_polytope():
     
     def copy(self):
         return AH_polytope(self.t,self.T,H_polytope(self.P.H,self.P.h))
+
+    def __add__(self,other):
+        from pypolycontain.operations import minkowski_sum
+        return minkowski_sum(self,other)
+
 
 class V_polytope():
     r"""
