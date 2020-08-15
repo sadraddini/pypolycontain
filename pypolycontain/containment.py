@@ -107,6 +107,51 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0):
     Output:
         * No direct output, adds :\math:`inbody \subseteq circumbody` to the model
     """
+    if type(inbody).__name__=="zonotope" and type(circumbody).__name__=="zonotope":
+        """
+        For the case when both inbody and circumbody sets are zonotope:
+        """
+        from itertools import product
+        #Defining Variables
+        Gamma=program.NewContinuousVariables( circumbody.G.shape[1], inbody.G.shape[1], 'Gamma')
+        Lambda=program.NewContinuousVariables( circumbody.G.shape[1],'Lambda')
+        
+        #Defining Constraints
+        program.AddLinearConstraint(np.equal(inbody.G,np.dot(circumbody.G,Gamma),dtype='object').flatten()) #inbody_G = circumbody_G * Gamma
+        program.AddLinearConstraint(np.equal(circumbody.x - inbody.x ,np.dot(circumbody.G,Lambda),dtype='object').flatten())
+
+        Gamma_Lambda = np.concatenate((Gamma,Lambda.reshape(circumbody.G.shape[1],1)),axis=1)
+        
+        comb = np.array(list(product([-1, 1], repeat= Gamma_Lambda.shape[1]))).reshape(-1, Gamma_Lambda.shape[1])
+        
+        for i in range(Gamma_Lambda.shape[0]):
+            program.AddLinearConstraint(
+                A=comb,
+                lb= -np.inf * np.ones(comb.shape[0]),
+                ub=np.ones(comb.shape[0]),
+                vars=Gamma_Lambda[i,:]
+            ) 
+            
+        #from pydrake.symbolic import abs as exp_abs
+        # Gamma_abs = np.array([exp_abs(Gamma[i,j]) for i in range(circumbody.G.shape[1]) for j in range(inbody.G.shape[1])]).reshape(*Gamma.shape)
+        # Lambda_abs = np.array([exp_abs(Lambda[i]) for i in range(circumbody.G.shape[1])]).reshape(circumbody.G.shape[1],1)
+        # Gamma_lambda_abs = np.concatenate((Gamma_abs,Lambda_abs),axis=1)
+        # infnorm_Gamma_lambda_abs = np.sum(Gamma_lambda_abs,axis=1)
+
+        #[program.AddConstraint( infnorm_Gamma_lambda_abs[i] <= 1) for i in range(circumbody.G.shape[1])]
+        
+        #program.AddBoundingBoxConstraint(-np.inf * np.ones(circumbody.G.shape[1]) , np.ones(circumbody.G.shape[1]), infnorm_Gamma_lambda_abs)
+        # program.AddLinearConstraint(
+        #     A=np.eye(circumbody.G.shape[1]),
+        #     lb= -np.inf * np.ones(circumbody.G.shape[1]),
+        #     ub=np.ones(circumbody.G.shape[1]),
+        #     vars=infnorm_Gamma_lambda_abs
+        # )
+
+        return Lambda, Gamma
+
+
+
     Q1=pp.to_AH_polytope(inbody)
     Q2=pp.to_AH_polytope(circumbody)
     Hx,Hy,hx,hy,X,Y,xbar,ybar=Q1.P.H,Q2.P.H,Q1.P.h,Q2.P.h,Q1.T,Q2.T,Q1.t,Q2.t
