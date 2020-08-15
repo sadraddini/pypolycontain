@@ -122,7 +122,7 @@ class zonotope():
         for s in S:
             Gs=np.hstack([G[:,i:i+1] for i in s])
             V+=abs(np.linalg.det(Gs))
-        return V
+        return (2**G.shape[0]) *V
     
     def volume_gradient(self):
         G=self.G
