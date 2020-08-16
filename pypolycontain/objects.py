@@ -1,6 +1,7 @@
 # Numpy
 import numpy as np
 from itertools import combinations
+from scipy.linalg import block_diag
 # Pypolycontain
 #from ..utils.utils import unique_rows
 
@@ -47,9 +48,11 @@ class H_polytope():
         if self.hash_value is None:
             self.hash_value = hash(str(np.hstack([self.H, self.h])))
         return self.hash_value
-    
-#    def __add__(self,another_one):
-#        return pp.minkowski_sum(self,another_one)
+
+    def __add__(self,other):
+        from pypolycontain.operations import minkowski_sum
+        return minkowski_sum(self,other)                # It is returning the minkowski sum in the form of a AH_Polytope!
+
  
 class zonotope():
     r"""
@@ -68,7 +71,7 @@ class zonotope():
     of the zonotope is defined as :math:`\frac{q}{n}`. 
     """
     def __init__(self,G,x=None,name=None,color="green"):
-        self.G=G        
+        self.G=np.array(G)        
         if type(x)==type(None):
             self.x=np.zeros((G.shape[0],1))
         else:
@@ -90,6 +93,16 @@ class zonotope():
             self.hash_value = hash(str(np.hstack([self.G, self.x])))  # FIXME: better hashing implementation
         return self.hash_value
     
+    def __add__(self,other):
+        x = self.x + other.x
+        G = np.concatenate([self.G,other.G],axis=1)
+        return zonotope(G=G,x=x)
+
+    def __pow__(self,other):
+        x = np.concatenate([self.x , other.x])
+        G = block_diag(self.G,other.G)
+        return zonotope(G=G,x=x)
+
     def volume(self):
         r"""
         Computes the volume of the zonotope in :math:`\mathbb{n}` dimensions. 
@@ -170,6 +183,11 @@ class AH_polytope():
     
     def copy(self):
         return AH_polytope(self.t,self.T,H_polytope(self.P.H,self.P.h))
+
+    def __add__(self,other):
+        from pypolycontain.operations import minkowski_sum
+        return minkowski_sum(self,other)
+
 
 class V_polytope():
     r"""
