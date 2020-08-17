@@ -117,21 +117,21 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0):
         Lambda=program.NewContinuousVariables( circumbody.G.shape[1],'Lambda')
         
         #Defining Constraints
-        program.AddLinearConstraint(np.equal(inbody.G,np.dot(circumbody.G,Gamma),dtype='object').flatten()) #inbody_G = circumbody_G * Gamma
-        program.AddLinearConstraint(np.equal(circumbody.x - inbody.x ,np.dot(circumbody.G,Lambda),dtype='object').flatten())
+        program.AddLinearConstraint(np.equal(inbody.G,np.dot(circumbody.G,Gamma),dtype='object').flatten())             #inbody_G = circumbody_G * Gamma
+        program.AddLinearConstraint(np.equal(circumbody.x - inbody.x ,np.dot(circumbody.G,Lambda),dtype='object').flatten())    #circumbody_x - inbody_x = circumbody_G * Lambda
 
         Gamma_Lambda = np.concatenate((Gamma,Lambda.reshape(circumbody.G.shape[1],1)),axis=1)
-        
         comb = np.array(list(product([-1, 1], repeat= Gamma_Lambda.shape[1]))).reshape(-1, Gamma_Lambda.shape[1])
         
-        for i in range(Gamma_Lambda.shape[0]):
+        # infinity norm of matrxi [Gamma,Lambda] <= 1
+        for j in range(Gamma_Lambda.shape[0]):
             program.AddLinearConstraint(
                 A=comb,
                 lb= -np.inf * np.ones(comb.shape[0]),
                 ub=np.ones(comb.shape[0]),
-                vars=Gamma_Lambda[i,:]
+                vars=Gamma_Lambda[j,:]
             ) 
-            
+
         #from pydrake.symbolic import abs as exp_abs
         # Gamma_abs = np.array([exp_abs(Gamma[i,j]) for i in range(circumbody.G.shape[1]) for j in range(inbody.G.shape[1])]).reshape(*Gamma.shape)
         # Lambda_abs = np.array([exp_abs(Lambda[i]) for i in range(circumbody.G.shape[1])]).reshape(circumbody.G.shape[1],1)

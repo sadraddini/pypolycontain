@@ -8,13 +8,10 @@ import matplotlib.pyplot as plt
 
 circumbody = pp.zonotope( 4 * np.random.rand(2,5) , np.ones(2) , color='green')
 dimensions = [1,1]
-x,G = pp.decompose(circumbody,dimensions)
-#x,G = pp.decompose(circumbody,dimensions, obj_coef= [1,1])
-
-print('x=',x)
-print('G=',G)
-inbody = pp.zonotope([[G[0],0],[0,G[1]]],x , color= 'red')
-pp.visualize([circumbody,inbody])
+z = pp.decompose(circumbody,dimensions)
+z_decompose = z[0]**z[1]
+z_decompose.color = 'red'
+pp.visualize([circumbody,z_decompose])
 plt.show()
 
 
@@ -31,26 +28,25 @@ circumbody_2 = pp.zonotope( circumbody_G[2:4,:] , circumbody_x[2:4] ,color='gree
 circumbody_3 = pp.zonotope( circumbody_G[4:6,:] , circumbody_x[4:6] ,color='green')
 
 dimensions = [2,2,2]
-x,G = pp.decompose(circumbody,dimensions)
-#x,G = pp.decompose(circumbody,dimensions, obj_coef= [1,1,1])
-#G = 1.1* np.array(G)
-print('x=',x)
-print('G=',G)
+z = pp.decompose(circumbody,dimensions)
+z[0].color='red'
+z[1].color='red'
+z[2].color='red'
 
-inbody_1 = pp.zonotope(G[0],x[0], color= 'red')
-inbody_2 = pp.zonotope(G[1],x[1], color= 'red')
-inbody_3 = pp.zonotope(G[2],x[2], color= 'red')
+# z[0].G = 1.1* np.array(z[0].G)
+# z[1].G = 1.1* np.array(z[1].G)
+# z[2].G = 1.1* np.array(z[2].G)
 
-inbody = inbody_1 ** inbody_2 **inbody_3
+inbody = z[0]**z[1]**z[2]
 
 print('directed_Hausdorff_distance = ',pp.directed_Hausdorff_distance(circumbody, inbody))
 print('directed_Hausdorff_distance = ',pp.directed_Hausdorff_distance(inbody,circumbody))
 
 fig, axs = plt.subplots(3)
-pp.visualize([circumbody_1, inbody_1], ax = axs[0],fig=fig, title='')
+pp.visualize([circumbody_1, z[0]], ax = axs[0],fig=fig, title='')
 axs[0].axis('equal')
-pp.visualize([circumbody_2, inbody_2], ax = axs[1],fig=fig, title='')
+pp.visualize([circumbody_2, z[1]], ax = axs[1],fig=fig, title='')
 axs[1].axis('equal')
-pp.visualize([circumbody_3, inbody_3], ax = axs[2],fig=fig, title='')
+pp.visualize([circumbody_3, z[2]], ax = axs[2],fig=fig, title='')
 axs[2].axis('equal')
 plt.show()
