@@ -29,13 +29,14 @@ circumbody_3 = pp.zonotope( circumbody_G[4:6,:] , circumbody_x[4:6] ,color='gree
 
 dimensions = [2,2,2]
 z = pp.decompose(circumbody,dimensions)
+
+# z[0]=1.1 * z[0]
+# z[1]=1.1 * z[1]
+# z[2]=1.1 * z[2]
+
 z[0].color='red'
 z[1].color='red'
 z[2].color='red'
-
-# z[0].G = 1.1* np.array(z[0].G)
-# z[1].G = 1.1* np.array(z[1].G)
-# z[2].G = 1.1* np.array(z[2].G)
 
 inbody = z[0]**z[1]**z[2]
 
