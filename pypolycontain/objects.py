@@ -107,7 +107,7 @@ class zonotope():
         """
         Scaling zonotopes by a scalar. The scalar needs to be an integer or a float.
         """
-        assert(type(other)==int or type(other)==float), "A zonotope can be multiplied by an int or float"
+        assert( type(other)==int or type(other)==float or other.shape == (1,) ), "A zonotope can be multiplied by an int or float"
         x = other * self.x
         G = other * self.G
         return zonotope(G=G,x=x)
