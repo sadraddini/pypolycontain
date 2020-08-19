@@ -161,8 +161,10 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None):
         #     ub=np.ones(circumbody.G.shape[1]),
         #     vars=infnorm_Gamma_lambda_abs
         # )
-
-        return Lambda, Gamma , alfa
+        if alpha==None:
+            return Lambda, Gamma 
+        else:
+            return Lambda, Gamma , alfa
 
 
 
