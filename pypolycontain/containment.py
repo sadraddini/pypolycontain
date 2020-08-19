@@ -90,7 +90,7 @@ def extreme_rays_for_containment(circumbody,k=0,i=0):
     return Theta
 
 
-def subset(program,inbody,circumbody,k=-1,Theta=None,i=0):
+def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None):
     """
     Adds containment property Q1 subset Q2
     
@@ -115,21 +115,35 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0):
         #Defining Variables
         Gamma=program.NewContinuousVariables( circumbody.G.shape[1], inbody.G.shape[1], 'Gamma')
         Lambda=program.NewContinuousVariables( circumbody.G.shape[1],'Lambda')
-        
+
         #Defining Constraints
         program.AddLinearConstraint(np.equal(inbody.G,np.dot(circumbody.G,Gamma),dtype='object').flatten())             #inbody_G = circumbody_G * Gamma
         program.AddLinearConstraint(np.equal(circumbody.x - inbody.x ,np.dot(circumbody.G,Lambda),dtype='object').flatten())    #circumbody_x - inbody_x = circumbody_G * Lambda
 
         Gamma_Lambda = np.concatenate((Gamma,Lambda.reshape(circumbody.G.shape[1],1)),axis=1)
         comb = np.array(list(product([-1, 1], repeat= Gamma_Lambda.shape[1]))).reshape(-1, Gamma_Lambda.shape[1])
+        if alpha=='scalar':
+            comb_agg = np.concatenate( (comb,-1*np.ones((comb.shape[0],1))) , axis=1)
+        elif alpha== 'vector':
+            comb_agg = np.concatenate( (comb,-1*np.eye(comb.shape[0])) , axis=1)
+
+        # Managing alpha
+        if alpha==None:
+            alfa = np.ones(comb.shape[0])
+        elif alpha=='scalar':
+            alfa = program.NewContinuousVariables(1,'alpha')
+        elif alpha=='vector':
+            alfa=program.NewContinuousVariables( comb.shape[0],'alpha')
+        else:
+            raise ValueError('alpha needs to be \'None\', \'scalaer\', or \'vector\'')
         
-        # infinity norm of matrxi [Gamma,Lambda] <= 1
+        # infinity norm of matrxi [Gamma,Lambda] <= alfa
         for j in range(Gamma_Lambda.shape[0]):
             program.AddLinearConstraint(
-                A=comb,
+                A= comb if alpha==None else comb_agg,
                 lb= -np.inf * np.ones(comb.shape[0]),
-                ub=np.ones(comb.shape[0]),
-                vars=Gamma_Lambda[j,:]
+                ub= alfa if alpha==None else np.zeros(comb.shape[0]),
+                vars= Gamma_Lambda[j,:] if alpha==None else np.concatenate((Gamma_Lambda[j,:],alfa))
             ) 
 
         #from pydrake.symbolic import abs as exp_abs
@@ -148,7 +162,7 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0):
         #     vars=infnorm_Gamma_lambda_abs
         # )
 
-        return Lambda, Gamma
+        return Lambda, Gamma , alfa
 
 
 
