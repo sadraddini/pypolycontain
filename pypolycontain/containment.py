@@ -94,10 +94,10 @@ def be_in_set(program,point,zonotope):
     """
     It force point be a member of a set zonotope
     """
-    dimension = len(point)
-    b=program.NewContinuousVariables( dimension,'x')
+    dimension = zonotope.G.shape[1]
+    b=program.NewContinuousVariables( dimension,'b')
     program.AddBoundingBoxConstraint(-1,1,b)
-    np.equal(point, zonotope.x+np.dot(zonotope.G , b) ,dtype='object').flatten()
+    program.AddLinearConstraint( np.equal(point, zonotope.x+np.dot(zonotope.G , b) ,dtype='object').flatten() )
     return b
 
 def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None):
