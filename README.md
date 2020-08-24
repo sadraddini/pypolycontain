@@ -1,16 +1,16 @@
 ![](pypolycontain.png "pypolycontain")
 
-## Documentation (NEW - Under Construction):
+## Documentation (NEW):
 We are working on the [documentation](https://pypolycontain.readthedocs.io/en/latest/). Please regularly check for updates. 
 
 ## Publications
 * A preprint of the paper on the theoretical background of this package is available [here](https://arxiv.org/pdf/1903.05214.pdf).
 * A version of this work is going to be presented in [CDC 2019](https://cdc2019.ieeecss.org/)
 
-## Dependencies:
-None
+## Necessary Dependencies:
+* Numpy
 
-### Optional (for some features)
+### Optional Dependencies (for some features, including optimization-based features)
 * [pycdd library](https://pycddlib.readthedocs.io/en/latest/index.html)
 * Drake (*please build the python bindings with Gurobi*) [get Drake from here](https://drake.mit.edu/)
 * Gurobi 8.0.1 or later [Gurobi website](https://gurobi.com) (Free Academic License)

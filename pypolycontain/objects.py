@@ -75,7 +75,7 @@ class zonotope():
         if type(x)==type(None):
             self.x=np.zeros((G.shape[0],1))
         else:
-            self.x=np.array(x)
+            self.x=x.reshape(len(x),1)
         if name==None:
             self.name="zonotope"
         else:
@@ -174,7 +174,7 @@ class AH_polytope():
         Initilization: T,t,P. X=TP+t
         """
         self.T=T # Matrix n*n_p
-        self.t=t # vector n*1
+        self.t=np.atleast_2d(t) # vector n*1
         self.P=P # Polytope in n_p dimensions
         self.n=T.shape[0]
         if T.shape[1]!=P.H.shape[1]:
