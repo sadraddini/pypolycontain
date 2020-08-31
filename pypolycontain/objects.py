@@ -103,6 +103,18 @@ class zonotope():
         G = block_diag(self.G,other.G)
         return zonotope(G=G,x=x)
 
+    def __rmul__(self,other):
+        """
+        Scaling zonotopes by a scalar. The scalar needs to be an integer or a float.
+        """
+        assert( type(other)==int or type(other)==float or other.shape == (1,) ), "A zonotope can be multiplied by an int or float"
+        x = other * self.x
+        G = other * self.G
+        return zonotope(G=G,x=x)
+
+    def __mul__(self,other):
+        return self.__rmul__(other)
+
     def volume(self):
         r"""
         Computes the volume of the zonotope in :math:`\mathbb{n}` dimensions. 
@@ -122,7 +134,7 @@ class zonotope():
         for s in S:
             Gs=np.hstack([G[:,i:i+1] for i in s])
             V+=abs(np.linalg.det(Gs))
-        return V
+        return (2**G.shape[0]) *V
     
     def volume_gradient(self):
         G=self.G

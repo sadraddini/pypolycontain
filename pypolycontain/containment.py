@@ -90,7 +90,17 @@ def theta_k(circumbody,k=0,i=0):
     return Theta
 
 
-def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,verbose=False):
+def be_in_set(program,point,zonotope):
+    """
+    It forces a point to be a member of a zonotope
+    """
+    dimension = zonotope.G.shape[1]
+    b=program.NewContinuousVariables( dimension,'b')
+    program.AddBoundingBoxConstraint(-1,1,b)
+    program.AddLinearConstraint( np.equal(point, zonotope.x+np.dot(zonotope.G , b) ,dtype='object').flatten() )
+    return b
+
+def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None,verbose=False):
     """
     Adds containment property Q1 subset Q2
     
@@ -107,6 +117,67 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,verbose=False):
     Output:
         * No direct output, adds :\math:`inbody \subseteq circumbody` to the model
     """
+    if type(inbody).__name__=="zonotope" and type(circumbody).__name__=="zonotope":
+        """
+        For the case when both inbody and circumbody sets are zonotope:
+        """
+        from itertools import product
+        #Defining Variables
+        Gamma=program.NewContinuousVariables( circumbody.G.shape[1], inbody.G.shape[1], 'Gamma')
+        Lambda=program.NewContinuousVariables( circumbody.G.shape[1],'Lambda')
+
+        #Defining Constraints
+        program.AddLinearConstraint(np.equal(inbody.G,np.dot(circumbody.G,Gamma),dtype='object').flatten())             #inbody_G = circumbody_G * Gamma
+        program.AddLinearConstraint(np.equal(circumbody.x - inbody.x ,np.dot(circumbody.G,Lambda),dtype='object').flatten())    #circumbody_x - inbody_x = circumbody_G * Lambda
+
+        Gamma_Lambda = np.concatenate((Gamma,Lambda.reshape(circumbody.G.shape[1],1)),axis=1)
+        comb = np.array(list(product([-1, 1], repeat= Gamma_Lambda.shape[1]))).reshape(-1, Gamma_Lambda.shape[1])
+        if alpha=='scalar':
+            comb_agg = np.concatenate( (comb,-1*np.ones((comb.shape[0],1))) , axis=1)
+        elif alpha== 'vector':
+            comb_agg = np.concatenate( (comb,-1*np.eye(comb.shape[0])) , axis=1)
+
+        # Managing alpha
+        if alpha==None:
+            alfa = np.ones(comb.shape[0])
+        elif alpha=='scalar':
+            alfa = program.NewContinuousVariables(1,'alpha')
+        elif alpha=='vector':
+            alfa=program.NewContinuousVariables( comb.shape[0],'alpha')
+        else:
+            raise ValueError('alpha needs to be \'None\', \'scalaer\', or \'vector\'')
+        
+        # infinity norm of matrxi [Gamma,Lambda] <= alfa
+        for j in range(Gamma_Lambda.shape[0]):
+            program.AddLinearConstraint(
+                A= comb if alpha==None else comb_agg,
+                lb= -np.inf * np.ones(comb.shape[0]),
+                ub= alfa if alpha==None else np.zeros(comb.shape[0]),
+                vars= Gamma_Lambda[j,:] if alpha==None else np.concatenate((Gamma_Lambda[j,:],alfa))
+            ) 
+
+        #from pydrake.symbolic import abs as exp_abs
+        # Gamma_abs = np.array([exp_abs(Gamma[i,j]) for i in range(circumbody.G.shape[1]) for j in range(inbody.G.shape[1])]).reshape(*Gamma.shape)
+        # Lambda_abs = np.array([exp_abs(Lambda[i]) for i in range(circumbody.G.shape[1])]).reshape(circumbody.G.shape[1],1)
+        # Gamma_lambda_abs = np.concatenate((Gamma_abs,Lambda_abs),axis=1)
+        # infnorm_Gamma_lambda_abs = np.sum(Gamma_lambda_abs,axis=1)
+
+        #[program.AddConstraint( infnorm_Gamma_lambda_abs[i] <= 1) for i in range(circumbody.G.shape[1])]
+        
+        #program.AddBoundingBoxConstraint(-np.inf * np.ones(circumbody.G.shape[1]) , np.ones(circumbody.G.shape[1]), infnorm_Gamma_lambda_abs)
+        # program.AddLinearConstraint(
+        #     A=np.eye(circumbody.G.shape[1]),
+        #     lb= -np.inf * np.ones(circumbody.G.shape[1]),
+        #     ub=np.ones(circumbody.G.shape[1]),
+        #     vars=infnorm_Gamma_lambda_abs
+        # )
+        if alpha==None:
+            return Lambda, Gamma 
+        else:
+            return Lambda, Gamma , alfa
+
+
+
     Q1=pp.to_AH_polytope(inbody)
     Q2=pp.to_AH_polytope(circumbody)
     Hx,Hy,hx,hy,X,Y,xbar,ybar=Q1.P.H,Q2.P.H,Q1.P.h,Q2.P.h,Q1.T,Q2.T,Q1.t,Q2.t
