@@ -90,7 +90,6 @@ def theta_k(circumbody,k=0,i=0):
     return Theta
 
 
-
 def be_in_set(program,point,zonotope):
     """
     It forces a point to be a member of a zonotope
