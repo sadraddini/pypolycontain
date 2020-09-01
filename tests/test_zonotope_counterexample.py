@@ -12,10 +12,15 @@ import scipy as sp
 from gurobipy import Model,GRB
 import matplotlib.pyplot as plt
 
-from pypolycontain.utils.utils import PI,valuation
-from pypolycontain.lib.inclusion_encodings import subset_zonotope_both,constraints_AB_eq_CD
-from pypolycontain.lib.zonotope import zonotope,zonotope_inside
-from pypolycontain.utils.utils import vertices_cube as vcube
+#from pypolycontain.utils.utils import PI,valuation
+#from pypolycontain.lib.inclusion_encodings import subset_zonotope_both,constraints_AB_eq_CD
+#from pypolycontain.lib.zonotope import zonotope,zonotope_inside
+#from pypolycontain.utils.utils import vertices_cube as vcube
+
+from utils.utils import PI,valuation
+from lib.containment_encodings import subset_generic,constraints_AB_eq_CD
+from lib.zonotope import zonotope,zonotope_inside
+from utils.utils import vertices_cube as vcube
 
 def zonotope_inside_scale(z,Y):
     """
@@ -59,10 +64,10 @@ def find_a_counterxample(n,tol=0.01):
                 for row in range(n):
                     for column in range(N_l):
                         model.addConstr(G_l_var[row,column]==G_l[row,column]*scale)
-                (alpha,beta)=subset_zonotope_both(model,x_l,G_l_var,x_r,G_r)
+                subset_generic(model,zonotope(x_l,G_l_var),zonotope(x_r,G_r))
                 model.optimize()
-                alpha=valuation(alpha)
-                beta=valuation(beta)
+#                alpha=valuation(alpha)
+#                beta=valuation(beta)
                 scale_theorem=scale.X
                 print("scale_theorem is",scale_theorem)
                 if scale_theorem<=10**-5:

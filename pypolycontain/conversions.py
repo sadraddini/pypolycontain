@@ -40,13 +40,14 @@ except:
 
 def to_AH_polytope(P):
     """
-    Converts the polytopic object P into an AH-polytope
+    Converts the polytopic object P into an AH-polytope. If applied on 
+    a AH-polytope, a deepcopy is returned
     """
     if type(P).__name__=="AH_polytope":
-        return P
+        return pp.AH_polytope(T=P.T,t=P.t,P=pp.H_polytope(P.P.H,P.P.h))
     elif type(P).__name__=="H_polytope":
         n=P.H.shape[1]
-        return pp.AH_polytope(T=np.eye(n),t=np.zeros((n,1)),P=P)
+        return pp.AH_polytope(T=np.eye(n),t=np.zeros((n,1)),P=pp.H_polytope(P.H,P.h))
     elif type(P).__name__=="zonotope":
         q=P.G.shape[1]
         return pp.AH_polytope(T=P.G,t=P.x,P=pp.unitbox(N=q).H_polytope,color=P.color)
@@ -131,7 +132,7 @@ def AH_to_V(P,N=360,epsilon=1e-3,solver="Gurobi"):
         c_T=np.dot(c.T,Q.T)
         e=a.evaluator()
         cost = c_T.reshape(Q.P.H.shape[1])
-        cost[cost == 0] = 1e-3
+#        cost[cost == 0] = 1e-3
         e.UpdateCoefficients(cost)
         result=solver.Solve(prog,None,None)
         assert result.is_success()

@@ -1,4 +1,5 @@
 import warnings
+import time
 import numpy as np
 
 # Scipy
@@ -25,17 +26,16 @@ except:
 #    pass
 #    warnings.warn("You don't have pypolycontain not properly installed.")
 
-# try:
-#    import pydrake.solvers.mathematicalprogram as MP
-#    import pydrake.solvers.gurobi as Gurobi_drake
-#    import pydrake.solvers.osqp as OSQP_drake
-#    # use Gurobi solver
-#    global gurobi_solver,OSQP_solver, license
-#    gurobi_solver=Gurobi_drake.GurobiSolver()
-#    license = gurobi_solver.AcquireLicense()
-#    OSQP_solver=OSQP_drake.OsqpSolver()
-# except:
-#    warnings.warn("You don't have pydrake installed properly. Methods that rely on optimization may fail.")
+try:
+    import pydrake.solvers.mathematicalprogram as MP
+    import pydrake.solvers.gurobi as Gurobi_drake
+    import pydrake.solvers.osqp as OSQP_drake
+    # use Gurobi solver
+    global gurobi_solver,OSQP_solver, license
+    gurobi_solver=Gurobi_drake.GurobiSolver()
+    license = gurobi_solver.AcquireLicense()
+except:
+    warnings.warn("You don't have pydrake installed properly. Methods that rely on optimization may fail.")
         
 
 """
@@ -48,7 +48,7 @@ The necessary and sufficient conditions for encoding was provided here.
 """
 
 
-def extreme_rays_for_containment(circumbody,k=0,i=0):
+def theta_k(circumbody,k=0,i=0):
     """
     This is from the Section 4 of the paper [Sadraddini and Tedrake, 2020].
     
@@ -92,7 +92,7 @@ def extreme_rays_for_containment(circumbody,k=0,i=0):
 
 def be_in_set(program,point,zonotope):
     """
-    It force point be a member of a set zonotope
+    It forces a point to be a member of a zonotope
     """
     dimension = zonotope.G.shape[1]
     b=program.NewContinuousVariables( dimension,'b')
@@ -100,7 +100,7 @@ def be_in_set(program,point,zonotope):
     program.AddLinearConstraint( np.equal(point, zonotope.x+np.dot(zonotope.G , b) ,dtype='object').flatten() )
     return b
 
-def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None):
+def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None,verbose=False):
     """
     Adds containment property Q1 subset Q2
     
@@ -182,10 +182,18 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None):
     Q2=pp.to_AH_polytope(circumbody)
     Hx,Hy,hx,hy,X,Y,xbar,ybar=Q1.P.H,Q2.P.H,Q1.P.h,Q2.P.h,Q1.T,Q2.T,Q1.t,Q2.t
     qx,qy,nx,ny=Hx.shape[0],Hy.shape[0],X.shape[1],Y.shape[1]
-    if k<0:
+    if type(Theta)!=type(None):
+        if verbose:
+            print("theta already computed")
+        pass
+    elif k<0:
         Theta=np.eye(qy)
+        if verbose:
+            print("Using Positive Orthant")
     else:
-        Theta=extreme_rays_for_containment(circumbody,k,i)
+        if verbose:
+            print("Computing theta with k=%d"%k)
+        Theta=theta_k(circumbody,k,i)
     Lambda=program.NewContinuousVariables(Theta.shape[1],qx,'Lambda')
     Gamma=program.NewContinuousVariables(ny,nx,'Gamma')
     gamma=program.NewContinuousVariables(ny,1,'gamma')
@@ -198,4 +206,76 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None):
           np.dot(Theta.T,hy)+np.dot(Theta.T,np.dot(Hy,gamma)),dtype='object').flatten())
     return Theta,Lambda,Gamma,gamma
 
+def necessity_gap(X,Y,Theta):
+    """
+    The necessity gap for the encoding using cone defined by Theta
     
+    .. warning:
+        To be added later
+    """
+    alpha_0=alpha(X,Y,theta_k(Y,k=0))
+    my_alpha= alpha(X,Y,Theta)
+    return 1-my_alpha/alpha_0
+
+def necessity_gap_k(X,Y,plot=True):
+    print("\n\n","="*75,"\n","="*75,"\n\t\tComputing Necessity Gaps ")
+    print("="*75,"\n","="*75)
+    print("k\tTheta.shape \t delta(X,Y,C) \t alpha \t Computation Time")
+    print("-"*75)
+    alpha_0=alpha(X,Y,theta_k(Y,k=0))
+    Table={}        
+    Z=pp.to_AH_polytope(Y)
+    kappa=int(Z.T.shape[1]-Z.T.shape[0])
+    for k in range(kappa+1):
+        t_0=time.time()
+        Theta=theta_k(Y,k)
+#        print(k,"theta shape",Theta.shape,Theta)
+        a=alpha(X,Y,Theta)
+        delta=1-a/alpha_0
+        cpu_time=time.time()-t_0
+        print(k, "\t",Theta.shape,"\t %0.03f"%delta,"\t\t %0.03f"%a,"\t\t %0.003f"%cpu_time)
+        Table[k]=np.array([Theta.shape[1],delta,a,cpu_time])
+    if plot:
+        import matplotlib.pyplot as plt
+        plt.figure()
+        fig, ax1 = plt.subplots()
+        color = (0.7,0,0)
+        ax1.set_xlabel(r'$k$')
+        ax1.set_ylabel(r'#Rows in $\Theta_k$', color=color,FontSize=20)
+        ax1.plot(range(kappa+1),[Table[k][0] for k in range(kappa+1)],'-',color=color)
+        ax1.plot(range(kappa+1),[Table[k][0] for k in range(kappa+1)],'o',color=color)
+        ax1.tick_params(axis='y', labelcolor=color)
+        
+        ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+        
+        color = (0,0,0.7)
+        ax2.set_xlabel(r'$k$')
+        ax2.set_ylabel(r'$\delta(\mathbb{X},\mathbb{Y},\mathbb{C}_k)$', color=color,FontSize=20)
+        ax2.plot(range(kappa+1),[Table[k][1] for k in range(kappa+1)],'-',color=color)
+        ax2.plot(range(kappa+1),[Table[k][1] for k in range(kappa+1)],'o',color=color)
+        ax2.tick_params(axis='y', labelcolor=color)
+        
+        ax2.set_title(r'$k^*=%d, n=%d$'%(kappa,Z.n),FontSize=20)
+        ax1.grid()
+        fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    
+    return Table
+
+    
+def alpha(X,Y,Theta):
+    X2=pp.to_AH_polytope(X)
+    Y2=pp.to_AH_polytope(Y)
+    prog=MP.MathematicalProgram()
+    alpha=prog.NewContinuousVariables(1,"alpha")
+    t=prog.NewContinuousVariables(X2.n,1,"t")
+    Y2.P.h=Y2.P.h*alpha
+    X2.t=X2.t+t
+    subset(prog,X2,Y2,Theta=Theta)
+    prog.AddLinearCost(np.eye(1),np.zeros((1)),alpha)
+    result=gurobi_solver.Solve(prog,None,None)
+    if result.is_success():
+#        print("alpha test successful")
+#        print(result.GetSolution(alpha),result.GetSolution(t))
+        return 1/result.GetSolution(alpha)[0]
+    else:
+        print("not a subset") 
