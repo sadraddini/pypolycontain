@@ -50,7 +50,7 @@ def to_AH_polytope(P):
         return pp.AH_polytope(T=np.eye(n),t=np.zeros((n,1)),P=pp.H_polytope(P.H,P.h))
     elif type(P).__name__=="zonotope":
         q=P.G.shape[1]
-        return pp.AH_polytope(T=P.G,t=P.x.reshape(len(P.x),1),P=pp.unitbox(N=q).H_polytope,color=P.color)
+        return pp.AH_polytope(T=P.G,t=P.x.reshape(-1,1),P=pp.unitbox(N=q).H_polytope,color=P.color)
     elif type(P).__name__=="V_polytope":
         V=P.list_of_vertices
         N=len(V)
