@@ -131,30 +131,30 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None,verbose=Fals
         program.AddLinearConstraint(np.equal(circumbody.x - inbody.x ,np.dot(circumbody.G,Lambda),dtype='object').flatten())    #circumbody_x - inbody_x = circumbody_G * Lambda
 
         Gamma_Lambda = np.concatenate((Gamma,Lambda.reshape(circumbody.G.shape[1],1)),axis=1)
-        comb = np.array(list(product([-1, 1], repeat= Gamma_Lambda.shape[1]))).reshape(-1, Gamma_Lambda.shape[1])
-        if alpha=='scalar':
-            comb_agg = np.concatenate( (comb,-1*np.ones((comb.shape[0],1))) , axis=1)
-        elif alpha== 'vector':
-            comb_agg = np.concatenate( (comb,-1*np.eye(comb.shape[0])) , axis=1)
-
+        comb = np.array( list(product([-1, 1], repeat= Gamma_Lambda.shape[1])) ).reshape(-1, Gamma_Lambda.shape[1])
+        if alpha=='scalar' or alpha== 'vector':
+            comb= np.concatenate( (comb,-1*np.ones((comb.shape[0],1))) , axis=1)
+        
         # Managing alpha
         if alpha==None:
-            alfa = np.ones(comb.shape[0])
+            variable = Gamma_Lambda
         elif alpha=='scalar':
             alfa = program.NewContinuousVariables(1,'alpha')
         elif alpha=='vector':
-            alfa=program.NewContinuousVariables( comb.shape[0],'alpha')
+            alfa=program.NewContinuousVariables( circumbody.G.shape[1],'alpha')
+            variable = np.concatenate((Gamma_Lambda, alfa.reshape(-1,1)),axis=1)
         else:
             raise ValueError('alpha needs to be \'None\', \'scalaer\', or \'vector\'')
-        
+
         # infinity norm of matrxi [Gamma,Lambda] <= alfa
         for j in range(Gamma_Lambda.shape[0]):
             program.AddLinearConstraint(
-                A= comb if alpha==None else comb_agg,
+                A= comb,
                 lb= -np.inf * np.ones(comb.shape[0]),
-                ub= alfa if alpha==None else np.zeros(comb.shape[0]),
-                vars= Gamma_Lambda[j,:] if alpha==None else np.concatenate((Gamma_Lambda[j,:],alfa))
+                ub= np.ones(comb.shape[0]) if alpha==None else np.zeros(comb.shape[0]),
+                vars= variable[j,:] if alpha!='scalar' else np.concatenate((Gamma_Lambda[j,:], alfa ))
             ) 
+
 
         #from pydrake.symbolic import abs as exp_abs
         # Gamma_abs = np.array([exp_abs(Gamma[i,j]) for i in range(circumbody.G.shape[1]) for j in range(inbody.G.shape[1])]).reshape(*Gamma.shape)

@@ -75,7 +75,7 @@ class zonotope():
         if type(x)==type(None):
             self.x=np.zeros((G.shape[0],1))
         else:
-            self.x=x.reshape(len(x),1)
+            self.x=np.array(x)
         if name==None:
             self.name="zonotope"
         else:
