@@ -24,6 +24,7 @@ Installation is now easy::
     pip install pypolycontain
     
 Or `download <pip install pypolycontain>`_, and::
+
     python3 setup.py install
 
     
