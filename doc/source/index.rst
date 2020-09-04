@@ -21,8 +21,11 @@ Setup
 ***************************
 Installation is now easy::
 
-    ls -lsa .
-    make file    
+    pip install pypolycontain
+    
+Or `download <pip install pypolycontain>`_, and::
+    python3 setup.py install
+
     
 Dependencies:
 *************
