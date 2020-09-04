@@ -33,7 +33,43 @@ except:
 """
 Optimization-based Operations:
 """  
-      
+
+
+def affine_map( T, P, t=None ):
+    """
+    Returns the affine map of a polytope.
+    """        
+    if type(t)==type(None):
+            t=np.zeros((P.n,1))
+    if P.type=='AH_polytope':
+        return pp.AH_polytope(t=t+np.dot(T,P.t),T=np.dot(T,P.T),P=P.P)
+    elif P.type=='zonotope':
+        return pp.zonotope(x=t+np.dot(T,P.x),G=np.dot(T,P.G))
+    elif P.type=="H_polytope":
+        if T.shape[0]>=T.shape[1]:
+            Tinv=np.linalg.pinv(T)
+            H=np.dot(P.H,Tinv)
+            return pp.H_polytope(H=H,h=P.h+np.dot(H,t))
+        else:
+            Q=pp.to_AH_polytope(P)
+            return affine_map( T, Q, t )
+    else:
+        return ValueError('Polytope type: ',P.type," Not recognized")
+
+def translate( t, P ):
+    """
+    Shifts the polytope by t vector
+    """ 
+    assert t.shape[0]==P.n # Dimension match       
+    if P.type=='AH_polytope':
+        return pp.AH_polytope(t=t+P.t,T=P.T,P=P.P)
+    elif P.type=='zonotope':
+        return pp.zonotope(x=t+P.x,G=P.G)
+    elif P.type=="H_polytope":
+        return pp.H_polytope(H=P.H,h=P.h+np.dot(P.H,t))
+    else:
+        return ValueError('Polytope type: ',P.type," Not recognized")
+              
 def point_membership(Q,x,tol=10**-5,solver="gurobi"):
     if type(Q).__name__=="H_polytope":
         return Q.if_inside(x,tol)
@@ -51,6 +87,13 @@ def point_membership(Q,x,tol=10**-5,solver="gurobi"):
         else:
             result=MP.Solve(prog)
     return result.is_success()
+
+def check_subset(P1,P2,k=-1):
+    """
+    Checks if .math..`P1 \subseteq P2` 
+    Inputs:
+        
+    """
 
 def point_membership_fuzzy(Q,x,tol=10**-5,solver="gurobi"):
     """
@@ -493,17 +536,24 @@ def intersection(P1,P2):
         P1, P2: polytopic objects
     Output:
         returns :math:`\mathbb{P}_1 \cap \mathbb{P}_2` as an AH-polytope
+        
+        If both objects are H-polytopes, return H-polytope
     """
-    X,Y=pp.to_AH_polytope(P1),pp.to_AH_polytope(P2)
-    T=np.hstack(( X.T, np.zeros((X.T.shape[0]  ,  Y.T.shape[1] ))  ))
-    H_1 = np.hstack((X.P.H,   np.zeros((X.P.H.shape[0],Y.P.H.shape[1])) ))
-    Ty_inv=np.linalg.pinv(Y.T)
-    H_2 = np.hstack(( np.linalg.multi_dot([Y.P.H,Ty_inv,X.T]),\
-                     np.dot(Y.P.H,np.eye(Y.T.shape[1])-np.dot(Ty_inv,Y.T))  ))
-    H=np.vstack((H_1,H_2))
-    h=np.vstack((X.P.h,Y.P.h-np.linalg.multi_dot([Y.P.H,Ty_inv,X.t-Y.t])))
-    new_P=pp.H_polytope(H,h)
-    return pp.AH_polytope(T=T,t=X.t,P=new_P)
+    if P1.type=="H_polytope" and P2.type=="H_polytope":
+        H=np.vstack((P1.H,P2.H))
+        h=np.vstack((P1.h,P2.h))
+        return pp.H_polytope(H,h)
+    else:
+        X,Y=pp.to_AH_polytope(P1),pp.to_AH_polytope(P2)
+        T=np.hstack(( X.T, np.zeros((X.T.shape[0]  ,  Y.T.shape[1] ))  ))
+        H_1 = np.hstack((X.P.H,   np.zeros((X.P.H.shape[0],Y.P.H.shape[1])) ))
+        Ty_inv=np.linalg.pinv(Y.T)
+        H_2 = np.hstack(( np.linalg.multi_dot([Y.P.H,Ty_inv,X.T]),\
+                         np.dot(Y.P.H,np.eye(Y.T.shape[1])-np.dot(Ty_inv,Y.T))  ))
+        H=np.vstack((H_1,H_2))
+        h=np.vstack((X.P.h,Y.P.h-np.linalg.multi_dot([Y.P.H,Ty_inv,X.t-Y.t])))
+        new_P=pp.H_polytope(H,h)
+        return pp.AH_polytope(T=T,t=X.t,P=new_P)
 
     
 """

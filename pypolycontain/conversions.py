@@ -50,7 +50,7 @@ def to_AH_polytope(P):
         return pp.AH_polytope(T=np.eye(n),t=np.zeros((n,1)),P=pp.H_polytope(P.H,P.h))
     elif type(P).__name__=="zonotope":
         q=P.G.shape[1]
-        return pp.AH_polytope(T=P.G,t=P.x,P=pp.unitbox(N=q).H_polytope,color=P.color)
+        return pp.AH_polytope(T=P.G,t=P.x.reshape(len(P.x),1),P=pp.unitbox(N=q).H_polytope,color=P.color)
     elif type(P).__name__=="V_polytope":
         V=P.list_of_vertices
         N=len(V)
@@ -165,14 +165,14 @@ def zonotope_to_V(Z):
                       Resorting to ray shooting'%q)
         return AH_to_V(pp.to_AH_polytope(Z))
    
-def to_V(P):
+def to_V(P,N=500):
     r"""
     returns the vertices of the polytopic object $P$ in a vertical stack form.
     """
     if type(P).__name__=='zonotope':
         return zonotope_to_V(P)
     elif type(P).__name__=='AH_polytope':
-        return AH_to_V(P)
+        return AH_to_V(P,N=N)
     elif type(P).__name__=='H_polytope':
         return H_to_V(P)
     elif type(P).__name__=="hyperbox":
@@ -183,9 +183,11 @@ def to_V(P):
 
         
         
-def AH_to_H(Q,P0,solver="Gurobi"):
+def AH_to_H_old(Q,P0,solver="Gurobi"):
     r"""
     Converting Q to an H-polytope using an optimization-based method
+    
+    WARNING: To be deprecated
     """
     P={}
     P[0]=P0

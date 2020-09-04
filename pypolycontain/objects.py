@@ -2,9 +2,9 @@
 import numpy as np
 from itertools import combinations
 from scipy.linalg import block_diag
-# Pypolycontain
-#from ..utils.utils import unique_rows
 
+# Pypolycontain
+import pypolycontain as pp
 
 class H_polytope():
     r"""
@@ -24,9 +24,9 @@ class H_polytope():
     """
     def __init__(self,H,h,symbolic=False,color='red'):
         # Sanity Checks (H should be q*n matrix and h should be q*1 vector)
-        h=np.atleast_2d(h)
-        if h.shape[0]==1:
-            h=h.T
+#        h=np.atleast_2d(h) # I want the vector to be n*1
+        if h.shape[0]==1 or len(h.shape)==1:
+            h=h.reshape(len(h),1)
         if h.shape[1]!=1:
             ValueError("Error: not appropriate h size, it is",h.shape)
         if H.shape[0]!=h.shape[0]:
@@ -50,9 +50,13 @@ class H_polytope():
         return self.hash_value
 
     def __add__(self,other):
-        from pypolycontain.operations import minkowski_sum
-        return minkowski_sum(self,other)                # It is returning the minkowski sum in the form of a AH_Polytope!
+        return pp.minkowski_sum(self,other) # It is returning the minkowski sum in the form of a AH_Polytope!
 
+    def __rmul__(self,scalar):
+        """
+        Scaling zonotopes by a scalar. The scalar needs to be an integer or a float.
+        """
+        return pp.H_polytope(self.H,self.h*scalar)
  
 class zonotope():
     r"""
@@ -81,6 +85,7 @@ class zonotope():
         else:
             self.name=name
         self.color=color
+        self.type='zonotope'
         self.hash_value = None
         self.distance_program=None
 #        self.color="red"
@@ -90,7 +95,7 @@ class zonotope():
 
     def __hash__(self):
         if self.hash_value is None:
-            self.hash_value = hash(str(np.hstack([self.G, self.x])))  # FIXME: better hashing implementation
+            self.hash_value = hash(str(np.hstack([self.G, self.x])))  # FIXME(Kasraghasemi) : better hashing implementation
         return self.hash_value
     
     def __add__(self,other):
@@ -176,6 +181,7 @@ class AH_polytope():
         self.T=T # Matrix n*n_p
         self.t=np.atleast_2d(t) # vector n*1
         self.P=P # Polytope in n_p dimensions
+        self.type='AH_polytope'
         self.n=T.shape[0]
         if T.shape[1]!=P.H.shape[1]:
             ValueError("Error: not appropriate T size, it is",T.shape[1],P.n)
@@ -199,6 +205,9 @@ class AH_polytope():
     def __add__(self,other):
         from pypolycontain.operations import minkowski_sum
         return minkowski_sum(self,other)
+    
+    def __rmul__(self,scalar):
+        return AH_polytope(self.t,self.T*scalar,self.P)
 
 
 class V_polytope():
@@ -256,10 +265,8 @@ class unitbox():
         self.H_polytope=H_polytope(H,h)
         self.zonotope=zonotope(x=np.zeros((N,1)),G=np.eye(N))
         
-        
-        
-        
-def box(N=None,d=1,corners=[]):
+             
+def box(N=None,d=1,corners=[],color='cyan'):
     """
     returns N-dimensional Box 
     corners=typle of 2 numpy arrays: lower_corner and upper_corner
@@ -275,4 +282,4 @@ def box(N=None,d=1,corners=[]):
         if not all(u>=l):
             raise ValueError("Upper-right corner not totally ordering lower-left corner")
         h=np.vstack((u,-l))
-    return H_polytope(H,h)
+    return H_polytope(H,h,color=color)

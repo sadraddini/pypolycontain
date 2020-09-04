@@ -100,6 +100,23 @@ def be_in_set(program,point,zonotope):
     program.AddLinearConstraint( np.equal(point, zonotope.x+np.dot(zonotope.G , b) ,dtype='object').flatten() )
     return b
 
+def member_in_set(program,x,P):
+    """
+    Inputs:
+        @ program: mathematical program
+        # x: point
+        # P: my polytope
+    Adds the constraint ..math::`x in P` to the mathematical program
+    """
+    P=pp.to_AH_polytope(P)
+    x.reshape(len(x),1)
+    zeta=program.NewContinuousVariables( P.P.n,1, 'zeta')
+    program.AddLinearConstraint(A=P.P.H,lb=-np.inf*np.ones((P.P.h.shape[0],1)),ub=P.P.h,vars=zeta)
+    _f=np.equal(np.dot(P.T,zeta),x-P.t,dtype='object')
+    program.AddLinearConstraint(_f.flatten())
+    
+    
+    
 def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None,verbose=False):
     """
     Adds containment property Q1 subset Q2

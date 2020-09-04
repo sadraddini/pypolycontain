@@ -17,7 +17,8 @@ from matplotlib.collections import PatchCollection
 
 def visualize(list_of_objects,fig=None,ax=None,a=0.5,alpha=0.8,tuple_of_projection_dimensions=[0,1],\
               title=r'pypolycontain visualization',\
-              show_vertices=False,FontSize=15,equal_axis=False,grid=True):
+              show_vertices=False,FontSize=15,equal_axis=False,grid=True,\
+              N_points=1000):
     r"""
     Visualization.
     
@@ -32,7 +33,7 @@ def visualize(list_of_objects,fig=None,ax=None,a=0.5,alpha=0.8,tuple_of_projecti
         fig.figsize=(15,10)
     p_list,x_all=[],np.empty((0,2))  
     for p in list_of_objects:
-        x=pp.to_V(p)
+        x=pp.to_V(p,N=N_points)
         mypolygon=Polygon(x)
         p_list.append(mypolygon) 
         x_all=np.vstack((x_all,x))
