@@ -27,7 +27,7 @@ except:
 #    warnings.warn("You don't have pypolycontain not properly installed.")
 
 try:
-    from gurobi import *
+    from gurobipy import *
 except:
     warnings.warn("You don't have gurobi not properly installed.")
 try:
@@ -297,8 +297,6 @@ def zonotope_subset(program,inbody,circumbody,alpha=None,solver='drake'):
     
 
     elif solver=='gurobi':
-                                      
-        # from gurobipy import *
 
         Gamma = program.addVars(circumbody.G.shape[1] , inbody.G.shape[1] ,lb= -GRB.INFINITY, ub= GRB.INFINITY)
         beta = [program.addVar( lb = -GRB.INFINITY , ub = GRB.INFINITY) for i in range( circumbody.G.shape[1] ) ]
@@ -307,7 +305,7 @@ def zonotope_subset(program,inbody,circumbody,alpha=None,solver='drake'):
         program.update()
         
         program.addConstrs(  inbody.G[i][j] == sum([ circumbody.G[i][k]*Gamma[k,j] for k in range(circumbody.G.shape[1]) ])  for i in range(inbody.G.shape[0]) for j in range(inbody.G.shape[1])  )
-        program.addConstrs(   sum( [ circumbody.G[i][j] * beta[j]   for j in range(circumbody.G.shape[1]) ] ) ==  circumbody.x[i][0] - inbody.x[i][0]   for i in range(inbody.G.shape[0])   )
+        program.addConstrs(   sum( [ circumbody.G[i][j] * beta[j]   for j in range(circumbody.G.shape[1]) ] ) ==  circumbody.x[i] - inbody.x[i]   for i in range(inbody.G.shape[0])   )
         [program.addGenConstrAbs(Gamma_abs[i,j], Gamma[i,j] )   for i in range(circumbody.G.shape[1]) for j in range(inbody.G.shape[1]) ]
         [program.addGenConstrAbs(beta_abs[i] , beta[i] ) for i in range(circumbody.G.shape[1])]
         
