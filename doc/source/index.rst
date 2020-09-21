@@ -23,7 +23,7 @@ Installation is now easy::
 
     pip install pypolycontain
     
-Or `download <pip install pypolycontain>`_, and::
+Or `download <https://github.com/sadraddini/pypolycontain/archive/master.zip>`_, and::
 
     python3 setup.py install
 
