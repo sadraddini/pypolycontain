@@ -253,49 +253,6 @@ def zonotope_subset(program,inbody,circumbody,alpha=None,solver='drake'):
     assert(inbody.x.shape==circumbody.x.shape),"Both input zonotopes need to be in the same dimension"
 
     if solver =='drake':
-        
-        # from itertools import product
-        
-        # #Defining Variables
-        # Gamma=program.NewContinuousVariables( circumbody.G.shape[1], inbody.G.shape[1], 'Gamma')
-        # Lambda=program.NewContinuousVariables( circumbody.G.shape[1],'Lambda')
-
-        # #Defining Constraints
-        # program.AddLinearConstraint(np.equal(inbody.G,np.dot(circumbody.G,Gamma),dtype='object').flatten())             #inbody_G = circumbody_G * Gamma
-        # program.AddLinearConstraint(np.equal(circumbody.x - inbody.x ,np.dot(circumbody.G,Lambda),dtype='object').flatten())    #circumbody_x - inbody_x = circumbody_G * Lambda
-
-        # Gamma_Lambda = np.concatenate((Gamma,Lambda.reshape(circumbody.G.shape[1],1)),axis=1)
-        # comb = np.array( list(product([-1, 1], repeat= Gamma_Lambda.shape[1])) ).reshape(-1, Gamma_Lambda.shape[1])
-        # if alpha=='scalar' or alpha== 'vector':
-        #     comb= np.concatenate( (comb,-1*np.ones((comb.shape[0],1))) , axis=1)
-        
-        # # Managing alpha
-        # if alpha==None:
-        #     variable = Gamma_Lambda
-        # elif alpha=='scalar':
-        #     alfa = program.NewContinuousVariables(1,'alpha')
-        # elif alpha=='vector':
-        #     alfa=program.NewContinuousVariables( circumbody.G.shape[1],'alpha')
-        #     variable = np.concatenate((Gamma_Lambda, alfa.reshape(-1,1)),axis=1)
-        # else:
-        #     raise ValueError('alpha needs to be \'None\', \'scalaer\', or \'vector\'')
-
-        # # infinity norm of matrxi [Gamma,Lambda] <= alfa
-        # for j in range(Gamma_Lambda.shape[0]):
-        #     program.AddLinearConstraint(
-        #         A= comb,
-        #         lb= -np.inf * np.ones(comb.shape[0]),
-        #         ub= np.ones(comb.shape[0]) if alpha==None else np.zeros(comb.shape[0]),
-        #         vars= variable[j,:] if alpha!='scalar' else np.concatenate((Gamma_Lambda[j,:], alfa ))
-        #     ) 
-
-        # if alpha==None:
-        #     return Lambda, Gamma 
-        # else:
-        #     return Lambda, Gamma , alfa
-
-
-
 
         # Defining Variables
         Gamma=program.NewContinuousVariables( circumbody.G.shape[1], inbody.G.shape[1], 'Gamma')
@@ -343,94 +300,7 @@ def zonotope_subset(program,inbody,circumbody,alpha=None,solver='drake'):
         else:
             return Lambda, Gamma , alfa
 
-
-
-
-    
-
     elif solver=='gurobi':
-
-        ########################################################
-        #######################    LP    #######################
-        ########################################################
-        # from itertools import product
-        # # Gamma = np.array( program.addVars(circumbody.G.shape[1] , inbody.G.shape[1] ,lb= -GRB.INFINITY, ub= GRB.INFINITY,vtype=GRB.CONTINUOUS) )
-        # # Lambda = np.array( [program.addVar( lb = -GRB.INFINITY , ub = GRB.INFINITY , vtype=GRB.CONTINUOUS) for i in range( circumbody.G.shape[1] ) ] )
-
-        # Gamma = np.array( [[program.addVar(lb= -GRB.INFINITY, ub= GRB.INFINITY,vtype=GRB.CONTINUOUS) for i in range(inbody.G.shape[1])] for j in range(circumbody.G.shape[1])] )
-        # Lambda = np.array( [program.addVar( lb = -GRB.INFINITY , ub = GRB.INFINITY , vtype=GRB.CONTINUOUS) for i in range( circumbody.G.shape[1] ) ] )
-
-        # # Gamma = program.addMVar(shape=(circumbody.G.shape[1] , inbody.G.shape[1]), lb= -GRB.INFINITY, ub= GRB.INFINITY,vtype=GRB.CONTINUOUS)
-        # # Lambda= program.addMVar(shape=circumbody.G.shape[1], lb = -GRB.INFINITY , ub = GRB.INFINITY,vtype=GRB.CONTINUOUS)
-        # program.update()
-        
-        # program.addConstrs(  inbody.G[i][j] == sum([ circumbody.G[i][k]*Gamma[k,j] for k in range(circumbody.G.shape[1]) ])  for i in range(inbody.G.shape[0]) for j in range(inbody.G.shape[1])  )
-        # program.addConstrs(   sum( [ circumbody.G[i][j] * Lambda[j]   for j in range(circumbody.G.shape[1]) ] ) ==  circumbody.x[i] - inbody.x[i]   for i in range(inbody.G.shape[0])   )
-        # program.update()
-
-        # Gamma_Lambda = np.concatenate((Gamma,Lambda.reshape(circumbody.G.shape[1],1)),axis=1)
-        # comb = np.array( list(product([-1, 1], repeat= Gamma_Lambda.shape[1])) ).reshape(-1, Gamma_Lambda.shape[1])
-        # if alpha=='scalar' or alpha=='vector':
-        #     comb= np.concatenate( (comb,-1*np.ones((comb.shape[0],1))) , axis=1)
-
-
-        # if alpha==None:
-        #     for j in range(Gamma_Lambda.shape[0]):
-        #         #program.addMConstrs(comb,Gamma_Lambda[j,:].reshape(-1) , '<=', np.ones(comb.shape[0]))
-        #         [program.addConstr(np.dot(comb[i,:],Gamma_Lambda[j,:])<=1)for i in range(comb.shape[0]) ]
-        #     program.update()
-        #     return Lambda, Gamma 
-
-        # elif alpha=='scalar':
-        #     Alpha = program.addVar(lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS)
-        #     program.update()
-        #     for j in range(Gamma_Lambda.shape[0]):
-        #         variable=np.concatenate((Gamma_Lambda[j,:], Alpha )).reshape(-1)
-        #         #program.addMConstrs(comb,variable , '<=', np.zeros(comb.shape[0]))
-        #         [program.addConstr(np.dot(comb[i,:],variable)<=0) for i in range(comb.shape[0])]
-
-        # elif alpha=='vector':
-        #     #Alpha = program.addMVar(shape=circumbody.G.shape[1], lb = -GRB.INFINITY , ub = GRB.INFINITY,vtype=GRB.CONTINUOUS)
-        #     Alpha = np.array( [program.addVar(lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS) for i in range(circumbody.G.shape[1])] )
-        #     program.update()
-        #     variable = np.concatenate((Gamma_Lambda, Alpha.reshape(-1,1)),axis=1)
-        #     for j in range(Gamma_Lambda.shape[0]):
-        #         #program.addMConstrs(comb,variable[j,:].reshape(-1) , '<=', np.zeros(comb.shape[0]))
-        #         [program.addConstr(np.dot(comb[i,:],variable[j,:])<=0) for i in range(comb.shape[0])]
-        #     program.update()
-        # return Lambda, Gamma , Alpha
-
-
-        ###########################################################
-        #######################     MILP    #######################
-        ###########################################################
-        # Gamma = program.addVars(circumbody.G.shape[1] , inbody.G.shape[1] ,lb= -GRB.INFINITY, ub= GRB.INFINITY)
-        # beta = [program.addVar( lb = -GRB.INFINITY , ub = GRB.INFINITY) for i in range( circumbody.G.shape[1] ) ]
-        # Gamma_abs = program.addVars( circumbody.G.shape[1] , inbody.G.shape[1] ,lb= 0, ub= GRB.INFINITY)
-        # beta_abs = [program.addVar( lb = 0 , ub = GRB.INFINITY) for i in range(circumbody.G.shape[1]) ]
-        # program.update()
-        
-        # program.addConstrs(  inbody.G[i][j] == sum([ circumbody.G[i][k]*Gamma[k,j] for k in range(circumbody.G.shape[1]) ])  for i in range(inbody.G.shape[0]) for j in range(inbody.G.shape[1])  )
-        # program.addConstrs(   sum( [ circumbody.G[i][j] * beta[j]   for j in range(circumbody.G.shape[1]) ] ) ==  circumbody.x[i] - inbody.x[i]   for i in range(inbody.G.shape[0])   )
-        # [program.addGenConstrAbs(Gamma_abs[i,j], Gamma[i,j] )   for i in range(circumbody.G.shape[1]) for j in range(inbody.G.shape[1]) ]
-        # [program.addGenConstrAbs(beta_abs[i] , beta[i] ) for i in range(circumbody.G.shape[1])]
-        
-        # if alpha == None:
-        #     program.addConstrs(    sum( [ Gamma_abs[i,j] for j in range(inbody.G.shape[1]) ]) + beta_abs[i]  <= 1   for i in range(circumbody.G.shape[1]) )
-        #     program.update()
-        #     return beta , Gamma
-        
-        # elif alpha == 'scalar':
-        #     Alpha = program.addVar(lb=-GRB.INFINITY,ub=GRB.INFINITY)
-        #     program.addConstrs(    sum( [ Gamma_abs[i,j] for j in range(inbody.G.shape[1]) ]) + beta_abs[i]  <= Alpha   for i in range(circumbody.G.shape[1]) )
-        # elif alpha == 'vector':
-        #     Alpha = [program.addVar(lb=-GRB.INFINITY,ub=GRB.INFINITY) for i in range(circumbody.G.shape[1])]
-        #     program.addConstrs(    sum( [ Gamma_abs[i,j] for j in range(inbody.G.shape[1]) ]) + beta_abs[i]  <=  Alpha[i]   for i in range(circumbody.G.shape[1]) )
-        
-        # program.update()
-        
-        # return beta , Gamma , Alpha
-
 
         Gamma = program.addVars(circumbody.G.shape[1] , inbody.G.shape[1] ,lb= -GRB.INFINITY, ub= GRB.INFINITY)
         Lambda = [program.addVar( lb = -GRB.INFINITY , ub = GRB.INFINITY) for i in range( circumbody.G.shape[1] ) ]
