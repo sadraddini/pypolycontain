@@ -721,8 +721,8 @@ def decompose(zonotope,dimensions):
 
     #defining varibales
     x_i = [prog.NewContinuousVariables(i) for i in dimensions]
-    G_i = [prog.NewContinuousVariables(i,i) for i in dimensions]                #non-symmetric G_i
-    #G_i = [prog.NewSymmetricContinuousVariables(i) for i in dimensions ]               #symmentric G_i
+    #G_i = [prog.NewContinuousVariables(i,i) for i in dimensions]                #non-symmetric G_i
+    G_i = [prog.NewSymmetricContinuousVariables(i) for i in dimensions ]               #symmentric G_i
 
     #inbody_zonotope
     inbody_x = np.concatenate(x_i)
