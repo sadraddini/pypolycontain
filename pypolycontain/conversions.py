@@ -60,7 +60,7 @@ def to_AH_polytope(P):
         h=np.zeros((N,1))
         h[N-1,0]=1
         P=pp.H_polytope(H,h)
-        return pp.AH_polytope(t,T,P)
+        return pp.AH_polytope(t=t,T=T,P=P)
     else:
         raise ValueError("object type not within my polytopic library:",P.type)
 
@@ -177,6 +177,10 @@ def to_V(P,N=500):
         return H_to_V(P)
     elif type(P).__name__=="hyperbox":
         return zonotope_to_V(P.zonotope)
+    elif type(P).__name__=="V_polytope":
+        V=np.array(P.list_of_vertices)[:,:,0]
+        w=V[ConvexHull(V).vertices,:]
+        return w
     else:
         raise ValueError("Did not recognize the polytopic object"+str(type(P).__name__))
     

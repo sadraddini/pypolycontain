@@ -54,7 +54,7 @@ class H_polytope():
 
     def __rmul__(self,scalar):
         """
-        Scaling zonotopes by a scalar. The scalar needs to be an integer or a float.
+        Scaling polytopes by a scalar. The scalar needs to be an integer or a float.
         """
         return pp.H_polytope(self.H,self.h*scalar)
  
@@ -224,6 +224,7 @@ class V_polytope():
     """
     def __init__(self,list_of_vertices):
         self.list_of_vertices=list_of_vertices
+        self.color='orange'
         
         
 class hyperbox():
@@ -253,8 +254,6 @@ class hyperbox():
         self.n=N
         self.color='cyan'
 
-
-
 class unitbox():
     r"""
     A unitbox in :math:`\mathbb{R}^n` is :math:`[-1,1]^n`.
@@ -283,3 +282,17 @@ def box(N=None,d=1,corners=[],color='cyan'):
             raise ValueError("Upper-right corner not totally ordering lower-left corner")
         h=np.vstack((u,-l))
     return H_polytope(H,h,color=color)
+
+#def simplex(n):
+#    """
+#    A N-dimensional standard simplex. Represented in V shape
+#    """
+#    v0=np.zeros((n,1))
+#    V=[0]*(2*n+1)
+#    V[0]=v0
+#    for i in range(n):
+#        V[2*i+1]=np.zeros((n,1))
+#        V[2*i+1][i,0]=1
+#        V[2*i+2]=np.zeros((n,1))
+#        V[2*i+2][i,0]=-1
+#    return pp.V_polytope(V)

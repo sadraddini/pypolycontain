@@ -14,11 +14,10 @@ from matplotlib.collections import PatchCollection
 #    warnings.warn("You don't have pypolycontain properly installed. Can not import conversions")
     
 
-
 def visualize(list_of_objects,fig=None,ax=None,a=0.5,alpha=0.8,tuple_of_projection_dimensions=[0,1],\
               title=r'pypolycontain visualization',\
               show_vertices=False,FontSize=15,equal_axis=False,grid=True,\
-              N_points=1000):
+              N_points=1000,figsize=(8,8)):
     r"""
     Visualization.
     
@@ -30,7 +29,7 @@ def visualize(list_of_objects,fig=None,ax=None,a=0.5,alpha=0.8,tuple_of_projecti
     """
     if type(ax)==type(None):
         fig,ax=plt.subplots()
-        fig.figsize=(15,10)
+    fig.set_size_inches(figsize[0],figsize[1])
     p_list,x_all=[],np.empty((0,2))  
     for p in list_of_objects:
         x=pp.to_V(p,N=N_points)

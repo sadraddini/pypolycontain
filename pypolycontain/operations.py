@@ -638,7 +638,7 @@ def boxing_order_reduction(zonotope,desired_order=1):
     inputs: input zonotope , order of the output zonotope
     output: zonotope
 
-    Based on Kopetzki, Anna-Kathrin, Bastian Schürmann, and Matthias Althoff.
+    Based on Kopetzki, Anna-Kathrin, Bastian Schurmann, and Matthias Althoff.
     "Methods for order reduction of zonotopes."
     2017 IEEE 56th Annual Conference on Decision and Control (CDC). IEEE, 2017.
     """

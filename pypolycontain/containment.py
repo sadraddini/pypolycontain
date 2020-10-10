@@ -234,47 +234,59 @@ def necessity_gap(X,Y,Theta):
     my_alpha= alpha(X,Y,Theta)
     return 1-my_alpha/alpha_0
 
-def necessity_gap_k(X,Y,plot=True):
-    print("\n\n","="*75,"\n","="*75,"\n\t\tComputing Necessity Gaps ")
-    print("="*75,"\n","="*75)
-    print("k\tTheta.shape \t delta(X,Y,C) \t alpha \t Computation Time")
-    print("-"*75)
-    alpha_0=alpha(X,Y,theta_k(Y,k=0))
+def necessity_gap_k(X,Y,plot=True,only_final=False):
+    if only_final==False:
+        print("\n\n","="*75,"\n","="*75,"\n\t\tComputing Necessity Gaps ")
+        print("="*75,"\n","="*75)
+        print("k\tTheta.shape \t delta(X,Y,C) \t alpha \t Computation Time")
+        print("-"*75)
+    Theta_star=theta_k(Y,k=0)
+    alpha_0=alpha(X,Y,Theta_star)
     Table={}        
     Z=pp.to_AH_polytope(Y)
     kappa=int(Z.T.shape[1]-Z.T.shape[0])
-    for k in range(kappa+1):
+    if only_final:
         t_0=time.time()
-        Theta=theta_k(Y,k)
-#        print(k,"theta shape",Theta.shape,Theta)
+        Z=pp.to_AH_polytope(Y)
+        Theta=np.eye(Z.P.H.shape[0])
         a=alpha(X,Y,Theta)
         delta=1-a/alpha_0
         cpu_time=time.time()-t_0
-        print(k, "\t",Theta.shape,"\t %0.03f"%delta,"\t\t %0.03f"%a,"\t\t %0.003f"%cpu_time)
-        Table[k]=np.array([Theta.shape[1],delta,a,cpu_time])
-    if plot:
-        import matplotlib.pyplot as plt
-        plt.figure()
-        fig, ax1 = plt.subplots()
-        color = (0.7,0,0)
-        ax1.set_xlabel(r'$k$')
-        ax1.set_ylabel(r'#Rows in $\Theta_k$', color=color,FontSize=20)
-        ax1.plot(range(kappa+1),[Table[k][0] for k in range(kappa+1)],'-',color=color)
-        ax1.plot(range(kappa+1),[Table[k][0] for k in range(kappa+1)],'o',color=color)
-        ax1.tick_params(axis='y', labelcolor=color)
-        
-        ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-        
-        color = (0,0,0.7)
-        ax2.set_xlabel(r'$k$')
-        ax2.set_ylabel(r'$\delta(\mathbb{X},\mathbb{Y},\mathbb{C}_k)$', color=color,FontSize=20)
-        ax2.plot(range(kappa+1),[Table[k][1] for k in range(kappa+1)],'-',color=color)
-        ax2.plot(range(kappa+1),[Table[k][1] for k in range(kappa+1)],'o',color=color)
-        ax2.tick_params(axis='y', labelcolor=color)
-        
-        ax2.set_title(r'$k^*=%d, n=%d$'%(kappa,Z.n),FontSize=20)
-        ax1.grid()
-        fig.tight_layout()  # otherwise the right y-label is slightly clipped
+        result=np.array([Theta_star.shape[1],delta,a,cpu_time])
+        return result
+    else:
+        for k in range(kappa+1):
+            t_0=time.time()
+            Theta=theta_k(Y,k)
+    #        print(k,"theta shape",Theta.shape,Theta)
+            a=alpha(X,Y,Theta)
+            delta=1-a/alpha_0
+            cpu_time=time.time()-t_0
+            print(k, "\t",Theta.shape,"\t %0.03f"%abs(delta),"\t\t %0.03f"%a,"\t\t %0.003f"%cpu_time)
+            Table[k]=np.array([Theta.shape[1],delta,a,cpu_time])
+        if plot:
+            import matplotlib.pyplot as plt
+            plt.figure()
+            fig, ax1 = plt.subplots()
+            color = (0.7,0,0)
+            ax1.set_xlabel(r'$k$',FontSize=20)
+            ax1.set_ylabel(r'#Rows in $\Theta_k$', color=color,FontSize=20)
+            ax1.plot(range(kappa+1),[Table[k][0] for k in range(kappa+1)],'-',color=color)
+            ax1.plot(range(kappa+1),[Table[k][0] for k in range(kappa+1)],'o',color=color)
+            ax1.tick_params(axis='y', labelcolor=color, labelsize=10)
+            ax1.tick_params(axis='x', labelsize=10)
+            
+            ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+            
+            color = (0,0,0.7)
+            ax2.set_ylabel(r'$\delta(\mathbb{X},\mathbb{Y},\mathbb{C}_k)$', color=color,FontSize=20)
+            ax2.plot(range(kappa+1),[Table[k][1] for k in range(kappa+1)],'-',color=color)
+            ax2.plot(range(kappa+1),[Table[k][1] for k in range(kappa+1)],'o',color=color)
+            ax2.tick_params(axis='y', labelcolor=color, labelsize=10)
+            
+            ax2.set_title(r'$ n=%d$'%(Z.n),FontSize=20)
+            ax1.grid()
+            fig.tight_layout()  # otherwise the right y-label is slightly clipped
     
     return Table
 
