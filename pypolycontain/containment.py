@@ -115,9 +115,54 @@ def member_in_set(program,x,P):
     _f=np.equal(np.dot(P.T,zeta),x-P.t,dtype='object')
     program.AddLinearConstraint(_f.flatten())
     
-    
-    
+
 def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None,verbose=False):
+    """
+    Adds containment property Q1 subset Q2
+    
+    Inputs:
+        * program: a `pydrake` mathematical program
+        * inbody: a polytopic object
+        * circumbody: a polytopic object
+        * N: 
+            * **Default**: :math:`-1``. Sufficient as in [Sadraddini and Tedrake, 2020]
+            * pick `0` for necessary and sufficient encoding (may be too slow) (2019b)
+            * pick any positive number. As the number is smaller, 
+            the condition becomes closer to necessity. However, this may be too slow.
+    
+    Output:
+        * No direct output, adds :\math:`inbody \subseteq circumbody` to the model
+    """
+    Q1=pp.to_AH_polytope(inbody)
+    Q2=pp.to_AH_polytope(circumbody)
+    Hx,Hy,hx,hy,X,Y,xbar,ybar=Q1.P.H,Q2.P.H,Q1.P.h,Q2.P.h,Q1.T,Q2.T,Q1.t,Q2.t
+    qx,qy,nx,ny=Hx.shape[0],Hy.shape[0],X.shape[1],Y.shape[1]
+    if type(Theta)!=type(None):
+        if verbose:
+            print("theta already computed")
+        pass
+    elif k<0:
+        Theta=np.eye(qy)
+        if verbose:
+            print("Using Positive Orthant")
+    else:
+        if verbose:
+            print("Computing theta with k=%d"%k)
+        Theta=theta_k(circumbody,k,i)
+    Lambda=program.NewContinuousVariables(Theta.shape[1],qx,'Lambda')
+    Gamma=program.NewContinuousVariables(ny,nx,'Gamma')
+    gamma=program.NewContinuousVariables(ny,1,'gamma')
+    # Constraints
+    program.AddBoundingBoxConstraint(0,np.inf,Lambda) # Lambda Non-Negative
+    program.AddLinearConstraint(np.equal(X,np.dot(Y,Gamma),dtype='object').flatten()) #X=YGamma
+    program.AddLinearConstraint(np.equal(ybar-xbar,np.dot(Y,gamma),dtype='object').flatten()) 
+    program.AddLinearConstraint(np.equal(np.dot(Lambda,Hx),np.dot(Theta.T,np.dot(Hy,Gamma)),dtype='object').flatten()) 
+    program.AddLinearConstraint(np.less_equal(np.dot(Lambda,hx),\
+          np.dot(Theta.T,hy)+np.dot(Theta.T,np.dot(Hy,gamma)),dtype='object').flatten())
+    return Theta,Lambda,Gamma,gamma
+    
+    
+def subset_kasra(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None,verbose=False):
     """
     Adds containment property Q1 subset Q2
     

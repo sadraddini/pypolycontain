@@ -62,6 +62,7 @@ def to_AH_polytope(P):
         P=pp.H_polytope(H,h)
         return pp.AH_polytope(t=t,T=T,P=P)
     else:
+        print(P)
         raise ValueError("object type not within my polytopic library:",P.type)
 
 def H_to_V(P):

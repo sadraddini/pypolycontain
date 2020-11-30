@@ -35,17 +35,17 @@ Optimization-based Operations:
 """  
 
 
-def affine_map( T, P, t=None ):
+def affine_map( T, P, t=None , get_inverse=False):
     """
     Returns the affine map of a polytope.
     """        
     if type(t)==type(None):
-            t=np.zeros((P.n,1))
+            t=np.zeros((T.shape[0],1))
     if P.type=='AH_polytope':
         return pp.AH_polytope(t=t+np.dot(T,P.t),T=np.dot(T,P.T),P=P.P)
     elif P.type=='zonotope':
         return pp.zonotope(x=t+np.dot(T,P.x),G=np.dot(T,P.G))
-    elif P.type=="H_polytope":
+    elif P.type=="H_polytope" and get_inverse==False:
         if T.shape[0]>=T.shape[1]:
             Tinv=np.linalg.pinv(T)
             H=np.dot(P.H,Tinv)
@@ -135,120 +135,166 @@ def check_non_empty(Q,tol=10**-5,solver="gurobi"):
         result=MP.Solve(prog)
     return result.is_success()
 
-def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
-    r"""
-    Computes the directed Hausdorff distance of Q_1 and Q_2 (AH_polytopes)
-    ***************************************************************************
-    The optimization problem is:
-                        Minimize    epsilon  
-                        such that   Q1 \subset Q2+epsilon(Ball)
-                        
-    It is zero if and only if Q1 subset Q2. The method is based on 
-                
-                    Sadraddini&Tedrake, 2019, CDC (available on ArXiv)
-                    
-    We solve the following problem:
-        D*ball+Q1 subset Q2
-    We solve the following linear program:
-    ..math::
-        \min     D
-        s.t.    Lambda_1 H_1=H_2 Gamma_1
-                Lambda_2 H_1=H_ball Gamma_2
-                Lambda_1 h_1<=h_2 + H_2 beta_1
-                Lambda_2 h_2<=D h_ball + H_ball beta_2
-                x_2 - X_2 beta_1 - beta_2 = x_1
-                X_2 Gamma_1 + Gamma_2 = X_1
-    ***************************************************************************
-    """
-    Q1,Q2=pp.to_AH_polytope(Q1),pp.to_AH_polytope(Q2)
-    n=Q1.t.shape[0]
-    if ball=="infinty_norm":
-        HB=np.vstack((np.eye(n),-np.eye(n)))
-        hB=np.vstack((np.ones((n,1)),np.ones((n,1))))
-    elif ball=="l1":
-        HB,hb=make_ball(ball)
+#def directed_Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
+#    r"""
+#    Computes the directed Hausdorff distance of Q_1 and Q_2 (AH_polytopes)
+#    ***************************************************************************
+#    The optimization problem is:
+#                        Minimize    epsilon  
+#                        such that   Q1 \subset Q2+epsilon(Ball)
+#                        
+#    It is zero if and only if Q1 subset Q2. The method is based on 
+#                
+#                    Sadraddini&Tedrake, 2019, CDC (available on ArXiv)
+#                    
+#    We solve the following problem:
+#        D*ball+Q1 subset Q2
+#    We solve the following linear program:
+#    ..math::
+#        \min     D
+#        s.t.    Lambda_1 H_1=H_2 Gamma_1
+#                Lambda_2 H_1=H_ball Gamma_2
+#                Lambda_1 h_1<=h_2 + H_2 beta_1
+#                Lambda_2 h_2<=D h_ball + H_ball beta_2
+#                x_2 - X_2 beta_1 - beta_2 = x_1
+#                X_2 Gamma_1 + Gamma_2 = X_1
+#    ***************************************************************************
+#    """
+#    Q1,Q2=pp.to_AH_polytope(Q1),pp.to_AH_polytope(Q2)
+#    n=Q1.t.shape[0]
+#    if ball=="infinty_norm":
+#        HB=np.vstack((np.eye(n),-np.eye(n)))
+#        hB=np.vstack((np.ones((n,1)),np.ones((n,1))))
+#    elif ball=="l1":
+#        HB,hb=make_ball(ball)
+#    prog=MP.MathematicalProgram()
+#    # Variables
+#    D=prog.NewContinuousVariables(1,1,"D")
+#    Lambda_1=prog.NewContinuousVariables(Q2.P.H.shape[0],Q1.P.H.shape[0],"Lambda_1")
+#    Lambda_2=prog.NewContinuousVariables(HB.shape[0],Q1.P.H.shape[0],"Lambda2")
+#    Gamma_1=prog.NewContinuousVariables(Q2.P.H.shape[1],Q1.P.H.shape[1],"Gamma1")
+#    Gamma_2=prog.NewContinuousVariables(HB.shape[1],Q1.P.H.shape[1],"Gamma1")
+#    beta_1=prog.NewContinuousVariables(Q2.P.H.shape[1],1,"beta1")
+#    beta_2=prog.NewContinuousVariables(HB.shape[1],1,"beta1")
+#    # Constraints
+#    # Lambda_1 and Lambda_2 positive
+#    prog.AddBoundingBoxConstraint(0,np.inf,Lambda_1)
+#    prog.AddBoundingBoxConstraint(0,np.inf,Lambda_2)
+#    # Lambda_1 H_1
+#    Lambda_H_Gamma(prog,Lambda_1,Q1.P.H,Q2.P.H,Gamma_1)
+#    # Lambda_2 H_1
+#    Lambda_H_Gamma(prog,Lambda_2,Q1.P.H,HB,Gamma_2)
+#    # Lambda_1 h_1
+#    Lambda_h_Inequality(prog,Lambda_1,beta_1,Q2.P.H,Q1.P.h,Q2.P.h)
+#    # Lambda_2 h_1
+#    Lambda_h_Inequality_D(prog,Lambda_2,beta_2,HB,Q1.P.h,hB,D)
+#    # X2 beta_1   
+#    prog.AddLinearEqualityConstraint(-np.hstack((Q2.T,np.eye(n))),Q1.t-Q2.t,np.vstack((beta_1,beta_2)))
+#    # X2 Gamma_1
+#    Aeq=np.hstack((Q2.T,np.eye(Q2.T.shape[0])))
+#    for i in range(Gamma_1.shape[1]):
+#        beq=Q1.T[:,i]
+#        var=np.hstack((Gamma_1[:,i],Gamma_2[:,i]))
+#        prog.AddLinearEqualityConstraint(Aeq,beq,var)
+#    # Cost
+#    # Optimize
+#    if solver=="gurobi":
+#            prog.AddLinearCost(D[0,0])
+#            result=gurobi_solver.Solve(prog,None,None)
+#    elif solver=="osqp":
+#        prog.AddQuadraticCost(D[0,0]*D[0,0])
+#        result=OSQP_solver.Solve(prog,None,None)
+#    else:
+#        result=MP.Solve(prog)
+#    if result.is_success():
+#        return np.asscalar(result.GetSolution(D))
+#    else:
+#        print("Optimization Failed")
+#
+#def old_Hausdorff_distance(Q1,Q2,directed=False,ball="infinty_norm",solver="gurobi"):
+#    return max(directed_Hausdorff_distance(Q1,Q2,ball,solver),directed_Hausdorff_distance(Q2,Q1,ball,solver))
+    
+def Hausdorff_distance(Q1,Q2,directed=False,ball="infinty_norm",solver="gurobi"):
+    X,Y=pp.to_AH_polytope(Q1),pp.to_AH_polytope(Q2)
     prog=MP.MathematicalProgram()
     # Variables
-    D=prog.NewContinuousVariables(1,1,"D")
-    Lambda_1=prog.NewContinuousVariables(Q2.P.H.shape[0],Q1.P.H.shape[0],"Lambda_1")
-    Lambda_2=prog.NewContinuousVariables(HB.shape[0],Q1.P.H.shape[0],"Lambda2")
-    Gamma_1=prog.NewContinuousVariables(Q2.P.H.shape[1],Q1.P.H.shape[1],"Gamma1")
-    Gamma_2=prog.NewContinuousVariables(HB.shape[1],Q1.P.H.shape[1],"Gamma1")
-    beta_1=prog.NewContinuousVariables(Q2.P.H.shape[1],1,"beta1")
-    beta_2=prog.NewContinuousVariables(HB.shape[1],1,"beta1")
-    # Constraints
-    # Lambda_1 and Lambda_2 positive
-    prog.AddBoundingBoxConstraint(0,np.inf,Lambda_1)
-    prog.AddBoundingBoxConstraint(0,np.inf,Lambda_2)
-    # Lambda_1 H_1
-    Lambda_H_Gamma(prog,Lambda_1,Q1.P.H,Q2.P.H,Gamma_1)
-    # Lambda_2 H_1
-    Lambda_H_Gamma(prog,Lambda_2,Q1.P.H,HB,Gamma_2)
-    # Lambda_1 h_1
-    Lambda_h_Inequality(prog,Lambda_1,beta_1,Q2.P.H,Q1.P.h,Q2.P.h)
-    # Lambda_2 h_1
-    Lambda_h_Inequality_D(prog,Lambda_2,beta_2,HB,Q1.P.h,hB,D)
-    # X2 beta_1   
-    prog.AddLinearEqualityConstraint(-np.hstack((Q2.T,np.eye(n))),Q1.t-Q2.t,np.vstack((beta_1,beta_2)))
-    # X2 Gamma_1
-    Aeq=np.hstack((Q2.T,np.eye(Q2.T.shape[0])))
-    for i in range(Gamma_1.shape[1]):
-        beq=Q1.T[:,i]
-        var=np.hstack((Gamma_1[:,i],Gamma_2[:,i]))
-        prog.AddLinearEqualityConstraint(Aeq,beq,var)
-    # Cost
-    # Optimize
-    if solver=="gurobi":
-            prog.AddLinearCost(D[0,0])
-            result=gurobi_solver.Solve(prog,None,None)
-    elif solver=="osqp":
-        prog.AddQuadraticCost(D[0,0]*D[0,0])
-        result=OSQP_solver.Solve(prog,None,None)
-    else:
-        result=MP.Solve(prog)
-    if result.is_success():
-        return np.asscalar(result.GetSolution(D))
-
-def Hausdorff_distance(Q1,Q2,ball="infinty_norm",solver="gurobi"):
-    return max(directed_Hausdorff_distance(Q1,Q2,ball,solver),directed_Hausdorff_distance(Q2,Q1,ball,solver))
-    
-def distance_polytopes(Q1,Q2,ball="infinity",solver="gurobi"):
-    Q1,Q2=pp.to_AH_polytope(Q1),pp.to_AH_polytope(Q2)
     n=Q1.n
-    prog=MP.MathematicalProgram()
-    zeta1=prog.NewContinuousVariables(Q1.P.H.shape[1],1,"zeta1")
-    zeta2=prog.NewContinuousVariables(Q2.P.H.shape[1],1,"zeta2")
-    delta=prog.NewContinuousVariables(n,1,"delta")
-    prog.AddLinearConstraint(A=Q1.P.H,ub=Q1.P.h,lb=-np.inf*np.ones((Q1.P.h.shape[0],1)),vars=zeta1)
-    prog.AddLinearConstraint(A=Q2.P.H,ub=Q2.P.h,lb=-np.inf*np.ones((Q2.P.h.shape[0],1)),vars=zeta2)
-    prog.AddLinearEqualityConstraint( np.hstack((Q1.T,-Q2.T,np.eye(n))),Q2.t-Q1.t,np.vstack((zeta1,zeta2,delta)) )
-    if ball=="infinity":
-        delta_abs=prog.NewContinuousVariables(1,1,"delta_abs")
-        prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
-        prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),delta,dtype='object' ))
-        prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),-delta,dtype='object' ))
-        cost=delta_abs
-    elif ball=="l1":
-        delta_abs=prog.NewContinuousVariables(n,1,"delta_abs")
-        prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
-        prog.AddLinearConstraint(np.greater_equal( delta_abs,delta,dtype='object' ))
-        prog.AddLinearConstraint(np.greater_equal( delta_abs,-delta,dtype='object' ))
-        cost=np.dot(np.ones((1,n)),delta_abs)
+    D1=prog.NewContinuousVariables(1,"D1")
+    D2=prog.NewContinuousVariables(1,"D2")
+    if ball=="infinty_norm":
+        P_ball=pp.unitbox(n).H_polytope
+    elif ball in ["L1",1,"1","l1"]:
+        P_ball=pp.unitball(n,1)
     else:
-        raise NotImplementedError
+        print("I don't recognize the ball norm")
+        raise NotImplementedError    
+        
+    if P_ball.type=='H_polytope':
+        Dball1=pp.H_polytope(P_ball.H,P_ball.h*D1)
+        if not directed:
+            Dball2=pp.H_polytope(P_ball.H,P_ball.h*D2)
+            
+    if P_ball.type=='AH_polytope':
+        Dball1=pp.AH_polytope(t=P_ball.t*D1,T=P_ball.T,\
+                             P=pp.H_polytope(P_ball.P.H,P_ball.P.h*D1))
+        if not directed: 
+            Dball2=pp.AH_polytope(t=P_ball.t*D2,T=P_ball.T,\
+                     P=pp.H_polytope(P_ball.P.H,P_ball.P.h*D2))
+
+    X_plus=pp.minkowski_sum(X,Dball1)
+    pp.subset(prog,Y,X_plus)    
+    prog.AddLinearCost(np.array([1]),np.array([0]),D1)
+    if not directed:
+        Y_plus=pp.minkowski_sum(Y,Dball2)
+        pp.subset(prog,X,Y_plus)
+        prog.AddLinearCost(np.array([1]),np.array([0]),D2)
     if solver=="gurobi":
-        prog.AddLinearCost(cost[0,0])
-        result=gurobi_solver.Solve(prog,None,None)
-    elif solver=="osqp":
-        prog.AddQuadraticCost(cost[0,0]*cost[0,0])
-        result=OSQP_solver.Solve(prog,None,None)
-    else:
-        prog.AddLinearCost(cost[0,0])
-        result=MP.Solve(prog)
+        result=gurobi_solver.Solve(prog,None,None)    
     if result.is_success():
-        return np.sum(result.GetSolution(delta_abs)),\
-            np.dot(Q1.T,result.GetSolution(zeta1).reshape(zeta1.shape[0],1))+Q1.t,\
-            np.dot(Q2.T,result.GetSolution(zeta2).reshape(zeta2.shape[0],1))+Q2.t
+        dXY=np.asscalar(result.GetSolution(D1))
+        if not directed:
+            dYX=np.asscalar(result.GetSolution(D2))
+            return max(dXY,dYX),dXY,dYX
+        else:
+            return dXY
+
+#def distance_polytopes(Q1,Q2,ball="infinity",solver="gurobi"):
+#    Q1,Q2=pp.to_AH_polytope(Q1),pp.to_AH_polytope(Q2)
+#    n=Q1.n
+#    prog=MP.MathematicalProgram()
+#    zeta1=prog.NewContinuousVariables(Q1.P.H.shape[1],1,"zeta1")
+#    zeta2=prog.NewContinuousVariables(Q2.P.H.shape[1],1,"zeta2")
+#    delta=prog.NewContinuousVariables(n,1,"delta")
+#    prog.AddLinearConstraint(A=Q1.P.H,ub=Q1.P.h,lb=-np.inf*np.ones((Q1.P.h.shape[0],1)),vars=zeta1)
+#    prog.AddLinearConstraint(A=Q2.P.H,ub=Q2.P.h,lb=-np.inf*np.ones((Q2.P.h.shape[0],1)),vars=zeta2)
+#    prog.AddLinearEqualityConstraint( np.hstack((Q1.T,-Q2.T,np.eye(n))),Q2.t-Q1.t,np.vstack((zeta1,zeta2,delta)) )
+#    if ball=="infinity":
+#        delta_abs=prog.NewContinuousVariables(1,1,"delta_abs")
+#        prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
+#        prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),delta,dtype='object' ))
+#        prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),-delta,dtype='object' ))
+#        cost=delta_abs
+#    elif ball=="l1":
+#        delta_abs=prog.NewContinuousVariables(n,1,"delta_abs")
+#        prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
+#        prog.AddLinearConstraint(np.greater_equal( delta_abs,delta,dtype='object' ))
+#        prog.AddLinearConstraint(np.greater_equal( delta_abs,-delta,dtype='object' ))
+#        cost=np.dot(np.ones((1,n)),delta_abs)
+#    else:
+#        raise NotImplementedError
+#    if solver=="gurobi":
+#        prog.AddLinearCost(cost[0,0])
+#        result=gurobi_solver.Solve(prog,None,None)
+#    elif solver=="osqp":
+#        prog.AddQuadraticCost(cost[0,0]*cost[0,0])
+#        result=OSQP_solver.Solve(prog,None,None)
+#    else:
+#        prog.AddLinearCost(cost[0,0])
+#        result=MP.Solve(prog)
+#    if result.is_success():
+#        return np.sum(result.GetSolution(delta_abs)),\
+#            np.dot(Q1.T,result.GetSolution(zeta1).reshape(zeta1.shape[0],1))+Q1.t,\
+#            np.dot(Q2.T,result.GetSolution(zeta2).reshape(zeta2.shape[0],1))+Q2.t
 
 def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
     """

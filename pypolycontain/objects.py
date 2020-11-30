@@ -1,6 +1,6 @@
 # Numpy
 import numpy as np
-from itertools import combinations
+from itertools import combinations,product
 from scipy.linalg import block_diag
 
 # Pypolycontain
@@ -57,6 +57,9 @@ class H_polytope():
         Scaling polytopes by a scalar. The scalar needs to be an integer or a float.
         """
         return pp.H_polytope(self.H,self.h*scalar)
+    
+    def __type__(self):
+        return self.type
  
 class zonotope():
     r"""
@@ -88,6 +91,7 @@ class zonotope():
         self.type='zonotope'
         self.hash_value = None
         self.distance_program=None
+        self.n=self.G.shape[0]
 #        self.color="red"
 
     def __repr__(self):
@@ -207,7 +211,7 @@ class AH_polytope():
         return minkowski_sum(self,other)
     
     def __rmul__(self,scalar):
-        return AH_polytope(self.t,self.T*scalar,self.P)
+        return AH_polytope(t=self.t*scalar,T=self.T*scalar,P=self.P)
 
 
 class V_polytope():
@@ -225,6 +229,7 @@ class V_polytope():
     def __init__(self,list_of_vertices):
         self.list_of_vertices=list_of_vertices
         self.color='orange'
+        self.n=list_of_vertices[0].shape[0]
         
         
 class hyperbox():
@@ -282,6 +287,34 @@ def box(N=None,d=1,corners=[],color='cyan'):
             raise ValueError("Upper-right corner not totally ordering lower-left corner")
         h=np.vstack((u,-l))
     return H_polytope(H,h,color=color)
+
+def unitball(N,norm="infinity"):
+    """
+    Returns N-dimesional unit ball as the form of a H-polytope
+    """
+    if norm=="infinity":
+        H=np.vstack((np.eye(N),-np.eye(N)))
+        h=np.ones((2*N,1))
+        return H_polytope(H,h)
+    elif norm in ["L1",'1','l1',1]:
+        if False:
+            list_V=[]
+            for n in range(N):
+                v1=np.zeros((N,1))
+                v2=np.zeros((N,1))
+                v1[n]=1
+                v2[n]=-1
+                list_V.append(v1)
+                list_V.append(v2)
+            U=pp.V_polytope(list_V)
+            return pp.to_AH_polytope(U)
+        else:
+             H=np.array(list(product([1,-1], repeat=N)))
+             h=np.ones((2**N,1))
+             return H_polytope(H,h)
+    else:
+        print('The ', norm, " is not identified. Use Infinity or L1")
+        raise NotImplementedError
 
 #def simplex(n):
 #    """
