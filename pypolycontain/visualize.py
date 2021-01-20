@@ -33,6 +33,8 @@ def visualize(list_of_objects,fig=None,ax=None,a=0.5,alpha=0.8,tuple_of_projecti
     p_list,x_all=[],np.empty((0,2))  
     for p in list_of_objects:
         if p.n>2:
+            print('projection on ',tuple_of_projection_dimensions[0],\
+                  ' and ',tuple_of_projection_dimensions[1], 'dimensions')
             p=_projection(p,tuple_of_projection_dimensions)
         x=pp.to_V(p,N=N_points)
         mypolygon=Polygon(x)

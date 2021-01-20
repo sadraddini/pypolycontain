@@ -232,17 +232,18 @@ class V_polytope():
         self.n=list_of_vertices[0].shape[0]
         
         
-class hyperbox():
+class hyperbox(H_polytope):
     def __init__(self,N=None,corners=[],d=1):
         """
         returns N-dimensional Box 
         corners=typle of 2 numpy arrays: lower_corner and upper_corner
         """
+        
         if len(corners)==0:
             H=np.vstack((np.eye(N),-np.eye(N)))
             h=d*np.ones((2*N,1))
-            self.l=-np.ones((N,1))*d
-            self.u=-self.l
+            l=-np.ones((N,1))*d
+            u=-l
         else:
             l,u=corners[0:2]
             assert all(u>=l)
@@ -252,12 +253,16 @@ class hyperbox():
             if not all(u>=l):
                 raise ValueError("Upper-right corner not totally ordering lower-left corner")
             h=np.vstack((u,-l))
-            self.l=l
-            self.u=u
-        self.H_polytope=H_polytope(H,h,color='cyan')
+        # Define it is a H-polytope
+        self.H=H
+        self.h=h
+        self.type="H_polytope"   
+        self.l=l
+        self.u=u
         self.zonotope=zonotope(x=(self.l+self.u)/2,G=np.diagflat((self.u-self.l)/2),color='cyan')
         self.n=N
         self.color='cyan'
+        self.D=np.asscalar(np.max(u-l))
 
 class unitbox():
     r"""

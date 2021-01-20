@@ -35,7 +35,7 @@ Optimization-based Operations:
 """  
 
 
-def affine_map( T, P, t=None , get_inverse=False):
+def affine_map( T, P, t=None , get_inverse=True):
     """
     Returns the affine map of a polytope.
     """        
@@ -45,10 +45,12 @@ def affine_map( T, P, t=None , get_inverse=False):
         return pp.AH_polytope(t=t+np.dot(T,P.t),T=np.dot(T,P.T),P=P.P)
     elif P.type=='zonotope':
         return pp.zonotope(x=t+np.dot(T,P.x),G=np.dot(T,P.G))
-    elif P.type=="H_polytope" and get_inverse==False:
-        if T.shape[0]>=T.shape[1]:
+    elif P.type=="H_polytope": 
+        if T.shape[0]>=T.shape[1] and get_inverse:
             Tinv=np.linalg.pinv(T)
             H=np.dot(P.H,Tinv)
+#            print("inverse error=",np.linalg.norm(np.dot(Tinv,T)-np.eye(T.shape[1])))
+            assert np.linalg.norm(np.dot(Tinv,T)-np.eye(T.shape[1]))<=1e-2*P.n
             return pp.H_polytope(H=H,h=P.h+np.dot(H,t))
         else:
             Q=pp.to_AH_polytope(P)
@@ -214,7 +216,7 @@ def check_non_empty(Q,tol=10**-5,solver="gurobi"):
 #def old_Hausdorff_distance(Q1,Q2,directed=False,ball="infinty_norm",solver="gurobi"):
 #    return max(directed_Hausdorff_distance(Q1,Q2,ball,solver),directed_Hausdorff_distance(Q2,Q1,ball,solver))
     
-def Hausdorff_distance(Q1,Q2,directed=False,ball="infinty_norm",solver="gurobi"):
+def Hausdorff_distance(Q1,Q2,directed=False,ball="infinty_norm",solver="gurobi",k=-1):
     X,Y=pp.to_AH_polytope(Q1),pp.to_AH_polytope(Q2)
     prog=MP.MathematicalProgram()
     # Variables
@@ -242,11 +244,11 @@ def Hausdorff_distance(Q1,Q2,directed=False,ball="infinty_norm",solver="gurobi")
                      P=pp.H_polytope(P_ball.P.H,P_ball.P.h*D2))
 
     X_plus=pp.minkowski_sum(X,Dball1)
-    pp.subset(prog,Y,X_plus)    
+    pp.subset(prog,Y,X_plus,k=k)    
     prog.AddLinearCost(np.array([1]),np.array([0]),D1)
     if not directed:
         Y_plus=pp.minkowski_sum(Y,Dball2)
-        pp.subset(prog,X,Y_plus)
+        pp.subset(prog,X,Y_plus,k=k)
         prog.AddLinearCost(np.array([1]),np.array([0]),D2)
     if solver=="gurobi":
         result=gurobi_solver.Solve(prog,None,None)    
@@ -258,43 +260,47 @@ def Hausdorff_distance(Q1,Q2,directed=False,ball="infinty_norm",solver="gurobi")
         else:
             return dXY
 
-#def distance_polytopes(Q1,Q2,ball="infinity",solver="gurobi"):
-#    Q1,Q2=pp.to_AH_polytope(Q1),pp.to_AH_polytope(Q2)
-#    n=Q1.n
-#    prog=MP.MathematicalProgram()
-#    zeta1=prog.NewContinuousVariables(Q1.P.H.shape[1],1,"zeta1")
-#    zeta2=prog.NewContinuousVariables(Q2.P.H.shape[1],1,"zeta2")
-#    delta=prog.NewContinuousVariables(n,1,"delta")
-#    prog.AddLinearConstraint(A=Q1.P.H,ub=Q1.P.h,lb=-np.inf*np.ones((Q1.P.h.shape[0],1)),vars=zeta1)
-#    prog.AddLinearConstraint(A=Q2.P.H,ub=Q2.P.h,lb=-np.inf*np.ones((Q2.P.h.shape[0],1)),vars=zeta2)
-#    prog.AddLinearEqualityConstraint( np.hstack((Q1.T,-Q2.T,np.eye(n))),Q2.t-Q1.t,np.vstack((zeta1,zeta2,delta)) )
-#    if ball=="infinity":
-#        delta_abs=prog.NewContinuousVariables(1,1,"delta_abs")
-#        prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
-#        prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),delta,dtype='object' ))
-#        prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),-delta,dtype='object' ))
-#        cost=delta_abs
-#    elif ball=="l1":
-#        delta_abs=prog.NewContinuousVariables(n,1,"delta_abs")
-#        prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
-#        prog.AddLinearConstraint(np.greater_equal( delta_abs,delta,dtype='object' ))
-#        prog.AddLinearConstraint(np.greater_equal( delta_abs,-delta,dtype='object' ))
-#        cost=np.dot(np.ones((1,n)),delta_abs)
-#    else:
-#        raise NotImplementedError
-#    if solver=="gurobi":
-#        prog.AddLinearCost(cost[0,0])
-#        result=gurobi_solver.Solve(prog,None,None)
-#    elif solver=="osqp":
-#        prog.AddQuadraticCost(cost[0,0]*cost[0,0])
-#        result=OSQP_solver.Solve(prog,None,None)
-#    else:
-#        prog.AddLinearCost(cost[0,0])
-#        result=MP.Solve(prog)
-#    if result.is_success():
-#        return np.sum(result.GetSolution(delta_abs)),\
-#            np.dot(Q1.T,result.GetSolution(zeta1).reshape(zeta1.shape[0],1))+Q1.t,\
-#            np.dot(Q2.T,result.GetSolution(zeta2).reshape(zeta2.shape[0],1))+Q2.t
+def distance_polytopes(Q1,Q2,ball="infinity",solver="gurobi"):
+    """
+    Finds the closest two points in two polytopes and their distance.
+    It is zero if polytopes have non-empty intersection
+    """
+    Q1,Q2=pp.to_AH_polytope(Q1),pp.to_AH_polytope(Q2)
+    n=Q1.n
+    prog=MP.MathematicalProgram()
+    zeta1=prog.NewContinuousVariables(Q1.P.H.shape[1],1,"zeta1")
+    zeta2=prog.NewContinuousVariables(Q2.P.H.shape[1],1,"zeta2")
+    delta=prog.NewContinuousVariables(n,1,"delta")
+    prog.AddLinearConstraint(A=Q1.P.H,ub=Q1.P.h,lb=-np.inf*np.ones((Q1.P.h.shape[0],1)),vars=zeta1)
+    prog.AddLinearConstraint(A=Q2.P.H,ub=Q2.P.h,lb=-np.inf*np.ones((Q2.P.h.shape[0],1)),vars=zeta2)
+    prog.AddLinearEqualityConstraint( np.hstack((Q1.T,-Q2.T,np.eye(n))),Q2.t-Q1.t,np.vstack((zeta1,zeta2,delta)) )
+    if ball=="infinity":
+        delta_abs=prog.NewContinuousVariables(1,1,"delta_abs")
+        prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
+        prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),delta,dtype='object' ))
+        prog.AddLinearConstraint(np.greater_equal( np.dot(np.ones((n,1)),delta_abs),-delta,dtype='object' ))
+        cost=delta_abs
+    elif ball=="l1":
+        delta_abs=prog.NewContinuousVariables(n,1,"delta_abs")
+        prog.AddBoundingBoxConstraint(0,np.inf,delta_abs)
+        prog.AddLinearConstraint(np.greater_equal( delta_abs,delta,dtype='object' ))
+        prog.AddLinearConstraint(np.greater_equal( delta_abs,-delta,dtype='object' ))
+        cost=np.dot(np.ones((1,n)),delta_abs)
+    else:
+        raise NotImplementedError
+    if solver=="gurobi":
+        prog.AddLinearCost(cost[0,0])
+        result=gurobi_solver.Solve(prog,None,None)
+    elif solver=="osqp":
+        prog.AddQuadraticCost(cost[0,0]*cost[0,0])
+        result=OSQP_solver.Solve(prog,None,None)
+    else:
+        prog.AddLinearCost(cost[0,0])
+        result=MP.Solve(prog)
+    if result.is_success():
+        return np.sum(result.GetSolution(delta_abs)),\
+            np.dot(Q1.T,result.GetSolution(zeta1).reshape(zeta1.shape[0],1))+Q1.t,\
+            np.dot(Q2.T,result.GetSolution(zeta2).reshape(zeta2.shape[0],1))+Q2.t
 
 def _setup_program_distance_point(P,ball="infinity",solver="Gurobi"):
     """
@@ -404,6 +410,7 @@ def bounding_box(Q,solver="Gurobi"):
     a=np.zeros((Q.n,1))
     # Lower Corners
     for i in range(Q.n):
+#        print(i,"lower")
         e=c.evaluator()
         a[i,0]=1
         e.UpdateCoefficients(a.reshape(Q.n))
@@ -413,6 +420,7 @@ def bounding_box(Q,solver="Gurobi"):
         a[i,0]=0
     # Upper Corners
     for i in range(Q.n):
+#        print(i,"upper")
         e=c.evaluator()
         a[i,0]=-1
         e.UpdateCoefficients(a.reshape(Q.n))
@@ -600,10 +608,22 @@ def intersection(P1,P2):
         h=np.vstack((X.P.h,Y.P.h-np.linalg.multi_dot([Y.P.H,Ty_inv,X.t-Y.t])))
         new_P=pp.H_polytope(H,h)
         return pp.AH_polytope(T=T,t=X.t,P=new_P)
+    
+
 
     
 """
+*************************************************************
+*************************************************************
+*************************************************************
+*************************************************************
+
 Pydrake Mathematical Program Helper: Matrix based Constraints
+
+*************************************************************
+*************************************************************
+*************************************************************
+
 """
 def AddMatrixInequalityConstraint_classical(mathematical_program,A,X,B):
     raise NotImplementedError    
@@ -705,12 +725,12 @@ def boxing_order_reduction(zonotope,desired_order=1):
     
     elif dimension == desired_numberofcolumns:
         G_box = np.diag(np.sum(abs( G ) ,axis=1 ))
-        return pp.zonotope( G_box , x)  
+        return pp.zonotope( G=G_box , x=x)  
     
     else:
         G_reduced , G_untouched = sorting_generator( G , desired_numberofcolumns )
         G_box = np.concatenate(  ( np.diag(np.sum(abs( G_reduced ) ,axis=1 )) , G_untouched   ), axis=1  )
-        return pp.zonotope( G_box , x)  
+        return pp.zonotope( G=G_box , x=x)  
 
 
 def pca_order_reduction(zonotope,desired_order=1):

@@ -29,7 +29,7 @@ except:
 try:
     import pydrake.solvers.mathematicalprogram as MP
     import pydrake.solvers.gurobi as Gurobi_drake
-    import pydrake.solvers.osqp as OSQP_drake
+    # import pydrake.solvers.osqp as OSQP_drake
     # use Gurobi solver
     global gurobi_solver,OSQP_solver, license
     gurobi_solver=Gurobi_drake.GurobiSolver()
@@ -55,7 +55,7 @@ def theta_k(circumbody,k=0,i=0):
     Inputs:
     
         * AH-polytope: ``circumbody``
-        * int ``N``: the number of columns added to the subspace of ``U``. 
+        * int ``k``: the number of columns added to the subspace of ``U``. 
         For more information, look at the paper.
         *Default* is 0.
     
@@ -80,13 +80,17 @@ def theta_k(circumbody,k=0,i=0):
     S_complement=spa.null_space(S.T)   
     circumbody.dim_complement=S_complement.shape[1]
     number_of_columns=min(k,S_complement.shape[1])
-    psi=np.hstack((S,S_complement[:,i:number_of_columns+i]))
+    if k==0:
+        psi=S
+    else:
+        psi=np.hstack((S,S_complement[:,i:number_of_columns+i]))
     p_mat=Matrix(np.hstack((np.zeros((psi.shape[0],1)),psi)))
     p_mat.rep_type = RepType.INEQUALITY
     poly=Polyhedron(p_mat)
     R=np.array(poly.get_generators())
     r=R[:,1:].T
     Theta=np.dot(psi,r)
+    assert np.all(Theta>-1e-5)
     return Theta
 
 
@@ -125,8 +129,9 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None,verbose=Fals
         * inbody: a polytopic object
         * circumbody: a polytopic object
         * N: 
-            * **Default**: :math:`-1``. Sufficient as in [Sadraddini and Tedrake, 2020]
-            * pick `0` for necessary and sufficient encoding (may be too slow) (2019b)
+            * **Default**: :math:`-1``. Sufficient as in [Sadraddini and Tedrake, 2019]
+            * pick `0` for necessary and sufficient encoding (may be too slow) 
+            as in [Sadraddini and Tedrake, 2019]
             * pick any positive number. As the number is smaller, 
             the condition becomes closer to necessity. However, this may be too slow.
     
@@ -147,8 +152,15 @@ def subset(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None,verbose=Fals
             print("Using Positive Orthant")
     else:
         if verbose:
+            print("*"*20)
+            print("\n")
             print("Computing theta with k=%d"%k)
         Theta=theta_k(circumbody,k,i)
+        if verbose:
+            print("The maximum for k can be ",circumbody.dim_complement)
+            print("Theta Size is=",Theta.shape)
+            print("*"*20)
+            print("\n")
     Lambda=program.NewContinuousVariables(Theta.shape[1],qx,'Lambda')
     Gamma=program.NewContinuousVariables(ny,nx,'Gamma')
     gamma=program.NewContinuousVariables(ny,1,'gamma')

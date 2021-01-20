@@ -45,7 +45,7 @@ def to_AH_polytope(P):
     """
     if type(P).__name__=="AH_polytope":
         return pp.AH_polytope(T=P.T,t=P.t,P=pp.H_polytope(P.P.H,P.P.h))
-    elif type(P).__name__=="H_polytope":
+    elif type(P).__name__=="H_polytope" or type(P).__name__=="hyperbox":
         n=P.H.shape[1]
         return pp.AH_polytope(T=np.eye(n),t=np.zeros((n,1)),P=pp.H_polytope(P.H,P.h))
     elif type(P).__name__=="zonotope":

@@ -18,3 +18,4 @@ from .operations import *
 from .conversions import *
 from .visualize import visualize
 from .containment import *
+from .projection import *
