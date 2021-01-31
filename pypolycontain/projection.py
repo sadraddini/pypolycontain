@@ -162,7 +162,7 @@ def _check_if_new_hyperplane_is_redundant(P,new_H,new_h,tol=1e-2):
     else:
         return False
     
-def inner_optimization(Q,X=None,N=100,k=-1,approach="alternate",iterations=5):
+def inner_optimization(Q,X=None,N=100,k=-1,method="alternate",iterations=5,tol=1e-2):
     """
     Q= AH_polytope
     X= H_polytope Candidate
@@ -171,7 +171,7 @@ def inner_optimization(Q,X=None,N=100,k=-1,approach="alternate",iterations=5):
     assert Q.type=='AH_polytope' or Q.type=='V_polytope'
     Q=pp.to_AH_polytope(Q)
     if type(X)==type(None):
-        X=ray_shooting_hyperplanes(Q,N=N)
+        X=ray_shooting_hyperplanes(Q,N=N,tol=tol)
     else:
         assert X.type=='H_polytope'
     # Program
@@ -183,10 +183,10 @@ def inner_optimization(Q,X=None,N=100,k=-1,approach="alternate",iterations=5):
 #    prog.AddPositiveSemidefiniteConstraint(T)
     Y=pp.AH_polytope(T=T,t=t,P=X) 
     pp.subset(prog,Y,Q,k=k,verbose=True)
-    if approach=="SDP":
+    if method=="SDP":
         prog.AddMaximizeLogDeterminantSymmetricMatrixCost(T)
         result=scs_solver.Solve(prog,None,None)
-    elif approach=="alternate":
+    elif method=="alternate":
         result=volume_maximization(prog, T,np.eye(n) ,iterations)
     if result.is_success():
         print("success")
@@ -266,7 +266,7 @@ def inner_optimization_new(Q,X=None,N=100,k=-1):
     else:
         print("not succesfull")         
    
-def volume_maximization(program,G,G_0,iterations=5):
+def volume_maximization(program,G,G_0,iterations=5,tol=0.01):
     x=G.reshape(-1)
     print("*"*20,"\n")
     print("\t\t\t Alternating Convex Program for Determinent Maximization")
@@ -274,15 +274,23 @@ def volume_maximization(program,G,G_0,iterations=5):
     G_grad=_volume_gradient(G_0).reshape(-1)
     cost=program.AddLinearCost( -G_grad, np.array([0]), x )
     result=gurobi_solver.Solve(program,None,None)
+    det=np.linalg.det(G_0)
     for i in range(iterations):
         if result.is_success():
             print(i,"det=",np.linalg.det(G_0))
             G_0=result.GetSolution(G)
-            # print(G_0)
-            new_a=_volume_gradient(G_0).reshape(-1)
-            cost.evaluator().UpdateCoefficients( -new_a, np.array([0]))
-            result=gurobi_solver.Solve(program,None,None)
-    return result
+            r=np.linalg.det(G_0)/det
+            if r<1+tol and r>1-tol:
+                print('converged')
+                return result
+            else:
+                det=np.linalg.det(G_0)
+                # print(G_0)
+                new_a=_volume_gradient(G_0).reshape(-1)
+                cost.evaluator().UpdateCoefficients( -new_a, np.array([0]))
+                result=gurobi_solver.Solve(program,None,None)
+    print('Error of convergence')
+    return 
         
 
 def _volume_gradient(G):

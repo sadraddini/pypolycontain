@@ -280,6 +280,56 @@ def subset_kasra(program,inbody,circumbody,k=-1,Theta=None,i=0,alpha=None,verbos
           np.dot(Theta.T,hy)+np.dot(Theta.T,np.dot(Hy,gamma)),dtype='object').flatten())
     return Theta,Lambda,Gamma,gamma
 
+
+
+def add_disjunctive_subsets(program,inbody,list_of_circumbodies):
+    """
+    Parameters
+    ----------
+    program : add constraints to the program
+        DESCRIPTION.
+    inbody : polytopic object
+        the inbody.
+    list_of_circumbodies : list
+        the list of circumbodies.
+
+    Returns
+    -------
+    mu : dict 
+        dict of binary auxilary variables
+        dict[hash(polytope)]=BINARYVARIABLE (drake mathematical program)
+
+    """
+    mu,T,t={},{},{}
+    print("disjunctive subset with %d circumbodies"%len(list_of_circumbodies))
+    assert type(list_of_circumbodies)==list
+    my_inbody=pp.to_AH_polytope(inbody)
+    sigma_T=my_inbody.T
+    sigma_t=my_inbody.t
+    for circumbody in list_of_circumbodies:
+        i=hash(circumbody)
+        T[i]=program.NewContinuousVariables(my_inbody.T.shape[0],my_inbody.T.shape[1])
+        t[i]=program.NewContinuousVariables(my_inbody.t.shape[0],1)
+        mu[i]=program.NewBinaryVariables(1,1,'dmu')
+        _inbody=pp.AH_polytope( t=t[i] ,T=T[i], P=my_inbody.P )
+        _circumbody=pp.to_AH_polytope(circumbody)
+        _circumbody.P.h=_circumbody.P.h*mu[i]
+        _circumbody.t=_circumbody.t*mu[i]
+        pp.subset(program, _inbody, _circumbody)
+        sigma_T=sigma_T-T[i]
+        sigma_t=sigma_t-t[i]
+        
+    # print(sigma_T.shape,sigma_t.shape)  
+    _mu=np.vstack([mu[hash(circumbody)] for  circumbody in list_of_circumbodies])
+    program.AddLinearEqualityConstraint(\
+        np.ones((1,len(list_of_circumbodies))),np.ones((1,1)),_mu)
+        
+    program.AddLinearConstraint(np.equal(sigma_T,np.zeros(sigma_T.shape),dtype='object').flatten())
+    program.AddLinearConstraint(np.equal(sigma_t,np.zeros(sigma_t.shape),dtype='object').flatten())
+    return mu,t,T
+
+
+
 def necessity_gap(X,Y,Theta):
     """
     The necessity gap for the encoding using cone defined by Theta
@@ -365,3 +415,4 @@ def alpha(X,Y,Theta):
         return 1/result.GetSolution(alpha)[0]
     else:
         print("not a subset") 
+        

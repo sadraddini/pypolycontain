@@ -41,6 +41,7 @@ class H_polytope():
         self.distance_program=None
         self.color=color
 
+
     def __repr__(self):
         return ("H_polytope in R^%d"%self.n)
 
