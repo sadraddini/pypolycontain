@@ -6,7 +6,7 @@ setup(
     author='Sadra Sadraddini',
     description='A python package for polytopic objects, operations, and containment encodings',
     author_email='sadra@mit.edu',
-    version='1.3',
+    version='1.4',
     packages=['pypolycontain'], #fix
     long_description='A python package for polytopic objects, operations, and containment encodings' 
     +'\nPlease refer to https://pypolycontain.readthedocs.io/en/latest/ for documentation' ,
