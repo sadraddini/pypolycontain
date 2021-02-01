@@ -35,3 +35,5 @@ pypolycontain\.egg-info/
 doc/source/\.ipynb_checkpoints/
 
 dist/pypolycontain-0\.2\.tar\.gz
+
+*.swp
