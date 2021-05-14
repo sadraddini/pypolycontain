@@ -325,10 +325,11 @@ def zonotope_subset(program,inbody,circumbody,alpha=None,solver='drake'):
         elif alpha == 'scalar':
             Alpha = program.addVar(lb=-GRB.INFINITY,ub=GRB.INFINITY)
             program.addConstrs(    sum( [ Gamma_abs[i,j] for j in range(inbody.G.shape[1]) ]) + Lambda_abs[i]  <= Alpha   for i in range(circumbody.G.shape[1]) )
-        elif alpha == 'vector':
-            Alpha = [program.addVar(lb=-GRB.INFINITY,ub=GRB.INFINITY) for i in range(circumbody.G.shape[1])]
-            program.addConstrs(    sum( [ Gamma_abs[i,j] for j in range(inbody.G.shape[1]) ]) + Lambda_abs[i]  <=  Alpha[i]   for i in range(circumbody.G.shape[1]) )
+            return Lambda , Gamma , Alpha
+        # alpha == 'vector':
+        Alpha = [program.addVar(lb= 0 ,ub=GRB.INFINITY) for i in range(circumbody.G.shape[1])]
+        program.addConstrs(    sum( [ Gamma_abs[i,j] for j in range(inbody.G.shape[1]) ]) + Lambda_abs[i]  <=  Alpha[i]   for i in range(circumbody.G.shape[1]) )
         
         program.update()
-        
         return Lambda , Gamma , Alpha
+        
