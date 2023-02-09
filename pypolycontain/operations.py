@@ -525,7 +525,7 @@ def convex_hull_of_point_and_polytope(x, Q):
     new_h=np.zeros((Q.P.h.shape[0]+2,1))
     new_h[Q.P.h.shape[0],0],new_h[Q.P.h.shape[0]+1,0]=1,0
     new_P=pp.H_polytope(new_H,new_h)
-    return pp.AH_polytope(new_T,new_t,new_P)
+    return pp.AH_polytope(t=new_t,T=new_T,P=new_P)
     
 
 def minkowski_sum(P1,P2):
